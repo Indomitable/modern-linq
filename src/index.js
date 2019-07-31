@@ -9,4 +9,4 @@ applyMixin(SelectJsIterable, selectJsMixin);
 applyMixin(WhereIterable, selectJsMixin);
 applyMixin(SelectManyIterable, selectJsMixin);
 
-export { toSelectIterable as toSelect } from './creation';
+export { fromIterable, fromObject } from './creation';
