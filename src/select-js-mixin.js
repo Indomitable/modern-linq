@@ -13,5 +13,13 @@ export const selectJsMixin = {
 
     selectMany(map) {
         return new SelectManyIterable(this, map);
+    },
+
+    ofType(type) {
+        if (typeof type === 'string') {
+            return new WhereIterable(this, function (item) { return typeof item === type; } );
+        } else {
+            return new WhereIterable(this, function (item) { return item instanceof type; } );
+        }
     }
 }
