@@ -1,0 +1,2 @@
+# selectjs
+Linq for JavaScript
