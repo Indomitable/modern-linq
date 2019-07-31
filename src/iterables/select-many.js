@@ -19,43 +19,46 @@ export class SelectManyIterable {
         let subIterator = null;
 		return {
 			next() {
-                const item = getNextItem(iterator, extract, subIterator, isSubDone);
+                const item = SelectManyIterable.getNextItem(iterator, extract, subIterator, isSubDone);
                 isSubDone = item.sdone;
                 subIterator = item.sIterator;
                 return item.value;
 			}
 		};
     }
-}
 
-
-function getSecondaryIterator(mainIterator, extract) {
-    const mainItem = mainIterator.next();
-    if (mainItem.done) {
-        return {
-            final: true
-        };
-    }
-    const secondaryIterator = extract(mainItem.value)[Symbol.iterator]();
-    const secondaryItem = secondaryIterator.next();
-    if (secondaryItem.done) {
-        return getSecondaryIterator(mainIterator, extract);
-    }
-    return { iterator: secondaryIterator, first: secondaryItem.value, final: false };
-}
-
-function getNextItem(mainIterator, extract, subIterator, isSubDone) {
-    if (isSubDone) {
-        const { iterator, first, final } = getSecondaryIterator(mainIterator, extract);
-        if (final) {
-            return { value: { done: true } };
+    static getSecondaryIterator(mainIterator, extract) {
+        const mainItem = mainIterator.next();
+        if (mainItem.done) {
+            return {
+                final: true
+            };
         }
-        return { value: { done: false, value: first }, sIterator: iterator, sdone: false };
-    } else {
-        const snext = subIterator.next();
-        if (snext.done) {
-            return getNextItem(mainIterator, extract, null, true);
+        const secondaryIterator = extract(mainItem.value)[Symbol.iterator]();
+        const secondaryItem = secondaryIterator.next();
+        if (secondaryItem.done) {
+            return SelectManyIterable.getSecondaryIterator(mainIterator, extract);
         }
-        return { value: { done: false, value: snext.value }, sIterator: subIterator, sdone: false }; 
+        return { iterator: secondaryIterator, first: secondaryItem.value, final: false };
     }
+    
+    static getNextItem(mainIterator, extract, subIterator, isSubDone) {
+        if (isSubDone) {
+            const { iterator, first, final } = SelectManyIterable.getSecondaryIterator(mainIterator, extract);
+            if (final) {
+                return { value: { done: true } };
+            }
+            return { value: { done: false, value: first }, sIterator: iterator, sdone: false };
+        } else {
+            const snext = subIterator.next();
+            if (snext.done) {
+                return SelectManyIterable.getNextItem(mainIterator, extract, null, true);
+            }
+            return { value: { done: false, value: snext.value }, sIterator: subIterator, sdone: false }; 
+        }
+    }
+
 }
+
+
+

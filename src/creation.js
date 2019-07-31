@@ -13,8 +13,5 @@ export function fromIterable(source) {
 }
 
 export function fromObject(obj) {
-    if (Object.isObject(obj)) {
-        return new SelectJsIterable(Object.entries(obj));
-    }
-    throw new Error('Invalid object');
+    return new SelectJsIterable(Object.entries(obj));
 }
