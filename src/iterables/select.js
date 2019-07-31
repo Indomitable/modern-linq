@@ -1,3 +1,6 @@
+/**
+ * Return mapped array [1, 2, 3].select(x => x * 2) === [2, 4, 6]
+ */
 export class SelectIterable {
 	/**
 	 * 
@@ -14,18 +17,16 @@ export class SelectIterable {
 		const map = this.map;
 		return {
 			next() {
-			    while(true) {
-					const { done, value } = iterator.next();
-					if (done) {
-						return {
-							done: true
-						};
-					}
-                    return {
-                        done: false,
-                        value: map(value)
-                    };
+				const { done, value } = iterator.next();
+				if (done) {
+					return {
+						done: true
+					};
 				}
+				return {
+					done: false,
+					value: map(value)
+				};
 			}
 		};
     }

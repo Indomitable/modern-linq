@@ -1,3 +1,6 @@
+/**
+ * Return filtred array [1, 2, 3, 4].where(x => x % 2 === 0) === [2, 4]
+ */
 export class WhereIterable {
 	/**
 	 * 
