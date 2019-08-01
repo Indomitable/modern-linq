@@ -8,10 +8,12 @@ import { SkipIterable } from "./iterables/skip";
 import { AllFinalizer } from "./finalizers/all";
 import { AnyFinalizer } from "./finalizers/any";
 import { DistinctIterable } from "./iterables/distinct";
+import { GroupIterable } from "./iterables/group";
+import { CountFinalizer } from "./finalizers/count";
 
 export const linqMixin = {
     where(predicate) {
-        const source = this.isResulted ? this.result : this;        
+        const source = this.isResulted ? this.result : this;
         return new WhereIterable(source, predicate);
     },
     select(map) {
@@ -33,13 +35,27 @@ export const linqMixin = {
     },
     ofType(type) {
         if (typeof type === 'string') {
-            return new WhereIterable(this, function (item) { return typeof item === type; } );
+            return new WhereIterable(this, function (item) { return typeof item === type; });
         } else {
-            return new WhereIterable(this, function (item) { return item instanceof type; } );
+            return new WhereIterable(this, function (item) { return item instanceof type; });
         }
+    },
+    groupBy(keySelector, elementSelector, resultCreator) {
+        return new GroupIterable(this, keySelector, elementSelector, resultCreator);
     },
     toArray() {
         return this.isResulted ? this.result : Array.from(this);
+    },
+    toMap(keySelector, valueSelector) {
+        const transformValue = typeof valueSelector === 'undefined';
+        return new Map(this.select(_ => [
+                keySelector(_), 
+                transformValue ? _ : valueSelector(_)
+            ])
+        );
+    },
+    toSet() {
+        return new Set(this);
     },
     first() {
         return FirstFinalizer.get(this);
@@ -65,4 +81,7 @@ export const linqMixin = {
     any(predicate) {
         return AnyFinalizer.get(this, predicate)
     },
+    count(predicate) {
+        return CountFinalizer.get(this, predicate);
+    }
 }

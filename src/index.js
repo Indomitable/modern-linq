@@ -8,6 +8,7 @@ import { TakeIterable } from './iterables/take';
 import { SkipIterable } from './iterables/skip';
 import { RangeIterable } from './generators/range';
 import { DistinctIterable } from './iterables/distinct';
+import { GroupIterable, Grouping } from './iterables/group';
 
 applyMixin(LinqIterable, linqMixin);
 applyMixin(WhereIterable, linqMixin);
@@ -17,5 +18,7 @@ applyMixin(TakeIterable, linqMixin);
 applyMixin(SkipIterable, linqMixin);
 applyMixin(RangeIterable, linqMixin);
 applyMixin(DistinctIterable, linqMixin);
+applyMixin(Grouping, linqMixin);
+applyMixin(GroupIterable, linqMixin);
 
 export { fromIterable, fromObject, range } from './creation';

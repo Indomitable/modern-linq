@@ -477,7 +477,7 @@ class DistinctItemChecker {
 
 const linqMixin = {
     where(predicate) {
-        const source = this.isResulted ? this.result : this;        
+        const source = this.isResulted ? this.result : this;
         return new WhereIterable(source, predicate);
     },
     select(map) {
@@ -499,13 +499,24 @@ const linqMixin = {
     },
     ofType(type) {
         if (typeof type === 'string') {
-            return new WhereIterable(this, function (item) { return typeof item === type; } );
+            return new WhereIterable(this, function (item) { return typeof item === type; });
         } else {
-            return new WhereIterable(this, function (item) { return item instanceof type; } );
+            return new WhereIterable(this, function (item) { return item instanceof type; });
         }
     },
     toArray() {
         return this.isResulted ? this.result : Array.from(this);
+    },
+    toMap(keySelector, valueSelector) {
+        const transformValue = typeof valueSelector === 'undefined';
+        return new Map(this.select(_ => [
+                keySelector(_), 
+                transformValue ? _ : valueSelector(_)
+            ])
+        );
+    },
+    toSet() {
+        return new Set(this);
     },
     first() {
         return FirstFinalizer.get(this);

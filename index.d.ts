@@ -72,9 +72,52 @@ declare module 'modern-linq' {
         ofType<TOutput extends TValue>(type: { prototype: TOutput }): LinqIterable<TOutput>;
 
         /**
+         * Group a list by key
+         * @param keySelector function which extract the key from collection item
+         */
+        groupBy<TKey>(keySelector: (item: TValue) => TKey): IGrouping<TKey, TValue>;
+
+        /**
+         * Group a list by key
+         * @param keySelector function which extract the key from collection item
+         * @param elementSelector function which extract the element
+         */
+        groupBy<TKey, TElement>(keySelector: (item: TValue) => TKey, elementSelector: (item: TValue) => TElement): IGrouping<TKey, TElement>;
+
+        /**
+         * Group a list by key
+         * @param keySelector 
+         * @param resultCreator 
+         */
+        groupBy<TKey, TResult>(keySelector: (item: TValue) => TKey, resultCreator: (key: TKey, elements: LinqIterable<TValue>) => TResult): LinqIterable<TResult>;
+
+        /**
+         * Group a list by key
+         * @param keySelector 
+         * @param elementSelector 
+         * @param resultCreator 
+         */
+        groupBy<TKey, TElement, TResult>(keySelector: (item: TValue) => TKey, elementSelector: (item: TValue) => TElement, resultCreator: (key: TKey, elements: LinqIterable<TElement>) => TResult): LinqIterable<TResult>;
+        
+        /**
          * Creates an array from iterable
          */
         toArray(): TValue[];
+
+        /**
+         * Creates a map from iterable
+         */
+        toMap<TKey>(keySelector: (item: TValue) => TKey): Map<TKey, TValue>;
+
+        /**
+         * Creates a map from iterable
+         */
+        toMap<TKey, TElement>(keySelector: (item: TValue) => TKey, valueSelector: (item: TValue) => TElement): Map<TKey, TElement>;
+
+        /**
+         * Creates a set from iterable
+         */
+        toSet(): Set<TValue>;        
 
         /**
          * Get first item of iterable
@@ -118,6 +161,16 @@ declare module 'modern-linq' {
          * @param predicate 
          */
         any(predicate: (item: TValue) => boolean): boolean;
+
+        /**
+         * Return number of items the sequence contains. 
+         * @param predicate if specified, returns the count only on elements that satisfy it.
+         */
+        count(predicate?: (item: TValue) => boolean): number;
+    }
+
+    export interface IGrouping<TKey, TValue> extends LinqIterable<TValue> {
+        key: TKey;
     }
 
     /**
