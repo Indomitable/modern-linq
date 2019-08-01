@@ -3,6 +3,8 @@ import { SelectIterable } from "./iterables/select";
 import { SelectManyIterable } from "./iterables/select-many";
 import { FirstFinalizer } from "./finalizers/first";
 import { SingleFinalizer } from "./finalizers/single";
+import { TakeIterable } from "./iterables/take";
+import { SkipIterable } from "./iterables/skip";
 
 export const selectJsMixin = {
     where(predicate) {
@@ -13,6 +15,12 @@ export const selectJsMixin = {
     },
     selectMany(map) {
         return new SelectManyIterable(this, map);
+    },
+    take(count) {
+        return new TakeIterable(this, count);
+    },
+    skip(count) {
+        return new SkipIterable(this, count);
     },
     ofType(type) {
         if (typeof type === 'string') {
