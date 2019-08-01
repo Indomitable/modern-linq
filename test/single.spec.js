@@ -9,12 +9,12 @@ describe('single finalizer', () => {
 
     it('should throw exception if no values', () => {
         const val = function () { return  fromIterable([1, 2, 3, 4, 5]).where(_ => _ === 9).single(); };
-        expect(val).to.throw(Error, 'Sequence does not contain single item');
+        expect(val).to.throw(RangeError, 'Sequence does not contain single item');
     });
 
     it('should throw exception if multiple values', () => {
         const val = function () { return  fromIterable([1, 2, 3, 4, 5]).where(_ => _ === 1 || _ === 2).single(); };
-        expect(val).to.throw(Error, 'Sequence does not contain single item');
+        expect(val).to.throw(RangeError, 'Sequence does not contain single item');
     });
 
     it('should singleOrDefault return first value', () => {
@@ -29,7 +29,7 @@ describe('single finalizer', () => {
 
     it('should singleOrDefault throw if multiple values ', () => {
         const val = function () { return fromIterable([1, 2, 3, 4, 5]).where(_ => _ > 2).singleOrDefault(9); };
-        expect(val).to.throw(Error, 'Sequence contains multiple items');
+        expect(val).to.throw(RangeError, 'Sequence contains multiple items');
     });
 
 });

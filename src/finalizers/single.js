@@ -3,7 +3,7 @@ export class SingleFinalizer {
         const iterator = iterable[Symbol.iterator]();
         const { value, done } = iterator.next();
         if (done || !iterator.next().done ) {
-            throw new Error('Sequence does not contain single item');
+            throw new RangeError('Sequence does not contain single item');
         }
         return value;
     }
@@ -12,7 +12,7 @@ export class SingleFinalizer {
         const iterator = iterable[Symbol.iterator]();
         const { value, done } = iterator.next();
         if (!iterator.next().done) {
-            throw new Error('Sequence contains multiple items');
+            throw new RangeError('Sequence contains multiple items');
         }
         return done ? def : value;
     }
