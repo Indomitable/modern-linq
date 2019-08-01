@@ -1,21 +1,108 @@
 declare module 'selectjs' {
     export interface SelectJsIterable<TValue> extends Iterable<TValue> {
-        where(predicate: (item: TValue) => TValue): SelectJsIterable<TValue>;
+        /**
+         * Filters the iterable using predicate function
+         * @param predicate
+         */
+        where(predicate: (item: TValue) => boolean): SelectJsIterable<TValue>;
+        /**
+         * Maps the iterable items 
+         * @param map map function
+         */
         select<TOutput>(map: (item: TValue) => TOutput): SelectJsIterable<TOutput>;
+        /**
+         * Flat Iterable of collections 
+         * @param map Function which returns a collection
+         */
         selectMany<TOutput>(map: (item: TValue) => TOutput[]): SelectJsIterable<TOutput>;
+        /**
+         * Take first N items from iterable
+         * @param count 
+         */
         take(count: number): SelectJsIterable<TValue>;
+        /**
+         * Skip first N items from iterable
+         * @param count 
+         */
         skip(count: number): SelectJsIterable<TValue>;
-        ofType(type: string): SelectJsIterable<TValue>;
-        ofType<TOutput extends TValue>(type: typeof TOutput): SelectJsIterable<TOutput>;
+        /**
+         * Selects all items of type string
+         * @param type 
+         */
+        ofType(type: 'string'): SelectJsIterable<string>;
+        /**
+         * Selects all items of type number
+         * @param type 
+         */
+        ofType(type: 'number'): SelectJsIterable<number>;
+        /**
+         * Selects all items of type boolean
+         * @param type 
+         */
+        ofType(type: 'boolean'): SelectJsIterable<boolean>;
+        /**
+         * Selects all items of type undefined
+         * @param type 
+         */
+        ofType(type: 'undefined'): SelectJsIterable<undefined>;
+        /**
+         * Selects all items of type function
+         * @param type 
+         */
+        ofType(type: 'function'): SelectJsIterable<Function>;
+        /**
+         * Selects all items of type object
+         * @param type 
+         */
+        ofType(type: 'object'): SelectJsIterable<object>;
+        /**
+         * Selects all items of base type 
+         * @param type 
+         */
+        ofType<TOutput extends TValue>(type: { prototype: TOutput }): SelectJsIterable<TOutput>;
 
+        /**
+         * Creates an array from iterable
+         */
         toArray(): TValue[];
+
+        /**
+         * Get first item of iterable
+         */
         first(): TValue | undefined;
+        /**
+         * Get first item of iterable, if does not contain any return default 
+         * @param def 
+         */
         firstOrDefault(def: TValue): TValue;
-        single(): TValue;
-        singleOrDefault(def: TValue): TValue;
+        /**
+         * Checks if iterable has only one item and returns it. 
+         * If the iterable does not contain items or has multiple throws RangeError
+         */
+        single(): TValue | never;
+        /**
+         * Checks if iterable has only one item and returns it. 
+         * If the iterable does not contain items return default value.
+         * If contains multiple throws RangeError
+         */
+        singleOrDefault(def: TValue): TValue | never;
     }
 
-    export function fromIterable<TValue>(iterable: Iterable): SelectJsIterable<TValue>;
-    export function fromObject<TValue extends {}>(value: TValue): SelectJsIterable<['string', object][]>;
+    /**
+     * Creates a select js iterable from iterable (arrays, map, set ...)
+     * @param iterable 
+     */
+    export function fromIterable<TValue>(iterable: Iterable<TValue>): SelectJsIterable<TValue>;
+    /**
+     * Creates a select js iterable from an object (using Object.entries())
+     * @param value 
+     */
+    export function fromObject<TValue extends {}>(value: TValue): SelectJsIterable<['string', object]>;
+    /**
+     * Creates a select js iterable containig a [from, to) range of numbers
+     * if from is less than to return ascending range
+     * if from is greater that to return descending range
+     * if from === to returns empty iterable
+     */
     export function range(from: number, to: number): SelectJsIterable<number>;
 }

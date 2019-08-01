@@ -12,7 +12,7 @@ export class RangeIterable {
         this.to = to;
     }
     
-    __increaseRange() {
+    __ascendingRange() {
         const to = this.to;
         let current = this.from;
 		return {
@@ -26,7 +26,7 @@ export class RangeIterable {
 		};
     }
 
-    __decreaseRange() {
+    __descendingRange() {
         const to = this.to;
         let current = this.from;
 		return {
@@ -42,10 +42,10 @@ export class RangeIterable {
 
 	[Symbol.iterator]() {
         if (this.from < this.to) {
-            return this.__increaseRange();
+            return this.__ascendingRange();
         }
         if (this.from > this.to) {
-            return this.__decreaseRange();
+            return this.__descendingRange();
         }
         return { next() { return { done: true } } };        
     }
