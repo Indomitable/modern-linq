@@ -7,6 +7,7 @@ import { SelectManyIterable } from './iterables/select-many';
 import { TakeIterable } from './iterables/take';
 import { SkipIterable } from './iterables/skip';
 import { RangeIterable } from './generators/range';
+import { DistinctIterable } from './iterables/distinct';
 
 applyMixin(LinqIterable, linqMixin);
 applyMixin(WhereIterable, linqMixin);
@@ -15,5 +16,6 @@ applyMixin(SelectManyIterable, linqMixin);
 applyMixin(TakeIterable, linqMixin);
 applyMixin(SkipIterable, linqMixin);
 applyMixin(RangeIterable, linqMixin);
+applyMixin(DistinctIterable, linqMixin);
 
 export { fromIterable, fromObject, range } from './creation';

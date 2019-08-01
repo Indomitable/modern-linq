@@ -237,6 +237,15 @@ class FirstFinalizer {
         const { value, done } = iterator.next();
         return done ? def : value;
     }
+
+    static getOrThrow (iterable, def) {
+        const iterator = iterable[Symbol.iterator]();
+        const { value, done } = iterator.next();
+        if (done) {
+            throw new RangeError('Sequence contains no items');
+        }
+        return value;
+    }
 }
 
 class SingleFinalizer {
@@ -329,6 +338,93 @@ class SkipIterable {
     }
 }
 
+class AllFinalizer {
+    static get(source, predicate) {
+        for (const item of source) {
+            if (!predicate(item)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static getAllAndEvery(source, predicate) {
+        let hasItems = false;
+        for (const item of source) {
+            hasItems = true;
+            if (!predicate(item)) {
+                return false;
+            }
+        }
+        return hasItems;
+    }
+}
+
+class AnyFinalizer {
+    static get(source, predicate) {
+        for (const item of source) {
+            if (predicate(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+/**
+ * Returns distinct values
+ */
+class DistinctIterable {
+	/**
+	 * 
+	 * @param {Iterable} source 
+	 * @param {Function} comparer comparer function. if not provider use native Set.
+	 */
+    constructor(source, comparer) {
+		this.source = source;
+		this.comparer = comparer;
+    }
+
+	[Symbol.iterator]() {
+        if (!this.comparer) {
+            var set = new Set(this.source);
+            return set[Symbol.iterator](); 
+        }
+        const iterator = this.source[Symbol.iterator]();
+        const itemChecker = new DistinctItemChecker(this.comparer);
+		return {
+			next() {
+                while(true) {
+                    const { done, value } = iterator.next();
+                    if (done) {
+                        return { done: true };
+                    }
+                    if (itemChecker.has(value)) {
+                        continue;
+                    }
+                    itemChecker.add(value);
+                    return { done: false, value };
+                }
+			}
+		};
+    }
+}
+
+class DistinctItemChecker {
+    constructor(comparer) {
+        this.comparer = comparer;
+        this.list = [];
+    }
+
+    add(item) {
+        this.list.push(item);
+    }
+
+    has(item) {
+        return this.list.some(_ => this.comparer(_, item));        
+    }
+}
+
 const linqMixin = {
     where(predicate) {
         return new WhereIterable(this, predicate);
@@ -344,6 +440,9 @@ const linqMixin = {
     },
     skip(count) {
         return new SkipIterable(this, count);
+    },
+    distinct(comparer) {
+        return new DistinctIterable(this, comparer);
     },
     ofType(type) {
         if (typeof type === 'string') {
@@ -361,12 +460,24 @@ const linqMixin = {
     firstOrDefault(def) {
         return FirstFinalizer.getOrDefault(this, def);
     },
+    firstOrThrow() {
+        return FirstFinalizer.getOrThrow(this);
+    },
     single() {
         return SingleFinalizer.get(this);
     },
     singleOrDefault(def) {
         return SingleFinalizer.getOrDefault(this, def);
-    }
+    },
+    all(predicate) {
+        return AllFinalizer.get(this, predicate)
+    },
+    allAndEvery(predicate) {
+        return AllFinalizer.getAllAndEvery(this, predicate)
+    },
+    any(predicate) {
+        return AnyFinalizer.get(this, predicate)
+    },
 };
 
 applyMixin(LinqIterable, linqMixin);
@@ -376,6 +487,7 @@ applyMixin(SelectManyIterable, linqMixin);
 applyMixin(TakeIterable, linqMixin);
 applyMixin(SkipIterable, linqMixin);
 applyMixin(RangeIterable, linqMixin);
+applyMixin(DistinctIterable, linqMixin);
 
 exports.fromIterable = fromIterable;
 exports.fromObject = fromObject;

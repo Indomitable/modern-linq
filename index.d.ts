@@ -26,6 +26,11 @@ declare module 'modern-linq' {
          */
         skip(count: number): LinqIterable<TValue>;
         /**
+         * Return distinct items. Can specify optional item comparer
+         * @param count 
+         */
+        disticnt(comparer?: (a: TValue, b: TValue) => boolean): LinqIterable<TValue>;
+        /**
          * Selects all items of type string
          * @param type 
          */
@@ -56,6 +61,11 @@ declare module 'modern-linq' {
          */
         ofType(type: 'object'): LinqIterable<object>;
         /**
+         * Selects all items of type symbol
+         * @param type 
+         */
+        ofType(type: 'symbol'): LinqIterable<Symbol>;
+        /**
          * Selects all items of base type 
          * @param type 
          */
@@ -76,6 +86,10 @@ declare module 'modern-linq' {
          */
         firstOrDefault(def: TValue): TValue;
         /**
+         * Get first item of iterable, if no items throw RangeError
+         */
+        firstOrThrow(): TValue | never;
+        /**
          * Checks if iterable has only one item and returns it. 
          * If the iterable does not contain items or has multiple throws RangeError
          */
@@ -86,6 +100,24 @@ declare module 'modern-linq' {
          * If contains multiple throws RangeError
          */
         singleOrDefault(def: TValue): TValue | never;
+
+        /**
+         * Returns if all items satisfy the predicate. It returns true if no items.
+         * @param predicate 
+         */
+        all(predicate: (item: TValue) => boolean): boolean;
+
+        /**
+         * Returns if all items satisfy the predicate. It returns false if no items.
+         * @param predicate
+         */
+        allAndEvery(predicate: (item: TValue) => boolean): boolean;
+
+        /**
+         * Returns if any items satisfy the predicate.
+         * @param predicate 
+         */
+        any(predicate: (item: TValue) => boolean): boolean;
     }
 
     /**

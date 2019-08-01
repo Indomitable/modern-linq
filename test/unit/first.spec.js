@@ -22,4 +22,14 @@ describe('first finalizer', () => {
         const val = fromIterable([1, 2, 3, 4, 5]).where(_ => _ > 5).firstOrDefault(9);
         expect(val).to.equal(9);
     });
+
+    it('should firstOrThrow throw exception if not items', () => {
+        const val = function () { return fromIterable([]).firstOrThrow(); };
+        expect(val).to.throw(RangeError);
+    });
+
+    it('should firstOrThrow return first item', () => {
+        const val = fromIterable([4, 1]).firstOrThrow();
+        expect(val).to.equal(4);
+    });
 });
