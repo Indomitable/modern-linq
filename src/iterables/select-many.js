@@ -1,13 +1,16 @@
+import { BaseLinqIterable } from "../base-linq-iterable";
+
 /**
  * Return flatten mapped array [[1, 2], [3, 4]].selectMany(x => x) === [1, 2, 3, 4, 5]
  */
-export class SelectManyIterable {
+export class SelectManyIterable extends BaseLinqIterable {
 	/**
 	 * 
 	 * @param {Iterable} source 
 	 * @param {Function} extract 
 	 */
     constructor(source, extract) {
+        super();
 		this.source = source;
 		this.extract = extract;
     }

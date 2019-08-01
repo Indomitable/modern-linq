@@ -11,16 +11,19 @@ import { DistinctIterable } from "./iterables/distinct";
 
 export const linqMixin = {
     where(predicate) {
-        return new WhereIterable(this, predicate);
+        const source = this.isResulted ? this.result : this;        
+        return new WhereIterable(source, predicate);
     },
     select(map) {
-        return new SelectIterable(this, map);
+        const source = this.isResulted ? this.result : this;
+        return new SelectIterable(source, map);
     },
     selectMany(map) {
         return new SelectManyIterable(this, map);
     },
     take(count) {
-        return new TakeIterable(this, count);
+        const source = this.isResulted ? this.result : this;
+        return new TakeIterable(source, count);
     },
     skip(count) {
         return new SkipIterable(this, count);
@@ -36,7 +39,7 @@ export const linqMixin = {
         }
     },
     toArray() {
-        return Array.from(this);
+        return this.isResulted ? this.result : Array.from(this);
     },
     first() {
         return FirstFinalizer.get(this);

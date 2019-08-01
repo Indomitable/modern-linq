@@ -69,8 +69,24 @@ class RangeIterable {
     }
 }
 
-class LinqIterable {
+class BaseLinqIterable {
+    constructor() {
+        this.isResulted = false;
+        this.result = null;
+    }
+
+    _getResultIterator() {
+        return this.result[Symbol.iterator]();
+    }
+}
+
+class LinqIterable extends BaseLinqIterable {
     constructor(source) {
+        super();
+        if (Array.isArray(source)) {
+            this.isResulted = true;
+            this.result = source;
+        }
         this.source = source;
     }
 
@@ -94,18 +110,26 @@ function range(from, to) {
 /**
  * Return filtred array [1, 2, 3, 4].where(x => x % 2 === 0) === [2, 4]
  */
-class WhereIterable {
+class WhereIterable extends BaseLinqIterable {
 	/**
 	 * 
 	 * @param {Iterable} source 
 	 * @param {Function} predicate 
 	 */
     constructor(source, predicate) {
+		super();
+		if (Array.isArray(source)) {
+			this.isResulted = true;
+			this.result = source.filter(predicate);
+		}
 		this.source = source;
 		this.predicate = predicate;
 	}
 
 	[Symbol.iterator]() {
+		if (this.isResulted) {
+			return this._getResultIterator();
+		}
 		const iterator = this.source[Symbol.iterator]();
 		const predicate = this.predicate;
 		return {
@@ -132,18 +156,26 @@ class WhereIterable {
 /**
  * Return mapped array [1, 2, 3].select(x => x * 2) === [2, 4, 6]
  */
-class SelectIterable {
+class SelectIterable extends BaseLinqIterable {
 	/**
 	 * 
 	 * @param {Iterable} source 
 	 * @param {Function} map 
 	 */
     constructor(source, map) {
+		super();
+		if (Array.isArray(source)) {
+			this.isResulted = true;
+			this.result = source.map(map);
+		}
 		this.source = source;
 		this.map = map;
 	}
 
 	[Symbol.iterator]() {
+		if (this.isResulted) {
+			return this._getResultIterator();
+		}
 		const iterator = this.source[Symbol.iterator]();
 		const map = this.map;
 		return {
@@ -166,13 +198,14 @@ class SelectIterable {
 /**
  * Return flatten mapped array [[1, 2], [3, 4]].selectMany(x => x) === [1, 2, 3, 4, 5]
  */
-class SelectManyIterable {
+class SelectManyIterable extends BaseLinqIterable {
 	/**
 	 * 
 	 * @param {Iterable} source 
 	 * @param {Function} extract 
 	 */
     constructor(source, extract) {
+        super();
 		this.source = source;
 		this.extract = extract;
     }
@@ -271,18 +304,26 @@ class SingleFinalizer {
 /**
  * Return first N numbers of source
  */
-class TakeIterable {
+class TakeIterable extends BaseLinqIterable {
 	/**
 	 * 
 	 * @param {Iterable} source 
 	 * @param {number} count 
 	 */
     constructor(source, count) {
+		super();
+		if (Array.isArray(source)) {
+			this.isResulted = true;
+			this.result = source.slice(0, count);
+		}
 		this.source = source;
 		this.count = count;
 	}
 
 	[Symbol.iterator]() {
+		if (this.isResulted) {
+			return this._getResultIterator();
+		}
 		const iterator = this.source[Symbol.iterator]();
         const count = this.count;
         let fetched = 0;
@@ -305,18 +346,26 @@ class TakeIterable {
 /**
  * Skip first N numbers of source and return the rest
  */
-class SkipIterable {
+class SkipIterable extends BaseLinqIterable {
 	/**
 	 * 
 	 * @param {Iterable} source 
 	 * @param {number} count 
 	 */
     constructor(source, count) {
+        super();
+        if (Array.isArray(source)) {
+            this.isResulted = true;
+            this.result = source.slice(count, source.length);
+        }
 		this.source = source;
 		this.count = count;
 	}
 
 	[Symbol.iterator]() {
+        if (this.isResulted) {
+            return this._getResultIterator();
+        }
 		const iterator = this.source[Symbol.iterator]();
         const count = this.count;
         let skipped = 0;
@@ -374,13 +423,14 @@ class AnyFinalizer {
 /**
  * Returns distinct values
  */
-class DistinctIterable {
+class DistinctIterable extends BaseLinqIterable {
 	/**
 	 * 
 	 * @param {Iterable} source 
 	 * @param {Function} comparer comparer function. if not provider use native Set.
 	 */
     constructor(source, comparer) {
+        super();
 		this.source = source;
 		this.comparer = comparer;
     }
@@ -427,16 +477,19 @@ class DistinctItemChecker {
 
 const linqMixin = {
     where(predicate) {
-        return new WhereIterable(this, predicate);
+        const source = this.isResulted ? this.result : this;        
+        return new WhereIterable(source, predicate);
     },
     select(map) {
-        return new SelectIterable(this, map);
+        const source = this.isResulted ? this.result : this;
+        return new SelectIterable(source, map);
     },
     selectMany(map) {
         return new SelectManyIterable(this, map);
     },
     take(count) {
-        return new TakeIterable(this, count);
+        const source = this.isResulted ? this.result : this;
+        return new TakeIterable(source, count);
     },
     skip(count) {
         return new SkipIterable(this, count);
@@ -452,7 +505,7 @@ const linqMixin = {
         }
     },
     toArray() {
-        return Array.from(this);
+        return this.isResulted ? this.result : Array.from(this);
     },
     first() {
         return FirstFinalizer.get(this);

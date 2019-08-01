@@ -1,13 +1,16 @@
+import { BaseLinqIterable } from "../base-linq-iterable";
+
 /**
  * Returns distinct values
  */
-export class DistinctIterable {
+export class DistinctIterable extends BaseLinqIterable {
 	/**
 	 * 
 	 * @param {Iterable} source 
 	 * @param {Function} comparer comparer function. if not provider use native Set.
 	 */
     constructor(source, comparer) {
+        super();
 		this.source = source;
 		this.comparer = comparer;
     }

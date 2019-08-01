@@ -1,7 +1,13 @@
 import { RangeIterable } from "./generators/range";
+import { BaseLinqIterable } from "./base-linq-iterable";
 
-export class LinqIterable {
+export class LinqIterable extends BaseLinqIterable {
     constructor(source) {
+        super();
+        if (Array.isArray(source)) {
+            this.isResulted = true;
+            this.result = source;
+        }
         this.source = source;
     }
 

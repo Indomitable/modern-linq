@@ -2,11 +2,17 @@ import { expect } from 'chai';
 import { fromIterable } from "../../src";
 
 describe('select tests', () => {
-    it('should map iterable', () => {
+    it('should map array', () => {
         const input = fromIterable(['a', 'b', 'c', 'd']).select(_ => _ + 'a');
         const result = Array.from(input);
         expect(result).to.deep.equal(['aa', 'ba', 'ca', 'da']);
     });
+
+    it('should map iterable', () => {
+        const input = fromIterable(new Set(['a', 'b', 'c', 'd'])).select(_ => _ + 'a');
+        const result = Array.from(input);
+        expect(result).to.deep.equal(['aa', 'ba', 'ca', 'da']);
+    });    
 
     it('should map after filter', () => {
         const input = fromIterable(['a', 'b', 'c', 'd']).where(_ => _ !== 'a').select(_ => _ + 'a');
