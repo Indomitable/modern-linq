@@ -1,6 +1,6 @@
 {
   "name": "modern-linq",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Linq implementation for JS",
   "main": "index.js",
   "author": "Ventsislav Mladenov",
@@ -20,7 +20,10 @@
     "registry": "https://registry.npmjs.org"
   },
   "keywords": [
-      "iterable", "linq", "C#", "iterator"
+    "iterable",
+    "linq",
+    "C#",
+    "iterator"
   ],
   "devDependencies": {
     "@babel/cli": "^7.5.5",
