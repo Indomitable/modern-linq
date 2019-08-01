@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable } from "../src";
+import { fromIterable } from "../../src";
 
 describe('single finalizer', () => {
     it('should return single value', () => {

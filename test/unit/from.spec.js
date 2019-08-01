@@ -1,5 +1,5 @@
 import { assert, expect } from 'chai';
-import { fromIterable, fromObject } from "../src";
+import { fromIterable, fromObject } from "../../src";
 
 describe('from creation tests', () => {
     it('should create a select js iterable from collection', () => {

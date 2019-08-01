@@ -9,7 +9,7 @@
   "private": false,
   "scripts": {
     "build": "rollup -c ./rollup.config.js",
-    "test": "mocha --require @babel/register test/**/*.spec.js"
+    "test": "mocha --require @babel/register test/unit/**/*.spec.js"
   },
   "repository": {
     "type": "git",
@@ -33,7 +33,9 @@
     "@babel/node": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/register": "^7.5.5",
+    "benchmark": "^2.1.4",
     "chai": "^4.2.0",
+    "microtime": "^3.0.0",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
     "rollup": "^1.17.0"

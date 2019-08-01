@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable } from "../src";
+import { fromIterable } from "../../src";
 
 describe('integration tests', () => {
     it('should be able to do paging with skip and take', () => {

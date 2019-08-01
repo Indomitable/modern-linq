@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { range } from "../src";
+import { range } from "../../src";
 
 describe('range tests', () => {
     it ('should generate a range', () => {

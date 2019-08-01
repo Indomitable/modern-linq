@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable } from "../src";
+import { fromIterable } from "../../src";
 
 describe('take tests', () => {
     it ('should take first n numbers', () => {
