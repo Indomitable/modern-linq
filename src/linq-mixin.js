@@ -6,7 +6,7 @@ import { SingleFinalizer } from "./finalizers/single";
 import { TakeIterable } from "./iterables/take";
 import { SkipIterable } from "./iterables/skip";
 
-export const selectJsMixin = {
+export const linqMixin = {
     where(predicate) {
         return new WhereIterable(this, predicate);
     },

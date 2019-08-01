@@ -1,6 +1,6 @@
-selectjs
+Modern-Linq
 -------
-SelectJs is a library that brings the C# linq functionality into JavaScript. It is based on the native Iterable funtionality in JavaScript.
+Modern-Linq is a library that brings the C# linq functionality into JavaScript. It is based on the native Iterable funtionality in JavaScript.
 
 Examples:
 ```js

@@ -1,6 +1,6 @@
 import { RangeIterable } from "./generators/range";
 
-export class SelectJsIterable {
+export class LinqIterable {
     constructor(source) {
         this.source = source;
     }
@@ -11,11 +11,11 @@ export class SelectJsIterable {
 }
 
 export function fromIterable(source) {
-    return new SelectJsIterable(source);
+    return new LinqIterable(source);
 }
 
 export function fromObject(obj) {
-    return new SelectJsIterable(Object.entries(obj));
+    return new LinqIterable(Object.entries(obj));
 }
 
 export function range(from, to) {

@@ -1,65 +1,65 @@
-declare module 'selectjs' {
-    export interface SelectJsIterable<TValue> extends Iterable<TValue> {
+declare module 'modern-linq' {
+    export interface LinqIterable<TValue> extends Iterable<TValue> {
         /**
          * Filters the iterable using predicate function
          * @param predicate
          */
-        where(predicate: (item: TValue) => boolean): SelectJsIterable<TValue>;
+        where(predicate: (item: TValue) => boolean): LinqIterable<TValue>;
         /**
          * Maps the iterable items 
          * @param map map function
          */
-        select<TOutput>(map: (item: TValue) => TOutput): SelectJsIterable<TOutput>;
+        select<TOutput>(map: (item: TValue) => TOutput): LinqIterable<TOutput>;
         /**
          * Flat Iterable of collections 
          * @param map Function which returns a collection
          */
-        selectMany<TOutput>(map: (item: TValue) => TOutput[]): SelectJsIterable<TOutput>;
+        selectMany<TOutput>(map: (item: TValue) => TOutput[]): LinqIterable<TOutput>;
         /**
          * Take first N items from iterable
          * @param count 
          */
-        take(count: number): SelectJsIterable<TValue>;
+        take(count: number): LinqIterable<TValue>;
         /**
          * Skip first N items from iterable
          * @param count 
          */
-        skip(count: number): SelectJsIterable<TValue>;
+        skip(count: number): LinqIterable<TValue>;
         /**
          * Selects all items of type string
          * @param type 
          */
-        ofType(type: 'string'): SelectJsIterable<string>;
+        ofType(type: 'string'): LinqIterable<string>;
         /**
          * Selects all items of type number
          * @param type 
          */
-        ofType(type: 'number'): SelectJsIterable<number>;
+        ofType(type: 'number'): LinqIterable<number>;
         /**
          * Selects all items of type boolean
          * @param type 
          */
-        ofType(type: 'boolean'): SelectJsIterable<boolean>;
+        ofType(type: 'boolean'): LinqIterable<boolean>;
         /**
          * Selects all items of type undefined
          * @param type 
          */
-        ofType(type: 'undefined'): SelectJsIterable<undefined>;
+        ofType(type: 'undefined'): LinqIterable<undefined>;
         /**
          * Selects all items of type function
          * @param type 
          */
-        ofType(type: 'function'): SelectJsIterable<Function>;
+        ofType(type: 'function'): LinqIterable<Function>;
         /**
          * Selects all items of type object
          * @param type 
          */
-        ofType(type: 'object'): SelectJsIterable<object>;
+        ofType(type: 'object'): LinqIterable<object>;
         /**
          * Selects all items of base type 
          * @param type 
          */
-        ofType<TOutput extends TValue>(type: { prototype: TOutput }): SelectJsIterable<TOutput>;
+        ofType<TOutput extends TValue>(type: { prototype: TOutput }): LinqIterable<TOutput>;
 
         /**
          * Creates an array from iterable
@@ -92,17 +92,17 @@ declare module 'selectjs' {
      * Creates a select js iterable from iterable (arrays, map, set ...)
      * @param iterable 
      */
-    export function fromIterable<TValue>(iterable: Iterable<TValue>): SelectJsIterable<TValue>;
+    export function fromIterable<TValue>(iterable: Iterable<TValue>): LinqIterable<TValue>;
     /**
      * Creates a select js iterable from an object (using Object.entries())
      * @param value 
      */
-    export function fromObject<TValue extends {}>(value: TValue): SelectJsIterable<['string', object]>;
+    export function fromObject<TValue extends {}>(value: TValue): LinqIterable<['string', object]>;
     /**
      * Creates a select js iterable containig a [from, to) range of numbers
      * if from is less than to return ascending range
      * if from is greater that to return descending range
      * if from === to returns empty iterable
      */
-    export function range(from: number, to: number): SelectJsIterable<number>;
+    export function range(from: number, to: number): LinqIterable<number>;
 }

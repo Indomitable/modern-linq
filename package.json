@@ -1,14 +1,23 @@
 {
-  "name": "selectjs",
-  "version": "0.1.1",
+  "name": "modern-linq",
+  "version": "0.1.2",
   "description": "Linq implementation for JS",
   "main": "index.js",
-  "repository": "git@github.com:Indomitable/selectjs.git",
   "author": "Ventsislav Mladenov",
   "license": "MIT",
   "private": false,
   "scripts": {
     "test": "mocha --require @babel/register test/**/*.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Indomitable/modern-linq.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Indomitable/modern-linq/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
