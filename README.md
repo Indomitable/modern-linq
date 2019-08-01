@@ -21,3 +21,6 @@ for (const item of arr) {
 
 Remarks:  
 The library is still in very early stage, but it will be actively developed
+
+Build status:  
+[![Build Status](https://travis-ci.com/Indomitable/modern-linq.svg?branch=master)](https://travis-ci.com/Indomitable/modern-linq)
