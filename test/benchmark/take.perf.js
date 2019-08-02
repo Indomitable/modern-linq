@@ -1,22 +1,30 @@
-const { range, fromIterable } = require('../../index');
+const { assert } = require('chai');
+const { range, fromIterable, fromArrayLike } = require('../../index');
 const Benchmark = require('benchmark');
 const suite = new Benchmark.Suite();
 
-const arrayInput = range(0, 100000).toArray();
-const takeInput = fromIterable(arrayInput);
+const linqIterableInput = range(0, 100000);
+const arrayInput = linqIterableInput.toArray();
+const linqArrayInput = fromIterable(arrayInput);
 
+const lengthToTake = 1000;
 suite
     .add('Array slice', () => {
-        arrayInput.slice(0, 1000);
+        const res = arrayInput.slice(0, lengthToTake);
+        assert.equal(res.length, lengthToTake);
     })
-    .add('take', () => {
-        takeInput.take(1000).toArray();
+    .add('take on array', () => {
+        const res = linqArrayInput.take(lengthToTake).toArray();
+        assert.equal(res.length, lengthToTake);
+    })
+    .add('take on iterable', () => {
+        const res = linqIterableInput.take(lengthToTake).toArray();
+        assert.equal(res.length, lengthToTake);
     })
     .on('complete', function () {
-        const res0 = this[0];
-        const res1 = this[1];
-        console.log(res0.toString());
-        console.log(res1.toString());
+        for (const bench of fromArrayLike(this)) {
+            console.log(bench.toString());
+        }
     })
     .run({ 'async': true });
 
