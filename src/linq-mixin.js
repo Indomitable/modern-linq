@@ -10,6 +10,7 @@ import { AnyFinalizer } from "./finalizers/any";
 import { DistinctIterable } from "./iterables/distinct";
 import { GroupIterable } from "./iterables/group";
 import { CountFinalizer } from "./finalizers/count";
+import { AggregateFinalizer } from "./finalizers/aggregate";
 
 export const linqMixin = {
     where(predicate) {
@@ -87,5 +88,28 @@ export const linqMixin = {
     },
     count(predicate) {
         return CountFinalizer.get(this, predicate);
+    },
+    aggregate(accumulator, initial) {
+        switch (arguments.length) {
+            case 1: {
+                return AggregateFinalizer.get(this, accumulator);
+            }
+            case 2: {
+                // here the resultCreator actually is the initial
+                return AggregateFinalizer.getWithInitial(this, accumulator, initial);
+            }
+            default: {
+                throw new RangeError('invalid arguments');
+            }
+        }
+    },
+    sum() {
+        return AggregateFinalizer.getWithInitial(this, (r, i) => r + i, 0);
+    },
+    product() {
+        return AggregateFinalizer.getWithInitial(this, (r, i) => r * i, 1);
+    },
+    join(separator) {
+        return this.select(_ => '' + _).toArray().join(separator);
     }
 };

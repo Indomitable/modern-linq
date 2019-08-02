@@ -27,9 +27,9 @@ declare module 'modern-linq' {
         skip(count: number): LinqIterable<TValue>;
         /**
          * Return distinct items. Can specify optional item comparer
-         * @param count 
+         * @param comparer function to compare elements for equality
          */
-        disticnt(comparer?: (a: TValue, b: TValue) => boolean): LinqIterable<TValue>;
+        distinct(comparer?: (a: TValue, b: TValue) => boolean): LinqIterable<TValue>;
         /**
          * Selects all items of type string
          * @param type 
@@ -91,13 +91,13 @@ declare module 'modern-linq' {
         firstOrThrow(): TValue | never;
         /**
          * Checks if iterable has only one item and returns it. 
-         * If the iterable does not contain items or has multiple throws RangeError
+         * @throws RangeError when no or multiple elements
          */
         single(): TValue | never;
         /**
          * Checks if iterable has only one item and returns it. 
          * If the iterable does not contain items return default value.
-         * If contains multiple throws RangeError
+         * @throws RangeError when multiple elements
          */
         singleOrDefault(def: TValue): TValue | never;
 
@@ -118,6 +118,36 @@ declare module 'modern-linq' {
          * @param predicate 
          */
         any(predicate: (item: TValue) => boolean): boolean;
+
+        /**
+         * Produce single value form sequence values. The initial value is first element.
+         * @param accumulator function which produces the result.
+         * @throws TypeError when no elements
+         */
+        aggregate<TResult>(accumulator: (result: TResult, item: TValue, index: number) => TResult): TResult | never;
+
+        /**
+         * Produce single value form sequence values. The initial value is the second argument.
+         * @param accumulator function which produces the result.
+         * @param initial initial value
+         */
+        aggregate<TResult>(accumulator: (result: TResult, item: TValue, index: number) => TResult, initial: TResult): TResult;
+
+        /**
+         * Produce a sum of sequence values
+         */
+        sum(): TValue;
+
+        /**
+         * Produce a product of sequence values
+         */
+        product(): TValue;
+
+        /**
+         * join items of sequence in one string.
+         * @param separator
+         */
+        join(separator: string): string
     }
 
     /**
