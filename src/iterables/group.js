@@ -35,7 +35,7 @@ export class GroupIterable extends BaseLinqIterable {
             this.resultCreator = resultCreator;
         }
     }
-    
+
     __group() {
         const map = new Map();
         const elementSelector = typeof this.elementSelector === 'undefined' ? _ => _ : this.elementSelector;
@@ -55,14 +55,14 @@ export class GroupIterable extends BaseLinqIterable {
 
     [Symbol.iterator]() {
         const groupIterator = this.__group()[Symbol.iterator]();
-        const resultCreator = typeof this.resultCreator === 'undefined' ? (key, grouping) => ( new Grouping(key, grouping) ) : this.resultCreator;
+        const resultCreator = typeof this.resultCreator === 'undefined' ? (key, grouping) => (new Grouping(key, grouping)) : this.resultCreator;
         return {
             next() {
                 const { done, value } = groupIterator.next();
                 if (done) {
                     return { done: true };
                 }
-                const [key, grouping] = value;
+                const [ key, grouping ] = value;
                 const linqGrouping = fromIterable(grouping);
                 const result = resultCreator(key, linqGrouping);
                 return {

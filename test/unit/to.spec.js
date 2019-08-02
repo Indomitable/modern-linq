@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable, fromObject, range } from "../../src";
+import { fromIterable } from "../../src";
 
 describe('output tests', () => {
     it('should create an array', () => {
@@ -43,6 +43,6 @@ describe('output tests', () => {
 
     it('should create a set', () => {
         const set = fromIterable([1, 2, 3, 1, 2, 3]).toSet();
-        expect(Array.from(set.values())).to.deep.equal([ 1, 2, 3 ]);
+        expect(Array.from(set.values())).to.deep.equal([1, 2, 3]);
     });
 });

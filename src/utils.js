@@ -1,13 +1,10 @@
 /**
  * Apply mixin to a class
- * @param {Function} destination 
- * @param {Function} mixin 
+ * @param {object} mixin
+ * @param {Function[]} destinations
  */
-export function applyMixin(destination, mixin) {
-    for (const prop in mixin) {
-        if (prop === 'constructor' || !mixin.hasOwnProperty(prop)) {
-            continue;
-        }
-        destination.prototype[prop] = mixin[prop];
+export function applyMixin(mixin, destinations) {
+    for (const dest of destinations) {
+        Object.assign(dest.prototype, mixin);
     }
 }

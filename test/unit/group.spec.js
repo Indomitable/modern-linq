@@ -8,6 +8,7 @@ describe('groupBy tests', () => {
             this.name = name;
         }
     }
+
     let input = [];
     beforeEach(() => {
         input = [
@@ -21,7 +22,9 @@ describe('groupBy tests', () => {
     });
 
     it('should throw exception if no keySelector is provided', () => {
-        const func = function() { return range(0, 1).groupBy(); };
+        const func = function () {
+            return range(0, 1).groupBy();
+        };
         expect(func).to.throw(Error);
     });
 
@@ -29,7 +32,7 @@ describe('groupBy tests', () => {
         const res = fromIterable(input).groupBy(_ => _.age).toArray();
         expect(res.length).to.equal(3);
         for (const gr of res) {
-            switch(gr.key) {
+            switch (gr.key) {
                 case 10: {
                     expect(gr.count()).to.equal(3);
                     break;
@@ -52,7 +55,7 @@ describe('groupBy tests', () => {
         const res = fromIterable(input).groupBy(_ => _.age, _ => _.name).toArray();
         expect(res.length).to.equal(3);
         for (const gr of res) {
-            switch(gr.key) {
+            switch (gr.key) {
                 case 10: {
                     expect(gr.count()).to.equal(3);
                     expect(gr.toArray()).to.deep.equal(['A', 'C', 'E']);

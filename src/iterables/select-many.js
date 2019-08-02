@@ -4,30 +4,30 @@ import { BaseLinqIterable } from "../base-linq-iterable";
  * Return flatten mapped array [[1, 2], [3, 4]].selectMany(x => x) === [1, 2, 3, 4, 5]
  */
 export class SelectManyIterable extends BaseLinqIterable {
-	/**
-	 * 
-	 * @param {Iterable} source 
-	 * @param {Function} extract 
-	 */
+    /**
+     *
+     * @param {Iterable} source
+     * @param {Function} extract
+     */
     constructor(source, extract) {
         super();
-		this.source = source;
-		this.extract = extract;
+        this.source = source;
+        this.extract = extract;
     }
 
-	[Symbol.iterator]() {
-		const iterator = this.source[Symbol.iterator]();
+    [Symbol.iterator]() {
+        const iterator = this.source[Symbol.iterator]();
         const extract = this.extract;
         let isSubDone = true;
         let subIterator = null;
-		return {
-			next() {
+        return {
+            next() {
                 const item = SelectManyIterable.getNextItem(iterator, extract, subIterator, isSubDone);
                 isSubDone = item.sdone;
                 subIterator = item.sIterator;
                 return item.value;
-			}
-		};
+            }
+        };
     }
 
     static getSecondaryIterator(mainIterator, extract) {
@@ -44,7 +44,7 @@ export class SelectManyIterable extends BaseLinqIterable {
         }
         return { iterator: secondaryIterator, first: secondaryItem.value, final: false };
     }
-    
+
     static getNextItem(mainIterator, extract, subIterator, isSubDone) {
         if (isSubDone) {
             const { iterator, first, final } = SelectManyIterable.getSecondaryIterator(mainIterator, extract);
@@ -57,7 +57,7 @@ export class SelectManyIterable extends BaseLinqIterable {
             if (snext.done) {
                 return SelectManyIterable.getNextItem(mainIterator, extract, null, true);
             }
-            return { value: { done: false, value: snext.value }, sIterator: subIterator, sdone: false }; 
+            return { value: { done: false, value: snext.value }, sIterator: subIterator, sdone: false };
         }
     }
 

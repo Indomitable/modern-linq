@@ -35,9 +35,13 @@ export const linqMixin = {
     },
     ofType(type) {
         if (typeof type === 'string') {
-            return new WhereIterable(this, function (item) { return typeof item === type; });
+            return new WhereIterable(this, function (item) {
+                return typeof item === type;
+            });
         } else {
-            return new WhereIterable(this, function (item) { return item instanceof type; });
+            return new WhereIterable(this, function (item) {
+                return item instanceof type;
+            });
         }
     },
     groupBy(keySelector, elementSelector, resultCreator) {
@@ -49,7 +53,7 @@ export const linqMixin = {
     toMap(keySelector, valueSelector) {
         const transformValue = typeof valueSelector === 'undefined';
         return new Map(this.select(_ => [
-                keySelector(_), 
+                keySelector(_),
                 transformValue ? _ : valueSelector(_)
             ])
         );
@@ -84,4 +88,4 @@ export const linqMixin = {
     count(predicate) {
         return CountFinalizer.get(this, predicate);
     }
-}
+};

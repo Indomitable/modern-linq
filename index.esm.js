@@ -1,1 +1,1 @@
-export { fromIterable, fromObject, range } from './src/index';
+export { fromIterable, fromObject, fromArrayLike, range } from './src/index';

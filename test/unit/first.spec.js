@@ -24,7 +24,9 @@ describe('first finalizer', () => {
     });
 
     it('should firstOrThrow throw exception if not items', () => {
-        const val = function () { return fromIterable([]).firstOrThrow(); };
+        const val = function () {
+            return fromIterable([]).firstOrThrow();
+        };
         expect(val).to.throw(RangeError);
     });
 

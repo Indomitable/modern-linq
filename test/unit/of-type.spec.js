@@ -3,7 +3,7 @@ import { fromIterable } from "../../src";
 
 describe('oftype tests', () => {
     it('should check for primary types', () => {
-        const source = [ 1, 2, 3, 'a', 4, 5, 's', true, 'c', false ];
+        const source = [1, 2, 3, 'a', 4, 5, 's', true, 'c', false];
         const inputNumber = fromIterable(source).ofType('number');
         expect(Array.from(inputNumber)).to.deep.equal([1, 2, 3, 4, 5]);
         const inputStr = fromIterable(source).ofType('string');
@@ -14,10 +14,13 @@ describe('oftype tests', () => {
     });
 
     it('should check for function types', () => {
-        class A {}
-        class B {}
+        class A {
+        }
 
-        const source = [ new A(), new B() ];
+        class B {
+        }
+
+        const source = [new A(), new B()];
         const result = fromIterable(source).ofType(A);
         const arr = Array.from(result);
         expect(arr.length).to.equal(1);

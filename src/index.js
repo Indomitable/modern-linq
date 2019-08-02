@@ -1,5 +1,5 @@
 import { applyMixin } from './utils';
-import { LinqIterable } from './creation';
+import { ArrayLikeIterable, LinqIterable } from './creation';
 import { linqMixin } from './linq-mixin';
 import { WhereIterable } from './iterables/where';
 import { SelectIterable } from './iterables/select';
@@ -8,17 +8,20 @@ import { TakeIterable } from './iterables/take';
 import { SkipIterable } from './iterables/skip';
 import { RangeIterable } from './generators/range';
 import { DistinctIterable } from './iterables/distinct';
-import { GroupIterable, Grouping } from './iterables/group';
+import { Grouping, GroupIterable } from './iterables/group';
 
-applyMixin(LinqIterable, linqMixin);
-applyMixin(WhereIterable, linqMixin);
-applyMixin(SelectIterable, linqMixin);
-applyMixin(SelectManyIterable, linqMixin);
-applyMixin(TakeIterable, linqMixin);
-applyMixin(SkipIterable, linqMixin);
-applyMixin(RangeIterable, linqMixin);
-applyMixin(DistinctIterable, linqMixin);
-applyMixin(Grouping, linqMixin);
-applyMixin(GroupIterable, linqMixin);
+applyMixin(linqMixin, [
+    LinqIterable,
+    ArrayLikeIterable,
+    WhereIterable,
+    SelectIterable,
+    SelectManyIterable,
+    TakeIterable,
+    SkipIterable,
+    RangeIterable,
+    DistinctIterable,
+    Grouping,
+    GroupIterable,
+]);
 
-export { fromIterable, fromObject, range } from './creation';
+export { fromIterable, fromObject, fromArrayLike, range } from './creation';
