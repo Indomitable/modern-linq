@@ -1,6 +1,6 @@
 {
   "name": "modern-linq",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Linq implementation for JS",
   "main": "index.js",
   "module": "index.esm.js",
