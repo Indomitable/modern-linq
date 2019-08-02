@@ -16,17 +16,18 @@ export class DistinctIterable extends BaseLinqIterable {
 
     get() {
         if (!this.comparer) {
-            return new Set(this.source);
+            return new Set(this._getSource());
         }
         return this;
     }
 
     [Symbol.iterator]() {
+        const source = this._getSource();
         if (!this.comparer) {
-            const set = new Set(this.source);
+            const set = new Set(source);
             return this._getIterator(set);
         }
-        const iterator = this._getIterator(this.source);
+        const iterator = this._getIterator(source);
         const itemChecker = new DistinctItemChecker(this.comparer);
         return {
             next() {

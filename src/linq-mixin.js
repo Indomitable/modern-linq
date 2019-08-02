@@ -14,36 +14,36 @@ import { AggregateFinalizer } from "./finalizers/aggregate";
 
 export const linqMixin = {
     where(predicate) {
-        return new WhereIterable(this.get(), predicate);
+        return new WhereIterable(this, predicate);
     },
     select(map) {
-        return new SelectIterable(this.get(), map);
+        return new SelectIterable(this, map);
     },
     selectMany(map) {
-        return new SelectManyIterable(this.get(), map);
+        return new SelectManyIterable(this, map);
     },
     take(count) {
-        return new TakeIterable(this.get(), count);
+        return new TakeIterable(this, count);
     },
     skip(count) {
-        return new SkipIterable(this.get(), count);
+        return new SkipIterable(this, count);
     },
     distinct(comparer) {
-        return new DistinctIterable(this.get(), comparer);
+        return new DistinctIterable(this, comparer);
     },
     ofType(type) {
         if (typeof type === 'string') {
-            return new WhereIterable(this.get(), function (item) {
+            return new WhereIterable(this, function (item) {
                 return typeof item === type;
             });
         } else {
-            return new WhereIterable(this.get(), function (item) {
+            return new WhereIterable(this, function (item) {
                 return item instanceof type;
             });
         }
     },
     groupBy(keySelector, elementSelector, resultCreator) {
-        return new GroupIterable(this.get(), keySelector, elementSelector, resultCreator);
+        return new GroupIterable(this, keySelector, elementSelector, resultCreator);
     },
     toArray() {
         const result = this.get();
