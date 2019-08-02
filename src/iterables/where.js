@@ -10,20 +10,19 @@ export class WhereIterable extends BaseLinqIterable {
      * @param {Function} predicate
      */
     constructor(source, predicate) {
-        super();
-        if (Array.isArray(source)) {
-            this.isResulted = true;
-            this.result = source.filter(predicate);
-        }
-        this.source = source;
+        super(source);
         this.predicate = predicate;
     }
 
-    [Symbol.iterator]() {
-        if (this.isResulted) {
-            return this._getResultIterator();
+    get() {
+        if (Array.isArray(this.source)) {
+            return this.source.filter(this.predicate);
         }
-        const iterator = this.source[Symbol.iterator]();
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const iterator = this._getIterator(this.source);
         const predicate = this.predicate;
         return {
             next() {

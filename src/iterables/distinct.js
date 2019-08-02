@@ -10,17 +10,23 @@ export class DistinctIterable extends BaseLinqIterable {
      * @param {Function} comparer comparer function. if not provider use native Set.
      */
     constructor(source, comparer) {
-        super();
-        this.source = source;
+        super(source);
         this.comparer = comparer;
+    }
+
+    get() {
+        if (!this.comparer) {
+            return new Set(this.source);
+        }
+        return this;
     }
 
     [Symbol.iterator]() {
         if (!this.comparer) {
-            var set = new Set(this.source);
-            return set[Symbol.iterator]();
+            const set = new Set(this.source);
+            return this._getIterator(set);
         }
-        const iterator = this.source[Symbol.iterator]();
+        const iterator = this._getIterator(this.source);
         const itemChecker = new DistinctItemChecker(this.comparer);
         return {
             next() {

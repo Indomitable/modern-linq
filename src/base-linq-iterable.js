@@ -1,10 +1,13 @@
 export class BaseLinqIterable {
-    constructor() {
-        this.isResulted = false;
-        this.result = null;
+    constructor(source) {
+        this.source = source;
     }
 
-    _getResultIterator() {
-        return this.result[Symbol.iterator]();
+    _getIterator(source) {
+        return source[Symbol.iterator]();
+    }
+
+    get() {
+        throw new Error('Not implemented');
     }
 }

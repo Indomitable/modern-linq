@@ -3,20 +3,16 @@ import { fromIterable } from "../creation";
 
 export class Grouping extends BaseLinqIterable {
     constructor(key, source) {
-        super();
+        super(source.toArray());
         this.key = key;
-        this.source = source.toArray();
-        this.isResulted = true;
-        this.result = this.source;
+    }
+
+    get() {
+        return this.source;
     }
 
     [Symbol.iterator]() {
-        const iterator = this._getResultIterator();
-        return {
-            next() {
-                return iterator.next();
-            }
-        }
+        return this._getIterator(this.source);
     }
 }
 
@@ -53,8 +49,13 @@ export class GroupIterable extends BaseLinqIterable {
         return map;
     }
 
+    get() {
+        return this;
+    }
+
     [Symbol.iterator]() {
-        const groupIterator = this.__group()[Symbol.iterator]();
+        const result = this.__group();
+        const groupIterator = this._getIterator(result);
         const resultCreator = typeof this.resultCreator === 'undefined' ? (key, grouping) => (new Grouping(key, grouping)) : this.resultCreator;
         return {
             next() {

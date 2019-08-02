@@ -3,32 +3,30 @@ import { BaseLinqIterable } from "./base-linq-iterable";
 
 export class LinqIterable extends BaseLinqIterable {
     constructor(source) {
-        super();
-        if (Array.isArray(source)) {
-            this.isResulted = true;
-            this.result = source;
-        }
-        this.source = source;
+        super(source);
+    }
+
+    get() {
+        return this.source;
     }
 
     [Symbol.iterator]() {
-        return this.source[Symbol.iterator]();
+        return this._getIterator(this.source);
     }
 }
 
 export class ArrayLikeIterable extends BaseLinqIterable {
     constructor(source) {
-        super();
-        if (Array.isArray(source)) {
-            this.isResulted = true;
-            this.result = source;
-        }
-        this.source = source;
+        super(source);
+    }
+
+    get() {
+        return Array.isArray(this.source) ? this.source : this;
     }
 
     [Symbol.iterator]() {
-        if (this.isResulted) {
-            return this._getResultIterator();
+        if (Array.isArray(this.source)) {
+            return this._getIterator(this.source);
         }
         const length = this.source.length;
         const source = this.source;

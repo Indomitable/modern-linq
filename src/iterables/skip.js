@@ -10,25 +10,24 @@ export class SkipIterable extends BaseLinqIterable {
      * @param {number} count
      */
     constructor(source, count) {
-        super();
-        if (Array.isArray(source)) {
-            this.isResulted = true;
-            this.result = source.slice(count, source.length);
-        }
-        this.source = source;
+        super(source);
         this.count = count;
     }
 
-    [Symbol.iterator]() {
-        if (this.isResulted) {
-            return this._getResultIterator();
+    get() {
+        if (Array.isArray(this.source)) {
+            return this.source.slice(this.count, this.source.length);
         }
-        const iterator = this.source[Symbol.iterator]();
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const iterator = this._getIterator(this.source);
         const count = this.count;
         let skipped = 0;
         return {
             next() {
-                if (skipped == 0) {
+                if (skipped === 0) {
                     // first get. 
                     while (skipped < count) {
                         const { done } = iterator.next();

@@ -10,20 +10,19 @@ export class TakeIterable extends BaseLinqIterable {
      * @param {number} count
      */
     constructor(source, count) {
-        super();
-        if (Array.isArray(source)) {
-            this.isResulted = true;
-            this.result = source.slice(0, count);
-        }
-        this.source = source;
+        super(source);
         this.count = count;
     }
 
-    [Symbol.iterator]() {
-        if (this.isResulted) {
-            return this._getResultIterator();
+    get() {
+        if (Array.isArray(this.source)) {
+            return this.source.slice(0, this.count);
         }
-        const iterator = this.source[Symbol.iterator]();
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const iterator = this._getIterator(this.source);
         const count = this.count;
         let fetched = 0;
         return {

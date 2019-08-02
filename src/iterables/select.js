@@ -10,20 +10,19 @@ export class SelectIterable extends BaseLinqIterable {
      * @param {Function} map
      */
     constructor(source, map) {
-        super();
-        if (Array.isArray(source)) {
-            this.isResulted = true;
-            this.result = source.map(map);
-        }
-        this.source = source;
+        super(source);
         this.map = map;
     }
 
-    [Symbol.iterator]() {
-        if (this.isResulted) {
-            return this._getResultIterator();
+    get() {
+        if (Array.isArray(this.source)) {
+            return this.source.map(this.map);
         }
-        const iterator = this.source[Symbol.iterator]();
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const iterator = this._getIterator(this.source);
         const map = this.map;
         return {
             next() {

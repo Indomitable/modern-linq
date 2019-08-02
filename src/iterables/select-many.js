@@ -10,9 +10,12 @@ export class SelectManyIterable extends BaseLinqIterable {
      * @param {Function} extract
      */
     constructor(source, extract) {
-        super();
-        this.source = source;
+        super(source);
         this.extract = extract;
+    }
+
+    get() {
+        return this;
     }
 
     [Symbol.iterator]() {
