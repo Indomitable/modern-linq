@@ -13,6 +13,10 @@ function applyMixin(mixin, destinations) {
     }
 }
 
+function getIterator(iterable) {
+    return iterable[Symbol.iterator]();
+}
+
 class BaseLinqIterable {
     constructor(source) {
         this.source = source;
@@ -23,7 +27,7 @@ class BaseLinqIterable {
     }
 
     _getSource() {
-        return this.source instanceof BaseLinqIterable ? this.source.get() : this.source;
+        return this.source.get();
     }
 
     get() {
@@ -343,45 +347,93 @@ class SelectManyIterable extends BaseLinqIterable {
 }
 
 class FirstFinalizer {
-    static get(iterable) {
-        const iterator = iterable[Symbol.iterator]();
+    static get(source, predicate) {
+        const iterable = source.get();
+        if (predicate) {
+            if (Array.isArray(iterable)) {
+                return iterable.find(predicate);
+            } else {
+                return iterable.where(predicate).first();
+            }
+        }
+        const iterator = getIterator(iterable);
         const { value } = iterator.next();
         return value;
     }
 
-    static getOrDefault(iterable, def) {
-        const iterator = iterable[Symbol.iterator]();
-        const { value, done } = iterator.next();
-        return done ? def : value;
+    static getOrDefault(source, def, predicate) {
+        const iterable = source.get();
+        if (predicate) {
+            for (const item of iterable) {
+                if (predicate(item)) {
+                    return item;
+                }
+            }
+            return def;
+        } else {
+            const iterator = getIterator(iterable);
+            const {value, done} = iterator.next();
+            return done ? def : value;
+        }
     }
 
-    static getOrThrow(iterable, def) {
-        const iterator = iterable[Symbol.iterator]();
+    static getOrThrow(source) {
+        const iterator = getIterator(source.get());
         const { value, done } = iterator.next();
         if (done) {
-            throw new RangeError('Sequence contains no items');
+            throw new TypeError('Sequence contains no items');
         }
         return value;
     }
 }
 
 class SingleFinalizer {
-    static get(iterable) {
-        const iterator = iterable[Symbol.iterator]();
-        const { value, done } = iterator.next();
-        if (done || !iterator.next().done) {
-            throw new RangeError('Sequence does not contain single item');
+    static get(source, predicate) {
+        const iterable = source.get();
+        let result;
+        let count = 0;
+        let i = 0;
+        for (const item of iterable) {
+            if ((predicate && predicate(item)) || !predicate) {
+               result = item;
+               count++;
+            }
+            if (count > 1) {
+                throw new TypeError('Sequence contains multiple items');
+            }
+            if (!predicate && count > 0 && i > 0) {
+                throw new TypeError('Sequence contains multiple items');
+            }
+            i++;
         }
-        return value;
+        if (count === 0) {
+            throw new TypeError('Sequence contains no items');
+        }
+        return result;
     }
 
-    static getOrDefault(iterable, def) {
-        const iterator = iterable[Symbol.iterator]();
-        const { value, done } = iterator.next();
-        if (!iterator.next().done) {
-            throw new RangeError('Sequence contains multiple items');
+    static getOrDefault(source, def, predicate) {
+        const iterable = source.get();
+        let result;
+        let count = 0;
+        let i = 0;
+        for (const item of iterable) {
+            if ((predicate && predicate(item)) || !predicate) {
+                result = item;
+                count++;
+            }
+            if (count > 1) {
+                throw new TypeError('Sequence contains multiple items');
+            }
+            if (!predicate && count > 0 && i > 0) {
+                throw new TypeError('Sequence contains multiple items');
+            }
+            i++;
         }
-        return done ? def : value;
+        if (count === 0) {
+            return def;
+        }
+        return result;
     }
 }
 
@@ -761,20 +813,20 @@ const linqMixin = {
     toSet() {
         return new Set(this.get());
     },
-    first() {
-        return FirstFinalizer.get(this.get());
+    first(predicate) {
+        return FirstFinalizer.get(this, predicate);
     },
-    firstOrDefault(def) {
-        return FirstFinalizer.getOrDefault(this.get(), def);
+    firstOrDefault(def, predicate) {
+        return FirstFinalizer.getOrDefault(this, def, predicate);
     },
     firstOrThrow() {
-        return FirstFinalizer.getOrThrow(this.get());
+        return FirstFinalizer.getOrThrow(this);
     },
-    single() {
-        return SingleFinalizer.get(this.get());
+    single(predicate) {
+        return SingleFinalizer.get(this, predicate);
     },
-    singleOrDefault(def) {
-        return SingleFinalizer.getOrDefault(this.get(), def);
+    singleOrDefault(def, predicate) {
+        return SingleFinalizer.getOrDefault(this, def, predicate);
     },
     all(predicate) {
         return AllFinalizer.get(this.get(), predicate)

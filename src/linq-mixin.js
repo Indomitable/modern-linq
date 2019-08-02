@@ -60,20 +60,20 @@ export const linqMixin = {
     toSet() {
         return new Set(this.get());
     },
-    first() {
-        return FirstFinalizer.get(this.get());
+    first(predicate) {
+        return FirstFinalizer.get(this, predicate);
     },
-    firstOrDefault(def) {
-        return FirstFinalizer.getOrDefault(this.get(), def);
+    firstOrDefault(def, predicate) {
+        return FirstFinalizer.getOrDefault(this, def, predicate);
     },
     firstOrThrow() {
-        return FirstFinalizer.getOrThrow(this.get());
+        return FirstFinalizer.getOrThrow(this);
     },
-    single() {
-        return SingleFinalizer.get(this.get());
+    single(predicate) {
+        return SingleFinalizer.get(this, predicate);
     },
-    singleOrDefault(def) {
-        return SingleFinalizer.getOrDefault(this.get(), def);
+    singleOrDefault(def, predicate) {
+        return SingleFinalizer.getOrDefault(this, def, predicate);
     },
     all(predicate) {
         return AllFinalizer.get(this.get(), predicate)

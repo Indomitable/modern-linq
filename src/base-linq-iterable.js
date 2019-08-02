@@ -8,7 +8,7 @@ export class BaseLinqIterable {
     }
 
     _getSource() {
-        return this.source instanceof BaseLinqIterable ? this.source.get() : this.source;
+        return this.source.get();
     }
 
     get() {

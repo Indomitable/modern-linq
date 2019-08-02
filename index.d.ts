@@ -78,28 +78,30 @@ declare module 'modern-linq' {
 
         /**
          * Get first item of iterable
+         * @param predicate optional predicate for the item
          */
-        first(): TValue | undefined;
+        first(predicate?: (item: TValue) => boolean): TValue | undefined;
         /**
-         * Get first item of iterable, if does not contain any return default 
-         * @param def 
+         * Get first item of iterable, if does not contain any return default
+         * @param def
+         * @param predicate
          */
-        firstOrDefault(def: TValue): TValue;
+        firstOrDefault(def: TValue, predicate?: (item: TValue) => boolean): TValue;
         /**
          * Get first item of iterable, if no items throw RangeError
          */
         firstOrThrow(): TValue | never;
         /**
          * Checks if iterable has only one item and returns it. 
-         * @throws RangeError when no or multiple elements
+         * @throws TypeError when no or multiple elements
          */
-        single(): TValue | never;
+        single(predicate?: (item: TValue) => boolean): TValue | never;
         /**
          * Checks if iterable has only one item and returns it. 
          * If the iterable does not contain items return default value.
-         * @throws RangeError when multiple elements
+         * @throws TypeError when multiple elements
          */
-        singleOrDefault(def: TValue): TValue | never;
+        singleOrDefault(def: TValue, predicate?: (item: TValue) => boolean): TValue | never;
 
         /**
          * Returns if all items satisfy the predicate. It returns true if no items.
