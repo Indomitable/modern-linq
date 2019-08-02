@@ -135,13 +135,29 @@ declare module 'modern-linq' {
 
         /**
          * Produce a sum of sequence values
+         * @throws {TypeError} if not items in sequence
          */
-        sum(): TValue;
+        sum(): TValue | never;
 
         /**
          * Produce a product of sequence values
+         * @throws {TypeError} if not items in sequence
          */
-        product(): TValue;
+        product(): TValue | never;
+
+        /**
+         * Get min value in sequence
+         * @param comparer optional comparer function, which should return negative when left lower than right, positive when left greater than right or zero when equal
+         * @throws {TypeError} if not items in sequence
+         */
+        min(comparer?: (left: TValue, right: TValue) => number): TValue | never;
+
+        /**
+         * Get max value in sequence
+         * @param comparer optional comparer function, which should return negative when left lower than right, positive when left greater than right or zero when equal
+         * @throws {TypeError} if not items in sequence
+         */
+        max(comparer?: (left: TValue, right: TValue) => number): TValue | never;
 
         /**
          * join items of sequence in one string.

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable } from "../../src";
+import { fromIterable, range } from "../../src";
 
 describe('skip tests', () => {
     it('should skip first n numbers', () => {
@@ -22,10 +22,16 @@ describe('skip tests', () => {
     });
 
     it('should skip return nothing if count is less', () => {
-        const output = fromIterable([1, 2])
+        // use array
+        const output0 = fromIterable([1, 2])
             .skip(3)
             .toArray();
-        expect(output).to.deep.equal([]);
+        expect(output0).to.deep.equal([]);
+
+        const output1 = range(1, 3)
+            .skip(3)
+            .toArray();
+        expect(output1).to.deep.equal([]);
     });
 
     it('should skip return empty from empty collection', () => {

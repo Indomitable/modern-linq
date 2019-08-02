@@ -29,7 +29,8 @@ export const linqMixin = {
         return new TakeIterable(source, count);
     },
     skip(count) {
-        return new SkipIterable(this, count);
+        const source = this.isResulted ? this.result : this;
+        return new SkipIterable(source, count);
     },
     distinct(comparer) {
         return new DistinctIterable(this, comparer);
@@ -104,10 +105,24 @@ export const linqMixin = {
         }
     },
     sum() {
-        return AggregateFinalizer.getWithInitial(this, (r, i) => r + i, 0);
+        return AggregateFinalizer.get(this, (r, i) => r + i);
     },
     product() {
-        return AggregateFinalizer.getWithInitial(this, (r, i) => r * i, 1);
+        return AggregateFinalizer.get(this, (r, i) => r * i);
+    },
+    min(comparer) {
+        const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
+        return AggregateFinalizer.get(this, (a, b) => {
+            const comp = compare(a, b);
+            return comp < 0 ? a : (comp > 0 ? b : a);
+        });
+    },
+    max(comparer) {
+        const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
+        return AggregateFinalizer.get(this, (a, b) => {
+            const comp = compare(a, b);
+            return comp < 0 ? b : (comp > 0 ? a : b);
+        });
     },
     join(separator) {
         return this.select(_ => '' + _).toArray().join(separator);
