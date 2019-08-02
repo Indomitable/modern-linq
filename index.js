@@ -624,6 +624,42 @@ class CountFinalizer {
     }
 }
 
+class AggregateFinalizer {
+    static get(source, accumulator) {
+        if (Array.isArray(source)) {
+            return source.reduce(accumulator);
+        }
+        let res;
+        let index = -1;
+        for (const item of source) {
+            if (index === -1) {
+                res = item;
+                index = 0;
+            } else {
+                index++;
+                res = accumulator(res, item, index);
+            }
+        }
+        if (index === -1) {
+            throw new TypeError('No items in sequence');
+        }
+        return res;
+    }
+
+    static getWithInitial(source, accumulator, initial) {
+        if (Array.isArray(source)) {
+            return source.reduce(accumulator, initial);
+        }
+        let res = initial;
+        let index = 0;
+        for (const item of source) {
+            index++;
+            res = accumulator(res, item, index);
+        }
+        return res;
+    }
+}
+
 const linqMixin = {
     where(predicate) {
         const source = this.isResulted ? this.result : this;
@@ -641,7 +677,8 @@ const linqMixin = {
         return new TakeIterable(source, count);
     },
     skip(count) {
-        return new SkipIterable(this, count);
+        const source = this.isResulted ? this.result : this;
+        return new SkipIterable(source, count);
     },
     distinct(comparer) {
         return new DistinctIterable(this, comparer);
@@ -700,6 +737,43 @@ const linqMixin = {
     },
     count(predicate) {
         return CountFinalizer.get(this, predicate);
+    },
+    aggregate(accumulator, initial) {
+        switch (arguments.length) {
+            case 1: {
+                return AggregateFinalizer.get(this, accumulator);
+            }
+            case 2: {
+                // here the resultCreator actually is the initial
+                return AggregateFinalizer.getWithInitial(this, accumulator, initial);
+            }
+            default: {
+                throw new RangeError('invalid arguments');
+            }
+        }
+    },
+    sum() {
+        return AggregateFinalizer.get(this, (r, i) => r + i);
+    },
+    product() {
+        return AggregateFinalizer.get(this, (r, i) => r * i);
+    },
+    min(comparer) {
+        const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
+        return AggregateFinalizer.get(this, (a, b) => {
+            const comp = compare(a, b);
+            return comp < 0 ? a : (comp > 0 ? b : a);
+        });
+    },
+    max(comparer) {
+        const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
+        return AggregateFinalizer.get(this, (a, b) => {
+            const comp = compare(a, b);
+            return comp < 0 ? b : (comp > 0 ? a : b);
+        });
+    },
+    join(separator) {
+        return this.select(_ => '' + _).toArray().join(separator);
     }
 };
 
