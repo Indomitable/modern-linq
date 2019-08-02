@@ -38,8 +38,14 @@ describe('integration tests', () => {
             )
             .skip(1)
             .take(4)
-            .groupBy(i => i.odd);
-            //.single();
+            .groupBy(i => i.odd)
+            .select(_ => ({
+                key: _.key,
+                items: _.orderByDescending(_ => _.num).toArray()
+            }))
+            .orderBy(_ => _.key);
+
+        //.single();
         for (const i of query) {
             // console.log(JSON.stringify(i));
         }

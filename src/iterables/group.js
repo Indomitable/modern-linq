@@ -18,8 +18,7 @@ export class Grouping extends BaseLinqIterable {
 
 export class GroupIterable extends BaseLinqIterable {
     constructor(source, keySelector, elementSelector, resultCreator) {
-        super();
-        this.source = source;
+        super(source);
         if (typeof keySelector === 'undefined') {
             throw new Error('keyselector is required');
         }

@@ -17,6 +17,40 @@ function getIterator(iterable) {
     return iterable[Symbol.iterator]();
 }
 
+function __quickSort(items, left, right, comparer) {
+    do {
+        let i = left;
+        let j = right;
+        let x = items[i + ((j - i) >> 1)];
+        do {
+            while (i < items.length && comparer(x, items[i]) > 0) i++;
+            while (j >= 0 && comparer(x, items[j]) < 0) j--;
+            if (i > j) break;
+            if (i < j) {
+
+                let temp = items[i];
+                items[i] = items[j];
+                items[j] = temp;
+            }
+            i++;
+            j--;
+        } while (i <= j);
+        if (j - left <= right - i) {
+            if (left < j) __quickSort(items, left, j, comparer);
+            left = i;
+        } else {
+            if (i < right) __quickSort(items, i, right, comparer);
+            right = j;
+        }
+    } while (left < right);
+}
+
+function quickSort(items, left, right, comparer) {
+    const copy = [ ...items ]; // copy items.
+    __quickSort(copy, left, right, comparer);
+    return copy;
+}
+
 class BaseLinqIterable {
     constructor(source) {
         this.source = source;
@@ -634,8 +668,7 @@ class Grouping extends BaseLinqIterable {
 
 class GroupIterable extends BaseLinqIterable {
     constructor(source, keySelector, elementSelector, resultCreator) {
-        super();
-        this.source = source;
+        super(source);
         if (typeof keySelector === 'undefined') {
             throw new Error('keyselector is required');
         }
@@ -755,6 +788,34 @@ class AggregateFinalizer {
     }
 }
 
+class OrderIterable extends BaseLinqIterable {
+    constructor(source, keySelector, direction, comparer) {
+        super(source);
+        this.keySelector = keySelector;
+        this.direction = direction;
+        this.comparer = comparer;
+    }
+
+    static __sort(source, comparer) {
+        const iterable = Array.isArray(source) ? source : source.toArray();
+        return quickSort(source, 0, iterable.length - 1, comparer);
+    }
+
+    get() {
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const source = this._getSource();
+        const keyComparer = typeof this.comparer === 'undefined' ? (a, b) => a - b  :  this.comparer;
+        const comparer = (left, right) => {
+            return this.direction * keyComparer(this.keySelector(left), this.keySelector(right));
+        };
+        const result = OrderIterable.__sort(source, comparer);
+        return this._getIterator(result);
+    }
+}
+
 const linqMixin = {
     where(predicate) {
         return new WhereIterable(this, predicate);
@@ -787,6 +848,12 @@ const linqMixin = {
     },
     groupBy(keySelector, elementSelector, resultCreator) {
         return new GroupIterable(this, keySelector, elementSelector, resultCreator);
+    },
+    orderBy(keySelector, comparer) {
+        return new OrderIterable(this, keySelector, 1, comparer);
+    },
+    orderByDescending(keySelector, comparer) {
+        return new OrderIterable(this, keySelector, -1, comparer);
     },
     toArray() {
         const result = this.get();
@@ -881,6 +948,7 @@ applyMixin(linqMixin, [
     DistinctIterable,
     Grouping,
     GroupIterable,
+    OrderIterable,
 ]);
 
 exports.fromArrayLike = fromArrayLike;

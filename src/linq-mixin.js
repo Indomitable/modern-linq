@@ -11,6 +11,7 @@ import { DistinctIterable } from "./iterables/distinct";
 import { GroupIterable } from "./iterables/group";
 import { CountFinalizer } from "./finalizers/count";
 import { AggregateFinalizer } from "./finalizers/aggregate";
+import {OrderIterable} from "./iterables/order";
 
 export const linqMixin = {
     where(predicate) {
@@ -44,6 +45,12 @@ export const linqMixin = {
     },
     groupBy(keySelector, elementSelector, resultCreator) {
         return new GroupIterable(this, keySelector, elementSelector, resultCreator);
+    },
+    orderBy(keySelector, comparer) {
+        return new OrderIterable(this, keySelector, 1, comparer);
+    },
+    orderByDescending(keySelector, comparer) {
+        return new OrderIterable(this, keySelector, -1, comparer);
     },
     toArray() {
         const result = this.get();
