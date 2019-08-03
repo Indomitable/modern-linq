@@ -1,5 +1,5 @@
-import {fromIterable, range} from "../../src";
-import {expect} from "chai";
+import { fromIterable, range } from "../../src";
+import { expect } from "chai";
 
 describe('order tests', () => {
     [
@@ -20,6 +20,17 @@ describe('order tests', () => {
         it('should be order descending items: ' + indx, () => {
             const result = fromIterable(source).orderByDescending(_ => _).toArray();
             const expected = range(99, -1).toArray();
+            expect(result).to.deep.equal(expected);
+        });
+    });
+
+    [
+        ['C', 'B', 'A', 'DA', 'D', 'AB'],
+        new Set(['C', 'B', 'A', 'DA', 'D', 'AB'])
+    ].forEach((source, indx) => {
+        it('should able to order string: ' + indx, () => {
+            const result = fromIterable(source).orderBy(_ => _).toArray();
+            const expected = ['A', 'AB', 'B', 'C', 'D', 'DA']
             expect(result).to.deep.equal(expected);
         });
     });

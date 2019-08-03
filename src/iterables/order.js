@@ -1,5 +1,5 @@
-import {BaseLinqIterable} from "../base-linq-iterable";
-import {quickSort} from "../utils";
+import { BaseLinqIterable } from "../base-linq-iterable";
+import { quickSort } from "../utils";
 
 export class OrderIterable extends BaseLinqIterable {
     constructor(source, keySelector, direction, comparer) {
@@ -10,8 +10,8 @@ export class OrderIterable extends BaseLinqIterable {
     }
 
     static __sort(source, comparer) {
-        const iterable = Array.isArray(source) ? source : source.toArray();
-        return quickSort(source, 0, iterable.length - 1, comparer);
+        const arr = Array.isArray(source) ? source : Array.from(source);
+        return quickSort(source, 0, arr.length - 1, comparer);
     }
 
     get() {
@@ -20,7 +20,7 @@ export class OrderIterable extends BaseLinqIterable {
 
     [Symbol.iterator]() {
         const source = this._getSource();
-        const keyComparer = typeof this.comparer === 'undefined' ? (a, b) => a - b  :  this.comparer;
+        const keyComparer = typeof this.comparer === 'undefined' ? ((a, b) => a < b ? -1 : (a > b ? 1 : 0)) : this.comparer;
         const comparer = (left, right) => {
             return this.direction * keyComparer(this.keySelector(left), this.keySelector(right));
         };

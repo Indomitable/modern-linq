@@ -2,24 +2,43 @@ import { expect } from 'chai';
 import { fromIterable } from "../../src";
 
 describe('distinct tests', () => {
-    it('should return distinct values', () => {
-        const input = fromIterable([1, 2, 3, 1, 5, 2, 'a', 'a']);
-        expect(input.distinct().toArray()).to.deep.equal([1, 2, 3, 5, 'a']);
+    [
+        [1, 2, 3, 1, 5, 2, 'a', 'a'],
+        new Set([1, 2, 3, 1, 5, 2, 'a', 'a'])
+    ].forEach((source, indx) => {
+        it('should return distinct values: ' + indx, () => {
+            const input = fromIterable(source);
+            expect(input.distinct().toArray()).to.deep.equal([1, 2, 3, 5, 'a']);
+        });
     });
 
-    it('should return empty when no values', () => {
-        const input = fromIterable([]);
-        expect(input.distinct().toArray()).to.deep.equal([]);
+    [
+        [], new Set()
+    ].forEach((source, indx) => {
+        it('should return empty when no values: ' + indx, () => {
+            const input = fromIterable(source);
+            expect(input.distinct().toArray()).to.deep.equal([]);
+        });
     });
 
-    it('should use comparer when provided', () => {
-        const input = fromIterable([1, 2, 3, 5, 'a', 'b']);
-        expect(input.distinct((a, b) => typeof a === typeof b).toArray()).to.deep.equal([1, 'a']);
+    [
+        [1, 2, 3, 5, 'a', 'b'],
+        new Set([1, 2, 3, 5, 'a', 'b'])
+    ].forEach((source, indx) => {
+        it('should use comparer when provided: ' + indx, () => {
+            const input = fromIterable(source);
+            expect(input.distinct((a, b) => typeof a === typeof b).toArray()).to.deep.equal([1, 'a']);
+        });
     });
 
-    it('should be able to continue', () => {
-        const input = fromIterable([1, 2, 3, 1, 5, 2, 'a', 'a']);
-        expect(input.distinct().where(_ => typeof _ === 'string').toArray()).to.deep.equal(['a']);
+    [
+        [1, 2, 3, 1, 5, 2, 'a', 'a'],
+        new Set([1, 2, 3, 1, 5, 2, 'a', 'a'])
+    ].forEach((source, indx) => {
+        it('should be able to continue: ' + indx, () => {
+            const input = fromIterable(source);
+            expect(input.distinct().where(_ => typeof _ === 'string').toArray()).to.deep.equal(['a']);
+        });
     });
 });
 
