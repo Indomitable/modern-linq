@@ -82,7 +82,10 @@ class NativeProcessingLinqIterable extends BaseLinqIterable {
     _tryNativeProcess() {
         const source = this._getSource();
         if (Array.isArray(source)) {
-            return { processed: this._nativeTake(source) };
+            const result = this._nativeTake(source);
+            if (result) {
+                return {processed: result};
+            }
         }
         return { source };
     }
@@ -797,8 +800,8 @@ class OrderIterable extends BaseLinqIterable {
     }
 
     static __sort(source, comparer) {
-        const iterable = Array.isArray(source) ? source : source.toArray();
-        return quickSort(source, 0, iterable.length - 1, comparer);
+        const arr = Array.isArray(source) ? source : Array.from(source);
+        return quickSort(source, 0, arr.length - 1, comparer);
     }
 
     get() {
@@ -807,12 +810,65 @@ class OrderIterable extends BaseLinqIterable {
 
     [Symbol.iterator]() {
         const source = this._getSource();
-        const keyComparer = typeof this.comparer === 'undefined' ? (a, b) => a - b  :  this.comparer;
+        const keyComparer = typeof this.comparer === 'undefined' ? ((a, b) => a < b ? -1 : (a > b ? 1 : 0)) : this.comparer;
         const comparer = (left, right) => {
             return this.direction * keyComparer(this.keySelector(left), this.keySelector(right));
         };
         const result = OrderIterable.__sort(source, comparer);
         return this._getIterator(result);
+    }
+}
+
+class ConcatIterable extends NativeProcessingLinqIterable {
+    /**
+     * Creates a Union Iterable
+     * @param {Iterable} source input iterable
+     * @param {Iterable} second iterable to continue with
+     */
+    constructor(source, second) {
+        super(source);
+        this.second = second;
+    }
+
+    _nativeTake(array) {
+        if (Array.isArray(this.second)) {
+            return [...array, ...this.second];
+        }
+    }
+
+    get() {
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const { processed, source } = this._tryNativeProcess();
+        if (processed) {
+            return this._getIterator(processed);
+        }
+        const iteratorFirst = this._getIterator(source);
+        const iteratorSecond = this._getIterator(this.second);
+        let firstDone = false;
+        return {
+            next() {
+                if (!firstDone) {
+                    const firstNext = iteratorFirst.next();
+                    if (firstNext.done) {
+                        firstDone = true;
+                    }
+                    else {
+                        return {done: false, value: firstNext.value};
+                    }
+                }
+                if (firstDone) {
+                    const secondNext = iteratorSecond.next();
+                    if (secondNext.done) {
+                        return { done: true };
+                    } else {
+                        return { done: false, value: secondNext.value };
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -854,6 +910,9 @@ const linqMixin = {
     },
     orderByDescending(keySelector, comparer) {
         return new OrderIterable(this, keySelector, -1, comparer);
+    },
+    concat(secondIterable) {
+        return new ConcatIterable(this, secondIterable);
     },
     toArray() {
         const result = this.get();
@@ -949,6 +1008,7 @@ applyMixin(linqMixin, [
     Grouping,
     GroupIterable,
     OrderIterable,
+    ConcatIterable,
 ]);
 
 exports.fromArrayLike = fromArrayLike;
