@@ -12,7 +12,7 @@ import { GroupIterable } from "./iterables/group";
 import { CountFinalizer } from "./finalizers/count";
 import { AggregateFinalizer } from "./finalizers/aggregate";
 import {OrderIterable} from "./iterables/order";
-import { UnionIterable } from "./iterables/union";
+import { ConcatIterable } from "./iterables/union";
 
 export const linqMixin = {
     where(predicate) {
@@ -53,8 +53,8 @@ export const linqMixin = {
     orderByDescending(keySelector, comparer) {
         return new OrderIterable(this, keySelector, -1, comparer);
     },
-    union(secondIterable) {
-        return new UnionIterable(this, secondIterable);
+    concat(secondIterable) {
+        return new ConcatIterable(this, secondIterable);
     },
     toArray() {
         const result = this.get();

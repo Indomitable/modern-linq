@@ -1,6 +1,6 @@
 import { NativeProcessingLinqIterable } from "../base-linq-iterable";
 
-export class UnionIterable extends NativeProcessingLinqIterable {
+export class ConcatIterable extends NativeProcessingLinqIterable {
     /**
      * Creates a Union Iterable
      * @param {Iterable} source input iterable

@@ -112,10 +112,10 @@ declare module 'modern-linq' {
         orderByDescending<TKey>(keySelector: (item: TValue) => TKey, comparer?: (first: TKey, second: TKey) => number): LinqIterable<TValue>;
 
         /**
-         * Union this iterable with another
+         * Concat this iterable with another
          * @param secondIterable
          */
-        union(secondIterable: Iterable<TValue>): LinqIterable<TValue>;
+        concat(secondIterable: Iterable<TValue>): LinqIterable<TValue>;
 
         /**
          * Creates an array from iterable
