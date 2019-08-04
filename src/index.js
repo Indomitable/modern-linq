@@ -9,7 +9,8 @@ import { SkipIterable } from './iterables/skip';
 import { RangeIterable } from './generators/range';
 import { DistinctIterable } from './iterables/distinct';
 import { Grouping, GroupIterable } from './iterables/group';
-import {OrderIterable} from "./iterables/order";
+import { OrderIterable } from "./iterables/order";
+import { UnionIterable } from "./iterables/union";
 
 applyMixin(linqMixin, [
     LinqIterable,
@@ -24,6 +25,7 @@ applyMixin(linqMixin, [
     Grouping,
     GroupIterable,
     OrderIterable,
+    UnionIterable,
 ]);
 
 export { fromIterable, fromObject, fromArrayLike, range } from './creation';

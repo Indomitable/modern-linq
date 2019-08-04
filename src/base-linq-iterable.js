@@ -29,7 +29,10 @@ export class NativeProcessingLinqIterable extends BaseLinqIterable {
     _tryNativeProcess() {
         const source = this._getSource();
         if (Array.isArray(source)) {
-            return { processed: this._nativeTake(source) };
+            const result = this._nativeTake(source);
+            if (result) {
+                return {processed: result};
+            }
         }
         return { source };
     }
