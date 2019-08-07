@@ -12,7 +12,7 @@ import { GroupIterable } from "./iterables/group";
 import { CountFinalizer } from "./finalizers/count";
 import { AggregateFinalizer } from "./finalizers/aggregate";
 import { OrderIterable } from "./iterables/order";
-import { ConcatIterable } from "./iterables/union";
+import { ConcatIterable } from "./iterables/concat";
 import { ForEachFinalizer } from "./finalizers/for-each";
 import { ElementAtFinalizer } from "./finalizers/element-at";
 import { ToArrayFinalizer } from "./finalizers/to-array";
