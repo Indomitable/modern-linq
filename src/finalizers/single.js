@@ -1,9 +1,8 @@
 export class SingleFinalizer {
     static get(source, predicate) {
-        const iterable = source.get();
         let result;
         let count = 0;
-        for (const item of iterable) {
+        for (const item of source) {
             if ((predicate && predicate(item)) || !predicate) {
                result = item;
                count++;
@@ -19,10 +18,9 @@ export class SingleFinalizer {
     }
 
     static getOrDefault(source, def, predicate) {
-        const iterable = source.get();
         let result;
         let count = 0;
-        for (const item of iterable) {
+        for (const item of source) {
             if ((predicate && predicate(item)) || !predicate) {
                 result = item;
                 count++;

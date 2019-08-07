@@ -1,14 +1,8 @@
 import { expect } from 'chai';
 import { fromIterable, range } from "../../src";
+import Person from "./person";
 
 describe('groupBy tests', () => {
-    class Person {
-        constructor(age, name) {
-            this.age = age;
-            this.name = name;
-        }
-    }
-
     const input = [
         new Person(10, 'A'),
         new Person(20, 'B'),

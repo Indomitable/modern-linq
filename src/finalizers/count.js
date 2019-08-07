@@ -1,26 +1,20 @@
+import { getIterator } from "../utils";
+
 export class CountFinalizer {
     static get(source, predicate) {
-        if (Array.isArray(source)) {
+        const iterable = source.get();
+        if (Array.isArray(iterable)) {
             if (predicate) {
-                return source.filter(predicate).length;
+                return iterable.filter(predicate).length;
             }
-            return source.length;
+            return iterable.length;
         }
         let i = 0;
-        const iterator = source[Symbol.iterator]();
-        while (true) {
-            let { done, value } = iterator.next();
-            if (done) {
-                return i;
-            } else {
-                if (predicate) {
-                    if (predicate(value)) {
-                        i++;
-                    }
-                } else {
-                    i++;
-                }
+        for (const item of iterable) {
+            if ((predicate && predicate(item)) || !predicate) {
+                i++;
             }
         }
+        return i;
     }
 }

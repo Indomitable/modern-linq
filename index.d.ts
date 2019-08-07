@@ -123,6 +123,11 @@ declare module 'modern-linq' {
         toArray(): TValue[];
 
         /**
+         * Creates an array from iterable, using map function which creates an array of mapped items.
+         */
+        toArray<TResult>(map: (item: TValue) => TResult): TResult[];
+
+        /**
          * Get first item of iterable
          * @param predicate optional predicate for the item
          */
@@ -216,6 +221,19 @@ declare module 'modern-linq' {
          * @param separator
          */
         join(separator: string): string
+
+        /**
+         * Return element at specific index
+         * @param index index of requested element.
+         * @return undefined when no index out of range.
+         */
+        elementAt(index: number): TValue | undefined;
+
+        /**
+         * do action over every item in the sequence
+         * @param action
+         */
+        forEach(action: (item: TValue) => void): void;
     }
 
     export interface IGrouping<TKey, TValue> extends Iterable<TValue> {

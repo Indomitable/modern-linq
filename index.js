@@ -385,30 +385,29 @@ class SelectManyIterable extends BaseLinqIterable {
 
 class FirstFinalizer {
     static get(source, predicate) {
-        const iterable = source.get();
         if (predicate) {
-            if (Array.isArray(iterable)) {
-                return iterable.find(predicate);
-            } else {
-                return iterable.where(predicate).first();
+            for (const item of source) {
+                if (predicate(item)) {
+                    return item;
+                }
             }
+        } else {
+            const iterator = getIterator(source);
+            const {value, done} = iterator.next();
+            return done ? void 0 : value;
         }
-        const iterator = getIterator(iterable);
-        const { value } = iterator.next();
-        return value;
     }
 
     static getOrDefault(source, def, predicate) {
-        const iterable = source.get();
         if (predicate) {
-            for (const item of iterable) {
+            for (const item of source) {
                 if (predicate(item)) {
                     return item;
                 }
             }
             return def;
         } else {
-            const iterator = getIterator(iterable);
+            const iterator = getIterator(source);
             const {value, done} = iterator.next();
             return done ? def : value;
         }
@@ -426,10 +425,9 @@ class FirstFinalizer {
 
 class SingleFinalizer {
     static get(source, predicate) {
-        const iterable = source.get();
         let result;
         let count = 0;
-        for (const item of iterable) {
+        for (const item of source) {
             if ((predicate && predicate(item)) || !predicate) {
                result = item;
                count++;
@@ -445,10 +443,9 @@ class SingleFinalizer {
     }
 
     static getOrDefault(source, def, predicate) {
-        const iterable = source.get();
         let result;
         let count = 0;
-        for (const item of iterable) {
+        for (const item of source) {
             if ((predicate && predicate(item)) || !predicate) {
                 result = item;
                 count++;
@@ -552,9 +549,6 @@ class SkipIterable extends NativeProcessingLinqIterable {
 
 class AllFinalizer {
     static get(source, predicate) {
-        if (Array.isArray(source)) {
-            return source.every(predicate);
-        }
         for (const item of source) {
             if (!predicate(item)) {
                 return false;
@@ -564,9 +558,6 @@ class AllFinalizer {
     }
 
     static getAllAndEvery(source, predicate) {
-        if (Array.isArray(source)) {
-            return source.length > 0 && source.every(predicate);
-        }
         let hasItems = false;
         for (const item of source) {
             hasItems = true;
@@ -580,9 +571,6 @@ class AllFinalizer {
 
 class AnyFinalizer {
     static get(source, predicate) {
-        if (Array.isArray(source)) {
-            return source.some(predicate);
-        }
         for (const item of source) {
             if (predicate(item)) {
                 return true;
@@ -730,36 +718,25 @@ class GroupIterable extends BaseLinqIterable {
 
 class CountFinalizer {
     static get(source, predicate) {
-        if (Array.isArray(source)) {
+        const iterable = source.get();
+        if (Array.isArray(iterable)) {
             if (predicate) {
-                return source.filter(predicate).length;
+                return iterable.filter(predicate).length;
             }
-            return source.length;
+            return iterable.length;
         }
         let i = 0;
-        const iterator = source[Symbol.iterator]();
-        while (true) {
-            let { done, value } = iterator.next();
-            if (done) {
-                return i;
-            } else {
-                if (predicate) {
-                    if (predicate(value)) {
-                        i++;
-                    }
-                } else {
-                    i++;
-                }
+        for (const item of iterable) {
+            if ((predicate && predicate(item)) || !predicate) {
+                i++;
             }
         }
+        return i;
     }
 }
 
 class AggregateFinalizer {
     static get(source, accumulator) {
-        if (Array.isArray(source)) {
-            return source.reduce(accumulator);
-        }
         let res;
         let index = -1;
         for (const item of source) {
@@ -778,9 +755,6 @@ class AggregateFinalizer {
     }
 
     static getWithInitial(source, accumulator, initial) {
-        if (Array.isArray(source)) {
-            return source.reduce(accumulator, initial);
-        }
         let res = initial;
         let index = 0;
         for (const item of source) {
@@ -872,6 +846,37 @@ class ConcatIterable extends NativeProcessingLinqIterable {
     }
 }
 
+class ForEachFinalizer {
+    static get(source, action) {
+        for (const item of source) {
+            action(item);
+        }
+    }
+}
+
+class ElementAtFinalizer {
+    static get(source, index) {
+        let i = 0;
+        for (const item of source) {
+            if (i === index) {
+                return item;
+            }
+            i++;
+        }
+    }
+}
+
+class ToArrayFinalizer {
+    static get(source, map) {
+        if (!map) {
+            const iterable = source.get();
+            return Array.isArray(iterable) ? iterable : Array.from(iterable);
+        } else {
+            return source.select(map).toArray();
+        }
+    }
+}
+
 const linqMixin = {
     where(predicate) {
         return new WhereIterable(this, predicate);
@@ -914,9 +919,8 @@ const linqMixin = {
     concat(secondIterable) {
         return new ConcatIterable(this, secondIterable);
     },
-    toArray() {
-        const result = this.get();
-        return Array.isArray(result) ? result : Array.from(result);
+    toArray(map) {
+        return ToArrayFinalizer.get(this, map);
     },
     toMap(keySelector, valueSelector) {
         const transformValue = typeof valueSelector === 'undefined';
@@ -945,25 +949,25 @@ const linqMixin = {
         return SingleFinalizer.getOrDefault(this, def, predicate);
     },
     all(predicate) {
-        return AllFinalizer.get(this.get(), predicate)
+        return AllFinalizer.get(this, predicate)
     },
     allAndEvery(predicate) {
-        return AllFinalizer.getAllAndEvery(this.get(), predicate)
+        return AllFinalizer.getAllAndEvery(this, predicate)
     },
     any(predicate) {
-        return AnyFinalizer.get(this.get(), predicate)
+        return AnyFinalizer.get(this, predicate)
     },
     count(predicate) {
-        return CountFinalizer.get(this.get(), predicate);
+        return CountFinalizer.get(this, predicate);
     },
     aggregate(accumulator, initial) {
         switch (arguments.length) {
             case 1: {
-                return AggregateFinalizer.get(this.get(), accumulator);
+                return AggregateFinalizer.get(this, accumulator);
             }
             case 2: {
                 // here the resultCreator actually is the initial
-                return AggregateFinalizer.getWithInitial(this.get(), accumulator, initial);
+                return AggregateFinalizer.getWithInitial(this, accumulator, initial);
             }
             default: {
                 throw new RangeError('invalid arguments');
@@ -971,27 +975,33 @@ const linqMixin = {
         }
     },
     sum() {
-        return AggregateFinalizer.get(this.get(), (r, i) => r + i);
+        return AggregateFinalizer.get(this, (r, i) => r + i);
     },
     product() {
-        return AggregateFinalizer.get(this.get(), (r, i) => r * i);
+        return AggregateFinalizer.get(this, (r, i) => r * i);
     },
     min(comparer) {
         const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
-        return AggregateFinalizer.get(this.get(), (a, b) => {
+        return AggregateFinalizer.get(this, (a, b) => {
             const comp = compare(a, b);
             return comp < 0 ? a : (comp > 0 ? b : a);
         });
     },
     max(comparer) {
         const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
-        return AggregateFinalizer.get(this.get(), (a, b) => {
+        return AggregateFinalizer.get(this, (a, b) => {
             const comp = compare(a, b);
             return comp < 0 ? b : (comp > 0 ? a : b);
         });
     },
     join(separator) {
         return this.select(_ => '' + _).toArray().join(separator);
+    },
+    elementAt(index) {
+        return ElementAtFinalizer.get(this, index);
+    },
+    forEach(action) {
+        return ForEachFinalizer.get(this, action);
     }
 };
 

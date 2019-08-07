@@ -1,8 +1,5 @@
 export class AggregateFinalizer {
     static get(source, accumulator) {
-        if (Array.isArray(source)) {
-            return source.reduce(accumulator);
-        }
         let res;
         let index = -1;
         for (const item of source) {
@@ -21,9 +18,6 @@ export class AggregateFinalizer {
     }
 
     static getWithInitial(source, accumulator, initial) {
-        if (Array.isArray(source)) {
-            return source.reduce(accumulator, initial);
-        }
         let res = initial;
         let index = 0;
         for (const item of source) {

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable } from "../../src";
+import { fromIterable, range } from "../../src";
 
 describe('output tests', () => {
     it('should create an array', () => {
@@ -45,4 +45,20 @@ describe('output tests', () => {
         const set = fromIterable([1, 2, 3, 1, 2, 3]).toSet();
         expect(Array.from(set.values())).to.deep.equal([1, 2, 3]);
     });
+
+    [
+        range(0, 10),
+        range(0, 10).toArray(),
+    ].forEach((source, indx) => {
+        it('to array should map elements if map function is provided: ' + indx, () => {
+            const iterable = fromIterable(source);
+            const arr = iterable.toArray(_ => _ * 2);
+            let i = 0;
+            for (const item of range(0, 10)) {
+                expect(arr[i]).to.equal(item * 2);
+                i++;
+            }
+        });
+    });
 });
+

@@ -11,8 +11,11 @@ import { DistinctIterable } from "./iterables/distinct";
 import { GroupIterable } from "./iterables/group";
 import { CountFinalizer } from "./finalizers/count";
 import { AggregateFinalizer } from "./finalizers/aggregate";
-import {OrderIterable} from "./iterables/order";
+import { OrderIterable } from "./iterables/order";
 import { ConcatIterable } from "./iterables/union";
+import { ForEachFinalizer } from "./finalizers/for-each";
+import { ElementAtFinalizer } from "./finalizers/element-at";
+import { ToArrayFinalizer } from "./finalizers/to-array";
 
 export const linqMixin = {
     where(predicate) {
@@ -56,9 +59,8 @@ export const linqMixin = {
     concat(secondIterable) {
         return new ConcatIterable(this, secondIterable);
     },
-    toArray() {
-        const result = this.get();
-        return Array.isArray(result) ? result : Array.from(result);
+    toArray(map) {
+        return ToArrayFinalizer.get(this, map);
     },
     toMap(keySelector, valueSelector) {
         const transformValue = typeof valueSelector === 'undefined';
@@ -87,25 +89,25 @@ export const linqMixin = {
         return SingleFinalizer.getOrDefault(this, def, predicate);
     },
     all(predicate) {
-        return AllFinalizer.get(this.get(), predicate)
+        return AllFinalizer.get(this, predicate)
     },
     allAndEvery(predicate) {
-        return AllFinalizer.getAllAndEvery(this.get(), predicate)
+        return AllFinalizer.getAllAndEvery(this, predicate)
     },
     any(predicate) {
-        return AnyFinalizer.get(this.get(), predicate)
+        return AnyFinalizer.get(this, predicate)
     },
     count(predicate) {
-        return CountFinalizer.get(this.get(), predicate);
+        return CountFinalizer.get(this, predicate);
     },
     aggregate(accumulator, initial) {
         switch (arguments.length) {
             case 1: {
-                return AggregateFinalizer.get(this.get(), accumulator);
+                return AggregateFinalizer.get(this, accumulator);
             }
             case 2: {
                 // here the resultCreator actually is the initial
-                return AggregateFinalizer.getWithInitial(this.get(), accumulator, initial);
+                return AggregateFinalizer.getWithInitial(this, accumulator, initial);
             }
             default: {
                 throw new RangeError('invalid arguments');
@@ -113,26 +115,32 @@ export const linqMixin = {
         }
     },
     sum() {
-        return AggregateFinalizer.get(this.get(), (r, i) => r + i);
+        return AggregateFinalizer.get(this, (r, i) => r + i);
     },
     product() {
-        return AggregateFinalizer.get(this.get(), (r, i) => r * i);
+        return AggregateFinalizer.get(this, (r, i) => r * i);
     },
     min(comparer) {
         const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
-        return AggregateFinalizer.get(this.get(), (a, b) => {
+        return AggregateFinalizer.get(this, (a, b) => {
             const comp = compare(a, b);
             return comp < 0 ? a : (comp > 0 ? b : a);
         });
     },
     max(comparer) {
         const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
-        return AggregateFinalizer.get(this.get(), (a, b) => {
+        return AggregateFinalizer.get(this, (a, b) => {
             const comp = compare(a, b);
             return comp < 0 ? b : (comp > 0 ? a : b);
         });
     },
     join(separator) {
         return this.select(_ => '' + _).toArray().join(separator);
+    },
+    elementAt(index) {
+        return ElementAtFinalizer.get(this, index);
+    },
+    forEach(action) {
+        return ForEachFinalizer.get(this, action);
     }
 };
