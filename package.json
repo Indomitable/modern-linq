@@ -1,6 +1,6 @@
 {
   "name": "modern-linq",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Linq implementation for JS",
   "main": "index.js",
   "module": "index.esm.js",
@@ -26,6 +26,15 @@
     "linq",
     "C#",
     "iterator"
+  ],
+  "files": [
+    "src/",
+    "index.d.ts",
+    "index.esm.js",
+    "index.js",
+    "package.json",
+    "README.md",
+    "LICENSE"
   ],
   "devDependencies": {
     "@babel/cli": "^7.5.5",
