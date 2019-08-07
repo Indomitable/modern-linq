@@ -1,5 +1,5 @@
 import { assert, expect } from 'chai';
-import { fromArrayLike, fromIterable, fromObject } from "../../src";
+import { from, fromArrayLike, fromIterable, fromObject, range } from "../../src";
 
 describe('from creation tests', () => {
     it('should create a linq iterable from collection', () => {
@@ -35,4 +35,22 @@ describe('from creation tests', () => {
         const seq = fromArrayLike(input).toArray().join(',');
         expect(seq).to.equal('A,B,C,D');
     });
+
+    [
+        new Set([0, 1, 2, 3]),
+        range(0, 4),
+        [0, 1, 2, 3],
+        { 0: 0, 1: 1, 2: 2, 3: 3, length: 4 }
+    ].forEach((source, indx) => {
+        it('should from create a linq iterable from different objects: ' + indx, () => {
+            const l = from(source).toArray();
+            expect(l).to.deep.equal([0, 1, 2, 3]);
+        });
+    });
+
+    it('should from create a linq iterable from objects', () => {
+        const l = from({ 'a': 0, 'b': 1}).toArray();
+        expect(l).to.deep.equal([['a', 0], ['b', 1]]);
+    });
 });
+

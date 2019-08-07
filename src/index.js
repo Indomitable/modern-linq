@@ -28,4 +28,4 @@ applyMixin(linqMixin, [
     ConcatIterable,
 ]);
 
-export { fromIterable, fromObject, fromArrayLike, range } from './creation';
+export { fromIterable, fromObject, fromArrayLike, range, from } from './creation';

@@ -228,6 +228,17 @@ function range(from, to) {
     return new RangeIterable(from, to);
 }
 
+function from(source) {
+    const iterator = source[Symbol.iterator];
+    if (typeof iterator === 'function') {
+        return fromIterable(source);
+    }
+    if ('length' in source) {
+        return fromArrayLike(source);
+    }
+    return fromObject(source);
+}
+
 /**
  * Return filtred array [1, 2, 3, 4].where(x => x % 2 === 0) === [2, 4]
  */
@@ -1021,6 +1032,7 @@ applyMixin(linqMixin, [
     ConcatIterable,
 ]);
 
+exports.from = from;
 exports.fromArrayLike = fromArrayLike;
 exports.fromIterable = fromIterable;
 exports.fromObject = fromObject;

@@ -259,10 +259,21 @@ declare module 'modern-linq' {
     export function fromArrayLike<TValue>(arrayLike: ArrayLike<TValue>): LinqIterable<TValue>;
 
     /**
-     * Creates a select js iterable containig a [from, to) range of numbers
+     * Creates a select js iterable containing a [from, to) range of numbers
      * if from is less than to return ascending range
      * if from is greater that to return descending range
      * if from === to returns empty iterable
      */
     export function range(from: number, to: number): LinqIterable<number>;
+
+    /**
+     * General from function which except various source types
+     * @param iterable or array like objects
+     */
+    export function from<TValue>(iterable: Iterable<TValue>|ArrayLike<TValue>): LinqIterable<TValue>;
+    /**
+     * Alias for fromObject function.
+     * @param value
+     */
+    export function from<TValue extends {}>(value: TValue): LinqIterable<['string', object]>;
 }

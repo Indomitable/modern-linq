@@ -64,3 +64,14 @@ export function fromArrayLike(source) {
 export function range(from, to) {
     return new RangeIterable(from, to);
 }
+
+export function from(source) {
+    const iterator = source[Symbol.iterator];
+    if (typeof iterator === 'function') {
+        return fromIterable(source);
+    }
+    if ('length' in source) {
+        return fromArrayLike(source);
+    }
+    return fromObject(source);
+}
