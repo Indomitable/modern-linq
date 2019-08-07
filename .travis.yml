@@ -1,16 +1,27 @@
 language: node_js
 node_js:
   - "lts/*"
-install:
-  - yarn --pure-lockfile
-script:
-  - yarn build
-  - yarn test
 
-deploy:
-  provider: npm
-  email: v.mladenov@hotmail.com
-  api_key: $NPM_API_KEY
-  skip_cleanup: true  # skip cleanup- if yarn build was forgotten.
-  on:
-    tags: true
+stages:
+  - install
+  - build
+  - test
+  - deploy
+
+jobs:
+  include:
+    - stage: install
+      script: yarn --pure-lockfile
+    - stage: build
+      script: yarn build
+    - stage: test
+      script: yarn test
+    - stage: deploy
+      script: echo "Deploying to npm ..."
+      deploy:
+        provider: npm
+        email: v.mladenov@hotmail.com
+        api_key: $NPM_API_KEY
+        skip_cleanup: true  # skip cleanup- if yarn build was forgotten.
+        on:
+          tags: true
