@@ -1,9 +1,9 @@
-import { BaseLinqIterable } from "../base-linq-iterable";
+import {NativeProcessingLinqIterable} from "../base-linq-iterable";
 
 /**
  * Return first N numbers of source
  */
-export class TakeIterable extends BaseLinqIterable {
+export class TakeIterable extends NativeProcessingLinqIterable {
     /**
      *
      * @param {Iterable} source
@@ -14,15 +14,16 @@ export class TakeIterable extends BaseLinqIterable {
         this.count = count;
     }
 
-    get() {
-        if (Array.isArray(this.source)) {
-            return this.source.slice(0, this.count);
-        }
-        return this;
+    _nativeTake(array) {
+        return array.slice(0, this.count);
     }
 
     [Symbol.iterator]() {
-        const iterator = this._getIterator(this.source);
+        const { processed, source } = this._tryNativeProcess();
+        if (processed) {
+            return this._getIterator(processed);
+        }
+        const iterator = this._getIterator(source);
         const count = this.count;
         let fetched = 0;
         return {

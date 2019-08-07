@@ -9,6 +9,10 @@ export function applyMixin(mixin, destinations) {
     }
 }
 
+export function getIterator(iterable) {
+    return iterable[Symbol.iterator]();
+}
+
 function __quickSort(items, left, right, comparer) {
     do {
         let i = left;

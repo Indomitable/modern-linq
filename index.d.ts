@@ -5,71 +5,117 @@ declare module 'modern-linq' {
          * @param predicate
          */
         where(predicate: (item: TValue) => boolean): LinqIterable<TValue>;
+
         /**
-         * Maps the iterable items 
+         * Maps the iterable items
          * @param map map function
          */
         select<TOutput>(map: (item: TValue) => TOutput): LinqIterable<TOutput>;
+
         /**
-         * Flat Iterable of collections 
+         * Flat Iterable of collections
          * @param map Function which returns a collection
          */
         selectMany<TOutput>(map: (item: TValue) => TOutput[]): LinqIterable<TOutput>;
+
         /**
          * Take first N items from iterable
-         * @param count 
+         * @param count
          */
         take(count: number): LinqIterable<TValue>;
+
         /**
          * Skip first N items from iterable
-         * @param count 
+         * @param count
          */
         skip(count: number): LinqIterable<TValue>;
+
         /**
          * Return distinct items. Can specify optional item comparer
          * @param comparer function to compare elements for equality
          */
         distinct(comparer?: (a: TValue, b: TValue) => boolean): LinqIterable<TValue>;
+
         /**
          * Selects all items of type string
-         * @param type 
+         * @param type
          */
         ofType(type: 'string'): LinqIterable<string>;
+
         /**
          * Selects all items of type number
-         * @param type 
+         * @param type
          */
         ofType(type: 'number'): LinqIterable<number>;
+
         /**
          * Selects all items of type boolean
-         * @param type 
+         * @param type
          */
         ofType(type: 'boolean'): LinqIterable<boolean>;
+
         /**
          * Selects all items of type undefined
-         * @param type 
+         * @param type
          */
         ofType(type: 'undefined'): LinqIterable<undefined>;
+
         /**
          * Selects all items of type function
-         * @param type 
+         * @param type
          */
         ofType(type: 'function'): LinqIterable<Function>;
+
         /**
          * Selects all items of type object
-         * @param type 
+         * @param type
          */
         ofType(type: 'object'): LinqIterable<object>;
+
         /**
          * Selects all items of type symbol
-         * @param type 
+         * @param type
          */
         ofType(type: 'symbol'): LinqIterable<Symbol>;
+
         /**
-         * Selects all items of base type 
-         * @param type 
+         * Selects all items of base type
+         * @param type
          */
         ofType<TOutput extends TValue>(type: { prototype: TOutput }): LinqIterable<TOutput>;
+
+        /**
+         * Group items
+         * @param keySelector group key selector
+         */
+        groupBy<TKey>(keySelector: (item: TValue) => TKey): LinqIterable<IGrouping<TKey, TValue>>;
+
+        groupBy<TKey, TElement>(keySelector: (item: TValue) => TKey, elementSelector: (item: TValue) => TElement): LinqIterable<IGrouping<TKey, TElement>>;
+
+        groupBy<TKey, TResult>(keySelector: (item: TValue) => TKey, resultCreator: (key: TKey, items: LinqIterable<TValue>) => TResult): LinqIterable<TResult>;
+
+        groupBy<TKey, TElement, TResult>(keySelector: (item: TValue) => TKey, elementSelector: (item: TValue) => TElement,
+                                         resultCreator: (key: TKey, items: LinqIterable<TElement>) => TResult): LinqIterable<TResult>;
+
+        /**
+         * Order by iterable by a key
+         * @param keySelector
+         * @param comparer optional comparer.
+         */
+        orderBy<TKey>(keySelector: (item: TValue) => TKey, comparer?: (first: TKey, second: TKey) => number): LinqIterable<TValue>;
+
+        /**
+         * Order by descending iterable by a key
+         * @param keySelector
+         * @param comparer optional comparer.
+         */
+        orderByDescending<TKey>(keySelector: (item: TValue) => TKey, comparer?: (first: TKey, second: TKey) => number): LinqIterable<TValue>;
+
+        /**
+         * Concat this iterable with another
+         * @param secondIterable
+         */
+        concat(secondIterable: Iterable<TValue>): LinqIterable<TValue>;
 
         /**
          * Creates an array from iterable
@@ -78,32 +124,38 @@ declare module 'modern-linq' {
 
         /**
          * Get first item of iterable
+         * @param predicate optional predicate for the item
          */
-        first(): TValue | undefined;
+        first(predicate?: (item: TValue) => boolean): TValue | undefined;
+
         /**
-         * Get first item of iterable, if does not contain any return default 
-         * @param def 
+         * Get first item of iterable, if does not contain any return default
+         * @param def
+         * @param predicate
          */
-        firstOrDefault(def: TValue): TValue;
+        firstOrDefault(def: TValue, predicate?: (item: TValue) => boolean): TValue;
+
         /**
          * Get first item of iterable, if no items throw RangeError
          */
         firstOrThrow(): TValue | never;
+
         /**
-         * Checks if iterable has only one item and returns it. 
-         * @throws RangeError when no or multiple elements
+         * Checks if iterable has only one item and returns it.
+         * @throws TypeError when no or multiple elements
          */
-        single(): TValue | never;
+        single(predicate?: (item: TValue) => boolean): TValue | never;
+
         /**
-         * Checks if iterable has only one item and returns it. 
+         * Checks if iterable has only one item and returns it.
          * If the iterable does not contain items return default value.
-         * @throws RangeError when multiple elements
+         * @throws TypeError when multiple elements
          */
-        singleOrDefault(def: TValue): TValue | never;
+        singleOrDefault(def: TValue, predicate?: (item: TValue) => boolean): TValue | never;
 
         /**
          * Returns if all items satisfy the predicate. It returns true if no items.
-         * @param predicate 
+         * @param predicate
          */
         all(predicate: (item: TValue) => boolean): boolean;
 
@@ -115,7 +167,7 @@ declare module 'modern-linq' {
 
         /**
          * Returns if any items satisfy the predicate.
-         * @param predicate 
+         * @param predicate
          */
         any(predicate: (item: TValue) => boolean): boolean;
 
@@ -166,20 +218,25 @@ declare module 'modern-linq' {
         join(separator: string): string
     }
 
+    export interface IGrouping<TKey, TValue> extends Iterable<TValue> {
+        key: TKey;
+    }
+
     /**
      * Creates a select js iterable from iterable (arrays, map, set ...)
-     * @param iterable 
+     * @param iterable
      */
     export function fromIterable<TValue>(iterable: Iterable<TValue>): LinqIterable<TValue>;
+
     /**
      * Creates a select js iterable from an object (using Object.entries())
-     * @param value 
+     * @param value
      */
     export function fromObject<TValue extends {}>(value: TValue): LinqIterable<['string', object]>;
 
     /**
      * Creates linq iterable from array like object
-     * @param arrayLike 
+     * @param arrayLike
      */
     export function fromArrayLike<TValue>(arrayLike: ArrayLike<TValue>): LinqIterable<TValue>;
 

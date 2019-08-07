@@ -11,39 +11,50 @@ import { DistinctIterable } from "./iterables/distinct";
 import { GroupIterable } from "./iterables/group";
 import { CountFinalizer } from "./finalizers/count";
 import { AggregateFinalizer } from "./finalizers/aggregate";
+import {OrderIterable} from "./iterables/order";
+import { ConcatIterable } from "./iterables/union";
 
 export const linqMixin = {
     where(predicate) {
-        return new WhereIterable(this.get(), predicate);
+        return new WhereIterable(this, predicate);
     },
     select(map) {
-        return new SelectIterable(this.get(), map);
+        return new SelectIterable(this, map);
     },
     selectMany(map) {
-        return new SelectManyIterable(this.get(), map);
+        return new SelectManyIterable(this, map);
     },
     take(count) {
-        return new TakeIterable(this.get(), count);
+        return new TakeIterable(this, count);
     },
     skip(count) {
-        return new SkipIterable(this.get(), count);
+        return new SkipIterable(this, count);
     },
     distinct(comparer) {
-        return new DistinctIterable(this.get(), comparer);
+        return new DistinctIterable(this, comparer);
     },
     ofType(type) {
         if (typeof type === 'string') {
-            return new WhereIterable(this.get(), function (item) {
+            return new WhereIterable(this, function (item) {
                 return typeof item === type;
             });
         } else {
-            return new WhereIterable(this.get(), function (item) {
+            return new WhereIterable(this, function (item) {
                 return item instanceof type;
             });
         }
     },
     groupBy(keySelector, elementSelector, resultCreator) {
-        return new GroupIterable(this.get(), keySelector, elementSelector, resultCreator);
+        return new GroupIterable(this, keySelector, elementSelector, resultCreator);
+    },
+    orderBy(keySelector, comparer) {
+        return new OrderIterable(this, keySelector, 1, comparer);
+    },
+    orderByDescending(keySelector, comparer) {
+        return new OrderIterable(this, keySelector, -1, comparer);
+    },
+    concat(secondIterable) {
+        return new ConcatIterable(this, secondIterable);
     },
     toArray() {
         const result = this.get();
@@ -60,20 +71,20 @@ export const linqMixin = {
     toSet() {
         return new Set(this.get());
     },
-    first() {
-        return FirstFinalizer.get(this.get());
+    first(predicate) {
+        return FirstFinalizer.get(this, predicate);
     },
-    firstOrDefault(def) {
-        return FirstFinalizer.getOrDefault(this.get(), def);
+    firstOrDefault(def, predicate) {
+        return FirstFinalizer.getOrDefault(this, def, predicate);
     },
     firstOrThrow() {
-        return FirstFinalizer.getOrThrow(this.get());
+        return FirstFinalizer.getOrThrow(this);
     },
-    single() {
-        return SingleFinalizer.get(this.get());
+    single(predicate) {
+        return SingleFinalizer.get(this, predicate);
     },
-    singleOrDefault(def) {
-        return SingleFinalizer.getOrDefault(this.get(), def);
+    singleOrDefault(def, predicate) {
+        return SingleFinalizer.getOrDefault(this, def, predicate);
     },
     all(predicate) {
         return AllFinalizer.get(this.get(), predicate)

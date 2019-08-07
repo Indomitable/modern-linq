@@ -13,6 +13,44 @@ function applyMixin(mixin, destinations) {
     }
 }
 
+function getIterator(iterable) {
+    return iterable[Symbol.iterator]();
+}
+
+function __quickSort(items, left, right, comparer) {
+    do {
+        let i = left;
+        let j = right;
+        let x = items[i + ((j - i) >> 1)];
+        do {
+            while (i < items.length && comparer(x, items[i]) > 0) i++;
+            while (j >= 0 && comparer(x, items[j]) < 0) j--;
+            if (i > j) break;
+            if (i < j) {
+
+                let temp = items[i];
+                items[i] = items[j];
+                items[j] = temp;
+            }
+            i++;
+            j--;
+        } while (i <= j);
+        if (j - left <= right - i) {
+            if (left < j) __quickSort(items, left, j, comparer);
+            left = i;
+        } else {
+            if (i < right) __quickSort(items, i, right, comparer);
+            right = j;
+        }
+    } while (left < right);
+}
+
+function quickSort(items, left, right, comparer) {
+    const copy = [ ...items ]; // copy items.
+    __quickSort(copy, left, right, comparer);
+    return copy;
+}
+
 class BaseLinqIterable {
     constructor(source) {
         this.source = source;
@@ -22,9 +60,45 @@ class BaseLinqIterable {
         return source[Symbol.iterator]();
     }
 
+    _getSource() {
+        return this.source.get();
+    }
+
     get() {
         throw new Error('Not implemented');
     }
+}
+
+
+class NativeProcessingLinqIterable extends BaseLinqIterable {
+    constructor(source) {
+        super(source);
+    }
+
+    _nativeTake(array) {
+        throw new Error('Not implemented');
+    }
+
+    _tryNativeProcess() {
+        const source = this._getSource();
+        if (Array.isArray(source)) {
+            const result = this._nativeTake(source);
+            if (result) {
+                return {processed: result};
+            }
+        }
+        return { source };
+    }
+
+    get() {
+        const { processed } = this._tryNativeProcess();
+        if (processed) {
+            return processed;
+        }
+        return this;
+    }
+
+    
 }
 
 /**
@@ -157,7 +231,7 @@ function range(from, to) {
 /**
  * Return filtred array [1, 2, 3, 4].where(x => x % 2 === 0) === [2, 4]
  */
-class WhereIterable extends BaseLinqIterable {
+class WhereIterable extends NativeProcessingLinqIterable {
     /**
      *
      * @param {Iterable} source
@@ -168,15 +242,16 @@ class WhereIterable extends BaseLinqIterable {
         this.predicate = predicate;
     }
 
-    get() {
-        if (Array.isArray(this.source)) {
-            return this.source.filter(this.predicate);
-        }
-        return this;
+    _nativeTake(array) {
+        return array.filter(this.predicate);
     }
 
     [Symbol.iterator]() {
-        const iterator = this._getIterator(this.source);
+        const { processed, source } = this._tryNativeProcess();
+        if (processed) {
+            return this._getIterator(processed);
+        }
+        const iterator = this._getIterator(source);
         const predicate = this.predicate;
         return {
             next() {
@@ -202,7 +277,7 @@ class WhereIterable extends BaseLinqIterable {
 /**
  * Return mapped array [1, 2, 3].select(x => x * 2) === [2, 4, 6]
  */
-class SelectIterable extends BaseLinqIterable {
+class SelectIterable extends NativeProcessingLinqIterable {
     /**
      *
      * @param {Iterable} source
@@ -213,15 +288,16 @@ class SelectIterable extends BaseLinqIterable {
         this.map = map;
     }
 
-    get() {
-        if (Array.isArray(this.source)) {
-            return this.source.map(this.map);
-        }
-        return this;
+    _nativeTake(array) {
+        return array.map(this.map);
     }
 
     [Symbol.iterator]() {
-        const iterator = this._getIterator(this.source);
+        const { processed, source } = this._tryNativeProcess();
+        if (processed) {
+            return this._getIterator(processed);
+        }
+        const iterator = this._getIterator(source);
         const map = this.map;
         return {
             next() {
@@ -259,7 +335,8 @@ class SelectManyIterable extends BaseLinqIterable {
     }
 
     [Symbol.iterator]() {
-        const iterator = this.source[Symbol.iterator]();
+        const source = this._getSource();
+        const iterator = this._getIterator(source);
         const extract = this.extract;
         let isSubDone = true;
         let subIterator = null;
@@ -307,52 +384,90 @@ class SelectManyIterable extends BaseLinqIterable {
 }
 
 class FirstFinalizer {
-    static get(iterable) {
-        const iterator = iterable[Symbol.iterator]();
+    static get(source, predicate) {
+        const iterable = source.get();
+        if (predicate) {
+            if (Array.isArray(iterable)) {
+                return iterable.find(predicate);
+            } else {
+                return iterable.where(predicate).first();
+            }
+        }
+        const iterator = getIterator(iterable);
         const { value } = iterator.next();
         return value;
     }
 
-    static getOrDefault(iterable, def) {
-        const iterator = iterable[Symbol.iterator]();
-        const { value, done } = iterator.next();
-        return done ? def : value;
+    static getOrDefault(source, def, predicate) {
+        const iterable = source.get();
+        if (predicate) {
+            for (const item of iterable) {
+                if (predicate(item)) {
+                    return item;
+                }
+            }
+            return def;
+        } else {
+            const iterator = getIterator(iterable);
+            const {value, done} = iterator.next();
+            return done ? def : value;
+        }
     }
 
-    static getOrThrow(iterable, def) {
-        const iterator = iterable[Symbol.iterator]();
+    static getOrThrow(source) {
+        const iterator = getIterator(source.get());
         const { value, done } = iterator.next();
         if (done) {
-            throw new RangeError('Sequence contains no items');
+            throw new TypeError('Sequence contains no items');
         }
         return value;
     }
 }
 
 class SingleFinalizer {
-    static get(iterable) {
-        const iterator = iterable[Symbol.iterator]();
-        const { value, done } = iterator.next();
-        if (done || !iterator.next().done) {
-            throw new RangeError('Sequence does not contain single item');
+    static get(source, predicate) {
+        const iterable = source.get();
+        let result;
+        let count = 0;
+        for (const item of iterable) {
+            if ((predicate && predicate(item)) || !predicate) {
+               result = item;
+               count++;
+            }
+            if (count > 1) {
+                throw new TypeError('Sequence contains multiple items');
+            }
         }
-        return value;
+        if (count === 0) {
+            throw new TypeError('Sequence contains no items');
+        }
+        return result;
     }
 
-    static getOrDefault(iterable, def) {
-        const iterator = iterable[Symbol.iterator]();
-        const { value, done } = iterator.next();
-        if (!iterator.next().done) {
-            throw new RangeError('Sequence contains multiple items');
+    static getOrDefault(source, def, predicate) {
+        const iterable = source.get();
+        let result;
+        let count = 0;
+        for (const item of iterable) {
+            if ((predicate && predicate(item)) || !predicate) {
+                result = item;
+                count++;
+            }
+            if (count > 1) {
+                throw new TypeError('Sequence contains multiple items');
+            }
         }
-        return done ? def : value;
+        if (count === 0) {
+            return def;
+        }
+        return result;
     }
 }
 
 /**
  * Return first N numbers of source
  */
-class TakeIterable extends BaseLinqIterable {
+class TakeIterable extends NativeProcessingLinqIterable {
     /**
      *
      * @param {Iterable} source
@@ -363,15 +478,16 @@ class TakeIterable extends BaseLinqIterable {
         this.count = count;
     }
 
-    get() {
-        if (Array.isArray(this.source)) {
-            return this.source.slice(0, this.count);
-        }
-        return this;
+    _nativeTake(array) {
+        return array.slice(0, this.count);
     }
 
     [Symbol.iterator]() {
-        const iterator = this._getIterator(this.source);
+        const { processed, source } = this._tryNativeProcess();
+        if (processed) {
+            return this._getIterator(processed);
+        }
+        const iterator = this._getIterator(source);
         const count = this.count;
         let fetched = 0;
         return {
@@ -393,7 +509,7 @@ class TakeIterable extends BaseLinqIterable {
 /**
  * Skip first N numbers of source and return the rest
  */
-class SkipIterable extends BaseLinqIterable {
+class SkipIterable extends NativeProcessingLinqIterable {
     /**
      *
      * @param {Iterable} source
@@ -404,15 +520,16 @@ class SkipIterable extends BaseLinqIterable {
         this.count = count;
     }
 
-    get() {
-        if (Array.isArray(this.source)) {
-            return this.source.slice(this.count, this.source.length);
-        }
-        return this;
+    _nativeTake(array) {
+        return array.slice(this.count, array.length);
     }
 
     [Symbol.iterator]() {
-        const iterator = this._getIterator(this.source);
+        const { processed, source } = this._tryNativeProcess();
+        if (processed) {
+            return this._getIterator(processed);
+        }
+        const iterator = this._getIterator(source);
         const count = this.count;
         let skipped = 0;
         return {
@@ -491,17 +608,18 @@ class DistinctIterable extends BaseLinqIterable {
 
     get() {
         if (!this.comparer) {
-            return new Set(this.source);
+            return new Set(this._getSource());
         }
         return this;
     }
 
     [Symbol.iterator]() {
+        const source = this._getSource();
         if (!this.comparer) {
-            const set = new Set(this.source);
+            const set = new Set(source);
             return this._getIterator(set);
         }
-        const iterator = this._getIterator(this.source);
+        const iterator = this._getIterator(source);
         const itemChecker = new DistinctItemChecker(this.comparer);
         return {
             next() {
@@ -553,8 +671,7 @@ class Grouping extends BaseLinqIterable {
 
 class GroupIterable extends BaseLinqIterable {
     constructor(source, keySelector, elementSelector, resultCreator) {
-        super();
-        this.source = source;
+        super(source);
         if (typeof keySelector === 'undefined') {
             throw new Error('keyselector is required');
         }
@@ -567,10 +684,10 @@ class GroupIterable extends BaseLinqIterable {
         }
     }
 
-    __group() {
+    __group(source) {
         const map = new Map();
         const elementSelector = typeof this.elementSelector === 'undefined' ? _ => _ : this.elementSelector;
-        for (const item of this.source) {
+        for (const item of source) {
             const key = this.keySelector(item);
             const element = elementSelector(item);
             let value = map.get(key);
@@ -589,7 +706,8 @@ class GroupIterable extends BaseLinqIterable {
     }
 
     [Symbol.iterator]() {
-        const result = this.__group();
+        const source = this._getSource();
+        const result = this.__group(source);
         const groupIterator = this._getIterator(result);
         const resultCreator = typeof this.resultCreator === 'undefined' ? (key, grouping) => (new Grouping(key, grouping)) : this.resultCreator;
         return {
@@ -673,38 +791,128 @@ class AggregateFinalizer {
     }
 }
 
+class OrderIterable extends BaseLinqIterable {
+    constructor(source, keySelector, direction, comparer) {
+        super(source);
+        this.keySelector = keySelector;
+        this.direction = direction;
+        this.comparer = comparer;
+    }
+
+    static __sort(source, comparer) {
+        const arr = Array.isArray(source) ? source : Array.from(source);
+        return quickSort(source, 0, arr.length - 1, comparer);
+    }
+
+    get() {
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const source = this._getSource();
+        const keyComparer = typeof this.comparer === 'undefined' ? ((a, b) => a < b ? -1 : (a > b ? 1 : 0)) : this.comparer;
+        const comparer = (left, right) => {
+            return this.direction * keyComparer(this.keySelector(left), this.keySelector(right));
+        };
+        const result = OrderIterable.__sort(source, comparer);
+        return this._getIterator(result);
+    }
+}
+
+class ConcatIterable extends NativeProcessingLinqIterable {
+    /**
+     * Creates a Union Iterable
+     * @param {Iterable} source input iterable
+     * @param {Iterable} second iterable to continue with
+     */
+    constructor(source, second) {
+        super(source);
+        this.second = second;
+    }
+
+    _nativeTake(array) {
+        if (Array.isArray(this.second)) {
+            return [...array, ...this.second];
+        }
+    }
+
+    get() {
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const { processed, source } = this._tryNativeProcess();
+        if (processed) {
+            return this._getIterator(processed);
+        }
+        const iteratorFirst = this._getIterator(source);
+        const iteratorSecond = this._getIterator(this.second);
+        let firstDone = false;
+        return {
+            next() {
+                if (!firstDone) {
+                    const firstNext = iteratorFirst.next();
+                    if (firstNext.done) {
+                        firstDone = true;
+                    }
+                    else {
+                        return {done: false, value: firstNext.value};
+                    }
+                }
+                if (firstDone) {
+                    const secondNext = iteratorSecond.next();
+                    if (secondNext.done) {
+                        return { done: true };
+                    } else {
+                        return { done: false, value: secondNext.value };
+                    }
+                }
+            }
+        }
+    }
+}
+
 const linqMixin = {
     where(predicate) {
-        return new WhereIterable(this.get(), predicate);
+        return new WhereIterable(this, predicate);
     },
     select(map) {
-        return new SelectIterable(this.get(), map);
+        return new SelectIterable(this, map);
     },
     selectMany(map) {
-        return new SelectManyIterable(this.get(), map);
+        return new SelectManyIterable(this, map);
     },
     take(count) {
-        return new TakeIterable(this.get(), count);
+        return new TakeIterable(this, count);
     },
     skip(count) {
-        return new SkipIterable(this.get(), count);
+        return new SkipIterable(this, count);
     },
     distinct(comparer) {
-        return new DistinctIterable(this.get(), comparer);
+        return new DistinctIterable(this, comparer);
     },
     ofType(type) {
         if (typeof type === 'string') {
-            return new WhereIterable(this.get(), function (item) {
+            return new WhereIterable(this, function (item) {
                 return typeof item === type;
             });
         } else {
-            return new WhereIterable(this.get(), function (item) {
+            return new WhereIterable(this, function (item) {
                 return item instanceof type;
             });
         }
     },
     groupBy(keySelector, elementSelector, resultCreator) {
-        return new GroupIterable(this.get(), keySelector, elementSelector, resultCreator);
+        return new GroupIterable(this, keySelector, elementSelector, resultCreator);
+    },
+    orderBy(keySelector, comparer) {
+        return new OrderIterable(this, keySelector, 1, comparer);
+    },
+    orderByDescending(keySelector, comparer) {
+        return new OrderIterable(this, keySelector, -1, comparer);
+    },
+    concat(secondIterable) {
+        return new ConcatIterable(this, secondIterable);
     },
     toArray() {
         const result = this.get();
@@ -721,20 +929,20 @@ const linqMixin = {
     toSet() {
         return new Set(this.get());
     },
-    first() {
-        return FirstFinalizer.get(this.get());
+    first(predicate) {
+        return FirstFinalizer.get(this, predicate);
     },
-    firstOrDefault(def) {
-        return FirstFinalizer.getOrDefault(this.get(), def);
+    firstOrDefault(def, predicate) {
+        return FirstFinalizer.getOrDefault(this, def, predicate);
     },
     firstOrThrow() {
-        return FirstFinalizer.getOrThrow(this.get());
+        return FirstFinalizer.getOrThrow(this);
     },
-    single() {
-        return SingleFinalizer.get(this.get());
+    single(predicate) {
+        return SingleFinalizer.get(this, predicate);
     },
-    singleOrDefault(def) {
-        return SingleFinalizer.getOrDefault(this.get(), def);
+    singleOrDefault(def, predicate) {
+        return SingleFinalizer.getOrDefault(this, def, predicate);
     },
     all(predicate) {
         return AllFinalizer.get(this.get(), predicate)
@@ -799,6 +1007,8 @@ applyMixin(linqMixin, [
     DistinctIterable,
     Grouping,
     GroupIterable,
+    OrderIterable,
+    ConcatIterable,
 ]);
 
 exports.fromArrayLike = fromArrayLike;

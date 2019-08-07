@@ -1,9 +1,9 @@
-import { BaseLinqIterable } from "../base-linq-iterable";
+import {NativeProcessingLinqIterable} from "../base-linq-iterable";
 
 /**
  * Skip first N numbers of source and return the rest
  */
-export class SkipIterable extends BaseLinqIterable {
+export class SkipIterable extends NativeProcessingLinqIterable {
     /**
      *
      * @param {Iterable} source
@@ -14,15 +14,16 @@ export class SkipIterable extends BaseLinqIterable {
         this.count = count;
     }
 
-    get() {
-        if (Array.isArray(this.source)) {
-            return this.source.slice(this.count, this.source.length);
-        }
-        return this;
+    _nativeTake(array) {
+        return array.slice(this.count, array.length);
     }
 
     [Symbol.iterator]() {
-        const iterator = this._getIterator(this.source);
+        const { processed, source } = this._tryNativeProcess();
+        if (processed) {
+            return this._getIterator(processed);
+        }
+        const iterator = this._getIterator(source);
         const count = this.count;
         let skipped = 0;
         return {
