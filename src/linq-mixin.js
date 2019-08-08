@@ -12,10 +12,11 @@ import { GroupIterable } from "./iterables/group";
 import { CountFinalizer } from "./finalizers/count";
 import { AggregateFinalizer } from "./finalizers/aggregate";
 import { OrderIterable } from "./iterables/order";
-import { ConcatIterable } from "./iterables/union";
+import { ConcatIterable } from "./iterables/concat";
 import { ForEachFinalizer } from "./finalizers/for-each";
 import { ElementAtFinalizer } from "./finalizers/element-at";
 import { ToArrayFinalizer } from "./finalizers/to-array";
+import { UnionIterable } from "./iterables/union";
 
 export const linqMixin = {
     where(predicate) {
@@ -58,6 +59,9 @@ export const linqMixin = {
     },
     concat(secondIterable) {
         return new ConcatIterable(this, secondIterable);
+    },
+    union(secondIterable) {
+        return new UnionIterable(this, secondIterable);
     },
     toArray(map) {
         return ToArrayFinalizer.get(this, map);

@@ -51,6 +51,22 @@ function quickSort(items, left, right, comparer) {
     return copy;
 }
 
+class SetCheck {
+    constructor() {
+        this.set = new Set();
+    }
+
+    tryAdd(item) {
+        const prevSize = this.set.size;
+        this.set.add(item);
+        return this.set.size > prevSize;
+    }
+
+    clear() {
+        this.set.clear();
+    }
+}
+
 class BaseLinqIterable {
     constructor(source) {
         this.source = source;
@@ -625,6 +641,7 @@ class DistinctIterable extends BaseLinqIterable {
                 while (true) {
                     const { done, value } = iterator.next();
                     if (done) {
+                        itemChecker.clear();
                         return { done: true };
                     }
                     if (itemChecker.has(value)) {
@@ -650,6 +667,10 @@ class DistinctItemChecker {
 
     has(item) {
         return this.list.some(_ => this.comparer(_, item));
+    }
+
+    clear() {
+        this.list.length = 0;
     }
 }
 
@@ -888,6 +909,57 @@ class ToArrayFinalizer {
     }
 }
 
+class UnionIterable extends BaseLinqIterable {
+    constructor(source, second) {
+        super(source);
+        this.second = second;
+    }
+
+    get() {
+        return this;
+    }
+
+    static __getNext(firstIterator, firstDone, secondIterator, secondDone, set) {
+        while (!firstDone || !secondDone) {
+            if (!firstDone) {
+                const next = firstIterator.next();
+                if (!next.done && set.tryAdd(next.value)) {
+                    return next;
+                }
+                if (next.done) {
+                    firstDone = true;
+                }
+            }
+            if (firstDone && !secondDone) {
+                const next = secondIterator.next();
+                if (!next.done && set.tryAdd(next.value)) {
+                    return next;
+                }
+                if (next.done) {
+                    secondDone = true;
+                }
+            }
+        }
+        if (firstDone && secondDone) {
+            set.clear();
+            return { done: true };
+        }
+    }
+
+    [Symbol.iterator]() {
+        const firstIterator = this._getIterator(this.source);
+        const secondIterator = this._getIterator(this.second);
+        const set = new SetCheck();
+        let firstDone = false;
+        let secondDone = false;
+        return {
+            next() {
+                return UnionIterable.__getNext(firstIterator, firstDone, secondIterator, secondDone, set);
+            }
+        };
+    }
+}
+
 const linqMixin = {
     where(predicate) {
         return new WhereIterable(this, predicate);
@@ -929,6 +1001,9 @@ const linqMixin = {
     },
     concat(secondIterable) {
         return new ConcatIterable(this, secondIterable);
+    },
+    union(secondIterable) {
+        return new UnionIterable(this, secondIterable);
     },
     toArray(map) {
         return ToArrayFinalizer.get(this, map);
@@ -1030,6 +1105,7 @@ applyMixin(linqMixin, [
     GroupIterable,
     OrderIterable,
     ConcatIterable,
+    UnionIterable,
 ]);
 
 exports.from = from;

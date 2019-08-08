@@ -118,6 +118,12 @@ declare module 'modern-linq' {
         concat(secondIterable: Iterable<TValue>): LinqIterable<TValue>;
 
         /**
+         * Produce a union of two iterables where the result is distinct values from both.
+         * @param secondIterable
+         */
+        union(secondIterable: Iterable<TValue>): LinqIterable<TValue>;
+
+        /**
          * Creates an array from iterable
          */
         toArray(): TValue[];

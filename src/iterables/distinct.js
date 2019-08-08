@@ -34,6 +34,7 @@ export class DistinctIterable extends BaseLinqIterable {
                 while (true) {
                     const { done, value } = iterator.next();
                     if (done) {
+                        itemChecker.clear();
                         return { done: true };
                     }
                     if (itemChecker.has(value)) {
@@ -59,5 +60,9 @@ class DistinctItemChecker {
 
     has(item) {
         return this.list.some(_ => this.comparer(_, item));
+    }
+
+    clear() {
+        this.list.length = 0;
     }
 }

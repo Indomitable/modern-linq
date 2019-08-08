@@ -46,3 +46,19 @@ export function quickSort(items, left, right, comparer) {
     __quickSort(copy, left, right, comparer);
     return copy;
 }
+
+export class SetCheck {
+    constructor() {
+        this.set = new Set();
+    }
+
+    tryAdd(item) {
+        const prevSize = this.set.size;
+        this.set.add(item);
+        return this.set.size > prevSize;
+    }
+
+    clear() {
+        this.set.clear();
+    }
+}

@@ -10,7 +10,8 @@ import { RangeIterable } from './generators/range';
 import { DistinctIterable } from './iterables/distinct';
 import { Grouping, GroupIterable } from './iterables/group';
 import { OrderIterable } from "./iterables/order";
-import { ConcatIterable } from "./iterables/union";
+import { ConcatIterable } from "./iterables/concat";
+import { UnionIterable } from "./iterables/union";
 
 applyMixin(linqMixin, [
     LinqIterable,
@@ -26,6 +27,7 @@ applyMixin(linqMixin, [
     GroupIterable,
     OrderIterable,
     ConcatIterable,
+    UnionIterable,
 ]);
 
 export { fromIterable, fromObject, fromArrayLike, range, from } from './creation';

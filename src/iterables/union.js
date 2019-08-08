@@ -1,54 +1,53 @@
-import { NativeProcessingLinqIterable } from "../base-linq-iterable";
+import { BaseLinqIterable } from "../base-linq-iterable";
+import { SetCheck } from "../utils";
 
-export class ConcatIterable extends NativeProcessingLinqIterable {
-    /**
-     * Creates a Union Iterable
-     * @param {Iterable} source input iterable
-     * @param {Iterable} second iterable to continue with
-     */
+export class UnionIterable extends BaseLinqIterable {
     constructor(source, second) {
         super(source);
         this.second = second;
-    }
-
-    _nativeTake(array) {
-        if (Array.isArray(this.second)) {
-            return [...array, ...this.second];
-        }
     }
 
     get() {
         return this;
     }
 
-    [Symbol.iterator]() {
-        const { processed, source } = this._tryNativeProcess();
-        if (processed) {
-            return this._getIterator(processed);
-        }
-        const iteratorFirst = this._getIterator(source);
-        const iteratorSecond = this._getIterator(this.second);
-        let firstDone = false;
-        return {
-            next() {
-                if (!firstDone) {
-                    const firstNext = iteratorFirst.next();
-                    if (firstNext.done) {
-                        firstDone = true;
-                    }
-                    else {
-                        return {done: false, value: firstNext.value};
-                    }
+    static __getNext(firstIterator, firstDone, secondIterator, secondDone, set) {
+        while (!firstDone || !secondDone) {
+            if (!firstDone) {
+                const next = firstIterator.next();
+                if (!next.done && set.tryAdd(next.value)) {
+                    return next;
                 }
-                if (firstDone) {
-                    const secondNext = iteratorSecond.next();
-                    if (secondNext.done) {
-                        return { done: true };
-                    } else {
-                        return { done: false, value: secondNext.value };
-                    }
+                if (next.done) {
+                    firstDone = true;
+                }
+            }
+            if (firstDone && !secondDone) {
+                const next = secondIterator.next();
+                if (!next.done && set.tryAdd(next.value)) {
+                    return next;
+                }
+                if (next.done) {
+                    secondDone = true;
                 }
             }
         }
+        if (firstDone && secondDone) {
+            set.clear();
+            return { done: true };
+        }
+    }
+
+    [Symbol.iterator]() {
+        const firstIterator = this._getIterator(this.source);
+        const secondIterator = this._getIterator(this.second);
+        const set = new SetCheck();
+        let firstDone = false;
+        let secondDone = false;
+        return {
+            next() {
+                return UnionIterable.__getNext(firstIterator, firstDone, secondIterator, secondDone, set);
+            }
+        };
     }
 }
