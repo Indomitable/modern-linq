@@ -19,7 +19,12 @@ describe('from creation tests', () => {
         assert.isTrue(typeof val.first === 'function');
         assert.isTrue(typeof val.single === 'function');
         const res = val.toArray();
-        expect(res).to.deep.equal([['10', 3], ['a', 1], ['b', 2]]);
+        expect(res).to.deep.equal([{ key: '10', value: 3}, { key: 'a', value: 1 }, { key: 'b', value: 2 }]);
+    });
+
+    it('should create a linq iterable from object when input is an array', () => {
+        const res = fromObject([1, 2, 3]).toArray();
+        expect(res).to.deep.equal([{ key: '0', value: 1}, { key: '1', value: 2 }, { key: '2', value: 3 }]);
     });
 
     it('should create a linq iterable from ArrayLike object', () => {
@@ -50,7 +55,7 @@ describe('from creation tests', () => {
 
     it('should from create a linq iterable from objects', () => {
         const l = from({ 'a': 0, 'b': 1}).toArray();
-        expect(l).to.deep.equal([['a', 0], ['b', 1]]);
+        expect(l).to.deep.equal([{ key: 'a', value: 0 }, { key: 'b', value: 1}]);
     });
 });
 

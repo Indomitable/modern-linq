@@ -277,10 +277,11 @@ declare module 'modern-linq' {
     export function fromIterable<TValue>(iterable: Iterable<TValue>): LinqIterable<TValue>;
 
     /**
-     * Creates a select js iterable from an object (using Object.entries())
+     * Creates a select js iterable from an object resolving keys using Object.keys(). Returns enumerable keys.
      * @param value
+     * @return sequence of key/value object.
      */
-    export function fromObject<TValue extends {}, TKey extends keyof TValue>(value: TValue): LinqIterable<[string, TValue[TKey]]>;
+    export function fromObject<TValue extends {}, TKey extends keyof TValue>(value: TValue): LinqIterable<{ key: string, value: TValue[TKey] }>;
 
     /**
      * Creates linq iterable from array like object
@@ -306,5 +307,5 @@ declare module 'modern-linq' {
      * Alias for fromObject function.
      * @param value
      */
-    export function from<TValue extends {}, TKey extends keyof TValue>(value: TValue): LinqIterable<[string, TValue[TKey]]>;
+    export function from<TValue extends {}, TKey extends keyof TValue>(value: TValue): LinqIterable<{ key: string, value: TValue[TKey] }>;
 }

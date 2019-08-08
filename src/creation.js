@@ -45,12 +45,40 @@ export class ArrayLikeIterable extends BaseLinqIterable {
     }
 }
 
+export class ObjectIterable extends BaseLinqIterable {
+    constructor(source) {
+        super(source);
+    }
+
+    get() {
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const obj = this.source;
+        const keys = Object.keys(obj);
+        let index = 0;
+        return {
+            next() {
+                if (index < keys.length) {
+                    const key = keys[index];
+                    const value = obj[key];
+                    index++;
+                    return { done: false, value: { key, value } };
+                } else {
+                    return { done: true };
+                }
+            }
+        };
+    }
+}
+
 export function fromIterable(source) {
     return new LinqIterable(source);
 }
 
 export function fromObject(obj) {
-    return new LinqIterable(Object.entries(obj));
+    return new ObjectIterable(obj);
 }
 
 /**

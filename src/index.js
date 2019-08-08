@@ -1,5 +1,5 @@
 import { applyMixin } from './utils';
-import { ArrayLikeIterable, LinqIterable } from './creation';
+import { ArrayLikeIterable, LinqIterable, ObjectIterable } from './creation';
 import { linqMixin } from './linq-mixin';
 import { WhereIterable } from './iterables/where';
 import { SelectIterable } from './iterables/select';
@@ -18,6 +18,7 @@ import { JoinIterable } from "./iterables/join";
 applyMixin(linqMixin, [
     LinqIterable,
     ArrayLikeIterable,
+    ObjectIterable,
     WhereIterable,
     SelectIterable,
     SelectManyIterable,
