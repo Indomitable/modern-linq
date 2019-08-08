@@ -17,6 +17,8 @@ import { ForEachFinalizer } from "./finalizers/for-each";
 import { ElementAtFinalizer } from "./finalizers/element-at";
 import { ToArrayFinalizer } from "./finalizers/to-array";
 import { UnionIterable } from "./iterables/union";
+import { GroupJoinIterable } from "./iterables/group-join";
+import { JoinIterable } from "./iterables/join";
 
 export const linqMixin = {
     where(predicate) {
@@ -56,6 +58,15 @@ export const linqMixin = {
     },
     orderByDescending(keySelector, comparer) {
         return new OrderIterable(this, keySelector, -1, comparer);
+    },
+    groupJoin(joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator) {
+        return new GroupJoinIterable(this, joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator);
+    },
+    join(joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator) {
+        if (arguments.length === 1) {
+            return this.select(_ => '' + _).toArray().join(/*separator*/joinIterable); // join items of sequence in string. here joinIterable === separator
+        }
+        return new JoinIterable(this, joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator);
     },
     concat(secondIterable) {
         return new ConcatIterable(this, secondIterable);
@@ -137,9 +148,6 @@ export const linqMixin = {
             const comp = compare(a, b);
             return comp < 0 ? b : (comp > 0 ? a : b);
         });
-    },
-    join(separator) {
-        return this.select(_ => '' + _).toArray().join(separator);
     },
     elementAt(index) {
         return ElementAtFinalizer.get(this, index);

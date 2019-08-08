@@ -273,6 +273,18 @@ class WhereIterable extends NativeProcessingLinqIterable {
         return array.filter(this.predicate);
     }
 
+    static __findNext(iterator, predicate) {
+        let done = false;
+        while (!done) {
+            const next = iterator.next();
+            if (!next.done && predicate(next.value)) {
+                return { done: false, value: next.value };
+            }
+            done = next.done;
+        }
+        return { done: true };
+    }
+
     [Symbol.iterator]() {
         const { processed, source } = this._tryNativeProcess();
         if (processed) {
@@ -282,20 +294,7 @@ class WhereIterable extends NativeProcessingLinqIterable {
         const predicate = this.predicate;
         return {
             next() {
-                while (true) {
-                    const { done, value } = iterator.next();
-                    if (done) {
-                        return {
-                            done: true
-                        };
-                    }
-                    if (predicate(value)) {
-                        return {
-                            done: false,
-                            value
-                        };
-                    }
-                }
+                return WhereIterable.__findNext(iterator, predicate);
             }
         };
     }
@@ -365,49 +364,65 @@ class SelectManyIterable extends BaseLinqIterable {
         const source = this._getSource();
         const iterator = this._getIterator(source);
         const extract = this.extract;
-        let isSubDone = true;
-        let subIterator = null;
+        let currentState = null;
         return {
             next() {
-                const item = SelectManyIterable.getNextItem(iterator, extract, subIterator, isSubDone);
-                isSubDone = item.sdone;
-                subIterator = item.sIterator;
+                const item = SelectManyIterable.__getNextItem(iterator, extract, currentState);
+                currentState = item.currentState;
                 return item.value;
             }
         };
     }
 
-    static getSecondaryIterator(mainIterator, extract) {
-        const mainItem = mainIterator.next();
-        if (mainItem.done) {
+    static __getInnerIterator(outerIterator, extract) {
+        const outerItem = outerIterator.next();
+        if (outerItem.done) {
             return {
                 final: true
             };
         }
-        const secondaryIterator = extract(mainItem.value)[Symbol.iterator]();
-        const secondaryItem = secondaryIterator.next();
-        if (secondaryItem.done) {
-            return SelectManyIterable.getSecondaryIterator(mainIterator, extract);
+        const innerIterator = getIterator(extract(outerItem.value));
+        const innerItem = innerIterator.next();
+        if (innerItem.done) {
+            return SelectManyIterable.__getInnerIterator(outerIterator, extract);
         }
-        return { iterator: secondaryIterator, first: secondaryItem.value, final: false };
+        return {
+            current: {
+                outerValue: outerItem.value,
+                innerIterator: innerIterator,
+            },
+            firstInnerItem: innerItem.value,
+            final: false
+        };
     }
 
-    static getNextItem(mainIterator, extract, subIterator, isSubDone) {
-        if (isSubDone) {
-            const { iterator, first, final } = SelectManyIterable.getSecondaryIterator(mainIterator, extract);
+    static __getNextItem(mainIterator, extract, currentState) {
+        if (!currentState) {
+            const { current, firstInnerItem, final } = SelectManyIterable.__getInnerIterator(mainIterator, extract);
             if (final) {
                 return { value: { done: true } };
             }
-            return { value: { done: false, value: first }, sIterator: iterator, sdone: false };
+            return {
+                value: { done: false, value: firstInnerItem },
+                currentState: {
+                    innerIterator: current.innerIterator,
+                    outerValue: current.outerValue
+                }
+            };
         } else {
-            const snext = subIterator.next();
-            if (snext.done) {
-                return SelectManyIterable.getNextItem(mainIterator, extract, null, true);
+            const innerNext = currentState.innerIterator.next();
+            if (innerNext.done) {
+                return SelectManyIterable.__getNextItem(mainIterator, extract, null);
             }
-            return { value: { done: false, value: snext.value }, sIterator: subIterator, sdone: false };
+            return {
+                value: { done: false, value: innerNext.value },
+                currentState: {
+                    innerIterator: currentState.innerIterator,
+                    outerValue: currentState.outerValue
+                }
+            };
         }
     }
-
 }
 
 class FirstFinalizer {
@@ -704,12 +719,12 @@ class GroupIterable extends BaseLinqIterable {
         }
     }
 
-    __group(source) {
+    static __group(iterable, keySelector, elementSelector) {
         const map = new Map();
-        const elementSelector = typeof this.elementSelector === 'undefined' ? _ => _ : this.elementSelector;
-        for (const item of source) {
-            const key = this.keySelector(item);
-            const element = elementSelector(item);
+        const elementCreator = typeof elementSelector === 'undefined' ? _ => _ : elementSelector;
+        for (const item of iterable) {
+            const key = keySelector(item);
+            const element = elementCreator(item);
             let value = map.get(key);
             if (typeof value === 'undefined') {
                 value = [ element ];
@@ -727,7 +742,7 @@ class GroupIterable extends BaseLinqIterable {
 
     [Symbol.iterator]() {
         const source = this._getSource();
-        const result = this.__group(source);
+        const result = GroupIterable.__group(source, this.keySelector, this.elementSelector);
         const groupIterator = this._getIterator(result);
         const resultCreator = typeof this.resultCreator === 'undefined' ? (key, grouping) => (new Grouping(key, grouping)) : this.resultCreator;
         return {
@@ -960,6 +975,101 @@ class UnionIterable extends BaseLinqIterable {
     }
 }
 
+class GroupJoinIterable extends BaseLinqIterable {
+    /**
+     * Creates group join iterable
+     * @param {Iterable} source
+     * @param {Iterable} joinIterable
+     * @param {Function} sourceKeySelector
+     * @param {Function} joinIterableKeySelector
+     * @param {Function} resultCreator
+     */
+    constructor(source, joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator) {
+        super(source);
+        this.joinIterable = joinIterable;
+        this.sourceKeySelector = sourceKeySelector;
+        this.joinIterableKeySelector = joinIterableKeySelector;
+        this.resultCreator = resultCreator;
+    }
+
+    get() {
+        return this;
+    }
+
+    static __getNext(outerIterator, outerKeySelector, innerMap, resultSelector) {
+        const { done, value } = outerIterator.next();
+        if (done) {
+            innerMap.clear();
+            return { done: true };
+        }
+        const outerKey = outerKeySelector(value);
+        const innerValue = innerMap.get(outerKey) || [];
+        const resultValue = resultSelector(value, innerValue);
+        return {
+            done: false,
+            value: resultValue
+        };
+    }
+
+    [Symbol.iterator]() {
+        const outerIterator = this._getIterator(this._getSource());
+        const innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector);
+        const outerKeySelector = this.sourceKeySelector;
+        const resultCreator = this.resultCreator;
+        return {
+            next() {
+                return GroupJoinIterable.__getNext(outerIterator, outerKeySelector, innerMap, resultCreator);
+            }
+        };
+    }
+}
+
+class JoinIterable extends BaseLinqIterable {
+    /**
+     * Creates join iterable
+     * @param {Iterable} source
+     * @param {Iterable} joinIterable
+     * @param {Function} sourceKeySelector
+     * @param {Function} joinIterableKeySelector
+     * @param {Function} resultCreator
+     */
+    constructor(source, joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator) {
+        super(source);
+        this.joinIterable = joinIterable;
+        this.sourceKeySelector = sourceKeySelector;
+        this.joinIterableKeySelector = joinIterableKeySelector;
+        this.resultCreator = resultCreator;
+    }
+
+    get() {
+        return this;
+    }
+
+    [Symbol.iterator]() {
+        const resultCreator = this.resultCreator;
+        const outerIterator = this._getIterator(this._getSource());
+        const innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector);
+        const innerItemsExtractor = (outerItem) => {
+            const key = this.sourceKeySelector(outerItem);
+            return innerMap.get(key) || [];
+        };
+        let currentState = null;
+        return {
+            next() {
+                const item = SelectManyIterable.__getNextItem(outerIterator, innerItemsExtractor, currentState);
+                if (item.value.done) {
+                    return item.value;
+                }
+                currentState = item.currentState;
+                return {
+                    done: false,
+                    value: resultCreator(currentState.outerValue, item.value.value)
+                };
+            }
+        };
+    }
+}
+
 const linqMixin = {
     where(predicate) {
         return new WhereIterable(this, predicate);
@@ -998,6 +1108,15 @@ const linqMixin = {
     },
     orderByDescending(keySelector, comparer) {
         return new OrderIterable(this, keySelector, -1, comparer);
+    },
+    groupJoin(joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator) {
+        return new GroupJoinIterable(this, joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator);
+    },
+    join(joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator) {
+        if (arguments.length === 1) {
+            return this.select(_ => '' + _).toArray().join(/*separator*/joinIterable); // join items of sequence in string. here joinIterable === separator
+        }
+        return new JoinIterable(this, joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator);
     },
     concat(secondIterable) {
         return new ConcatIterable(this, secondIterable);
@@ -1080,9 +1199,6 @@ const linqMixin = {
             return comp < 0 ? b : (comp > 0 ? a : b);
         });
     },
-    join(separator) {
-        return this.select(_ => '' + _).toArray().join(separator);
-    },
     elementAt(index) {
         return ElementAtFinalizer.get(this, index);
     },
@@ -1106,6 +1222,8 @@ applyMixin(linqMixin, [
     OrderIterable,
     ConcatIterable,
     UnionIterable,
+    GroupJoinIterable,
+    JoinIterable,
 ]);
 
 exports.from = from;

@@ -18,6 +18,18 @@ export class WhereIterable extends NativeProcessingLinqIterable {
         return array.filter(this.predicate);
     }
 
+    static __findNext(iterator, predicate) {
+        let done = false;
+        while (!done) {
+            const next = iterator.next();
+            if (!next.done && predicate(next.value)) {
+                return { done: false, value: next.value };
+            }
+            done = next.done;
+        }
+        return { done: true };
+    }
+
     [Symbol.iterator]() {
         const { processed, source } = this._tryNativeProcess();
         if (processed) {
@@ -27,20 +39,7 @@ export class WhereIterable extends NativeProcessingLinqIterable {
         const predicate = this.predicate;
         return {
             next() {
-                while (true) {
-                    const { done, value } = iterator.next();
-                    if (done) {
-                        return {
-                            done: true
-                        };
-                    }
-                    if (predicate(value)) {
-                        return {
-                            done: false,
-                            value
-                        };
-                    }
-                }
+                return WhereIterable.__findNext(iterator, predicate);
             }
         };
     }

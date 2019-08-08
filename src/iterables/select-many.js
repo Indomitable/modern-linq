@@ -1,4 +1,5 @@
 import { BaseLinqIterable } from "../base-linq-iterable";
+import { getIterator } from "../utils";
 
 /**
  * Return flatten mapped array [[1, 2], [3, 4]].selectMany(x => x) === [1, 2, 3, 4, 5]
@@ -22,49 +23,65 @@ export class SelectManyIterable extends BaseLinqIterable {
         const source = this._getSource();
         const iterator = this._getIterator(source);
         const extract = this.extract;
-        let isSubDone = true;
-        let subIterator = null;
+        let currentState = null;
         return {
             next() {
-                const item = SelectManyIterable.getNextItem(iterator, extract, subIterator, isSubDone);
-                isSubDone = item.sdone;
-                subIterator = item.sIterator;
+                const item = SelectManyIterable.__getNextItem(iterator, extract, currentState);
+                currentState = item.currentState;
                 return item.value;
             }
         };
     }
 
-    static getSecondaryIterator(mainIterator, extract) {
-        const mainItem = mainIterator.next();
-        if (mainItem.done) {
+    static __getInnerIterator(outerIterator, extract) {
+        const outerItem = outerIterator.next();
+        if (outerItem.done) {
             return {
                 final: true
             };
         }
-        const secondaryIterator = extract(mainItem.value)[Symbol.iterator]();
-        const secondaryItem = secondaryIterator.next();
-        if (secondaryItem.done) {
-            return SelectManyIterable.getSecondaryIterator(mainIterator, extract);
+        const innerIterator = getIterator(extract(outerItem.value));
+        const innerItem = innerIterator.next();
+        if (innerItem.done) {
+            return SelectManyIterable.__getInnerIterator(outerIterator, extract);
         }
-        return { iterator: secondaryIterator, first: secondaryItem.value, final: false };
+        return {
+            current: {
+                outerValue: outerItem.value,
+                innerIterator: innerIterator,
+            },
+            firstInnerItem: innerItem.value,
+            final: false
+        };
     }
 
-    static getNextItem(mainIterator, extract, subIterator, isSubDone) {
-        if (isSubDone) {
-            const { iterator, first, final } = SelectManyIterable.getSecondaryIterator(mainIterator, extract);
+    static __getNextItem(mainIterator, extract, currentState) {
+        if (!currentState) {
+            const { current, firstInnerItem, final } = SelectManyIterable.__getInnerIterator(mainIterator, extract);
             if (final) {
                 return { value: { done: true } };
             }
-            return { value: { done: false, value: first }, sIterator: iterator, sdone: false };
+            return {
+                value: { done: false, value: firstInnerItem },
+                currentState: {
+                    innerIterator: current.innerIterator,
+                    outerValue: current.outerValue
+                }
+            };
         } else {
-            const snext = subIterator.next();
-            if (snext.done) {
-                return SelectManyIterable.getNextItem(mainIterator, extract, null, true);
+            const innerNext = currentState.innerIterator.next();
+            if (innerNext.done) {
+                return SelectManyIterable.__getNextItem(mainIterator, extract, null);
             }
-            return { value: { done: false, value: snext.value }, sIterator: subIterator, sdone: false };
+            return {
+                value: { done: false, value: innerNext.value },
+                currentState: {
+                    innerIterator: currentState.innerIterator,
+                    outerValue: currentState.outerValue
+                }
+            };
         }
     }
-
 }
 
 

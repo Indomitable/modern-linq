@@ -12,6 +12,8 @@ import { Grouping, GroupIterable } from './iterables/group';
 import { OrderIterable } from "./iterables/order";
 import { ConcatIterable } from "./iterables/concat";
 import { UnionIterable } from "./iterables/union";
+import { GroupJoinIterable } from "./iterables/group-join";
+import { JoinIterable } from "./iterables/join";
 
 applyMixin(linqMixin, [
     LinqIterable,
@@ -28,6 +30,8 @@ applyMixin(linqMixin, [
     OrderIterable,
     ConcatIterable,
     UnionIterable,
+    GroupJoinIterable,
+    JoinIterable,
 ]);
 
 export { fromIterable, fromObject, fromArrayLike, range, from } from './creation';

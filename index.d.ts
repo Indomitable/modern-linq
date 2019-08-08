@@ -112,6 +112,30 @@ declare module 'modern-linq' {
         orderByDescending<TKey>(keySelector: (item: TValue) => TKey, comparer?: (first: TKey, second: TKey) => number): LinqIterable<TValue>;
 
         /**
+         * Do a group join (left join) between current and external iterable. For each item of current sequence get array of items from external sequence.
+         * @param joinIterable external iterable
+         * @param sourceKeySelector current iterable key selector
+         * @param joinIterableKeySelector current iterable key selector
+         * @param resultCreator function which accepts two arguments: first: element from current sequence and second: array of items from the external sequence.
+         */
+        groupJoin<TInner, TKey, TResult>(joinIterable: Iterable<TInner>,
+                                         sourceKeySelector: (item: TValue) => TKey,
+                                         joinIterableKeySelector: (item: TInner) => TKey,
+                                         resultCreator: (outer: TValue, inner: TInner[]) => TResult): LinqIterable<TResult>;
+
+
+        /**
+         * Do an inner join between current and external sequence. For each item of current sequence get a item from external sequence.
+         * @param joinIterable external iterable
+         * @param sourceKeySelector current iterable key selector
+         * @param joinIterableKeySelector current iterable key selector
+         * @param resultCreator function which accepts two arguments: first: element from current sequence and second: element from the external sequence.
+         */
+        join<TInner, TKey, TResult>(joinIterable: Iterable<TInner>,
+                                    sourceKeySelector: (item: TValue) => TKey,
+                                    joinIterableKeySelector: (item: TInner) => TKey,
+                                    resultCreator: (outer: TValue, inner: TInner) => TResult): LinqIterable<TResult>;
+        /**
          * Concat this iterable with another
          * @param secondIterable
          */
@@ -226,7 +250,7 @@ declare module 'modern-linq' {
          * join items of sequence in one string.
          * @param separator
          */
-        join(separator: string): string
+        join(separator: string): string;
 
         /**
          * Return element at specific index

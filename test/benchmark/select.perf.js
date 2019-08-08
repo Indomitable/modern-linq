@@ -1,9 +1,9 @@
 const { assert } = require('chai');
-const { range, fromIterable, fromArrayLike } = require('../../index');
+const { range, fromIterable, from } = require('../../index');
 const Benchmark = require('benchmark');
 const suite = new Benchmark.Suite();
 
-const linqIterableInput = range(0, 100000);
+const linqIterableInput = new Set(range(0, 100000));
 const arrayInput = linqIterableInput.toArray();
 const linqArrayInput = fromIterable(arrayInput);
 
@@ -21,7 +21,7 @@ suite
         assert.equal(res.length, 100000);
     })
     .on('complete', function () {
-        for (const bench of fromArrayLike(this)) {
+        for (const bench of from(this)) {
             console.log(bench.toString());
         }
     })
