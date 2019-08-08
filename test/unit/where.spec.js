@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable } from '../../src';
+import { from, fromIterable } from '../../src';
 
 describe('where tests', () => {
     [
@@ -31,6 +31,11 @@ describe('where tests', () => {
             expect(Array.from(numbers)).to.deep.equal([2, 4, 6]);
             expect(Array.from(numbers)).to.deep.equal([2, 4, 6]);
         });
+    });
+
+    it('should be able to work with strings', () => {
+        const res = from('aabbccdd').where(_ => _ !== 'a' && _ !== 'd').join('');
+        expect(res).to.equal('bbcc');
     });
 });
 

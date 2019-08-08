@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable, range } from "../../src";
+import { from, fromIterable, range } from "../../src";
 import Person from "./person";
 
 describe('groupBy tests', () => {
@@ -99,5 +99,10 @@ describe('groupBy tests', () => {
             expect(res.length).to.equal(3);
             expect(res).to.deep.equal(['10:A,C,E', '20:B,F', '30:D']);
         });
+    });
+
+    it('should be able to work with strings', () => {
+        const res = from('abcdeabcdebbacc').groupBy(_ => _).where(g => g.count() < 4).select(g => g.key).join('');
+        expect(res).to.equal('ade');
     });
 });
