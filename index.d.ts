@@ -280,7 +280,7 @@ declare module 'modern-linq' {
      * Creates a select js iterable from an object (using Object.entries())
      * @param value
      */
-    export function fromObject<TValue extends {}>(value: TValue): LinqIterable<['string', object]>;
+    export function fromObject<TValue extends {}, TKey extends keyof TValue>(value: TValue): LinqIterable<[string, TValue[TKey]]>;
 
     /**
      * Creates linq iterable from array like object
@@ -301,9 +301,10 @@ declare module 'modern-linq' {
      * @param iterable or array like objects
      */
     export function from<TValue>(iterable: Iterable<TValue>|ArrayLike<TValue>): LinqIterable<TValue>;
+
     /**
      * Alias for fromObject function.
      * @param value
      */
-    export function from<TValue extends {}>(value: TValue): LinqIterable<['string', object]>;
+    export function from<TValue extends {}, TKey extends keyof TValue>(value: TValue): LinqIterable<[string, TValue[TKey]]>;
 }
