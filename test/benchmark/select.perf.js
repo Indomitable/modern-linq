@@ -1,29 +1,24 @@
-const { assert } = require('chai');
-const { range, fromIterable, from } = require('../../index');
-const Benchmark = require('benchmark');
-const suite = new Benchmark.Suite();
+import { range, from } from '../../index.esm.js';
+import chai from 'chai';
+import Benchmark from 'benchmark';
 
-const linqIterableInput = new Set(range(0, 100000));
-const arrayInput = linqIterableInput.toArray();
-const linqArrayInput = fromIterable(arrayInput);
+const assert = chai.assert;
 
-suite
-    .add('Array map', () => {
-        const res = arrayInput.map(_ => _ * 3);
-        assert.equal(res.length, 100000);
-    })
-    .add('select from array', () => {
-        const res = linqArrayInput.select(_ => _ * 3).toArray();
-        assert.equal(res.length, 100000);
-    })
-    .add('select from iterable', () => {
-        const res = linqIterableInput.select(_ => _ * 3).toArray();
-        assert.equal(res.length, 100000);
-    })
-    .on('complete', function () {
-        for (const bench of from(this)) {
-            console.log(bench.toString());
-        }
-    })
-    .run({ 'async': true });
+const arrayLength = 100000;
+const iterable = new Set(range(0, arrayLength));
+const array = Array.from(iterable);
 
+export const arrayMapBenchmark = new Benchmark('[select] Array map', () => {
+    const res = array.map(_ => _ * 3);
+    assert.equal(res.length, arrayLength);
+});
+
+export const selectArrayInput = new Benchmark('[select] array input', () => {
+    const res = from(array).select(_ => _ * 3).toArray();
+    assert.equal(res.length, arrayLength);
+});
+
+export const selectIterableInput = new Benchmark('[select] iterable input', () => {
+    const res = from(iterable).select(_ => _ * 3).toArray();
+    assert.equal(res.length, arrayLength);
+});

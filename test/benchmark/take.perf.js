@@ -1,30 +1,27 @@
-const { assert } = require('chai');
-const { range, fromIterable, fromArrayLike } = require('../../index');
-const Benchmark = require('benchmark');
-const suite = new Benchmark.Suite();
+import { range, from } from '../../index.esm.js';
+import chai from  'chai';
+import Benchmark from 'benchmark';
 
-const linqIterableInput = range(0, 100000);
-const arrayInput = Array.from(linqIterableInput);
-const linqArrayInput = fromIterable(arrayInput);
+const assert = chai.assert;
 
+const arrayLength = 100000;
+const iterable = new Set(range(0, arrayLength));
+const array = Array.from(iterable);
 const lengthToTake = 1000;
-suite
-    .add('Array slice', () => {
-        const res = arrayInput.filter(i => i % 2 === 0).slice(0, lengthToTake);
-        assert.equal(res.length, lengthToTake);
-    })
-    .add('take on array', () => {
-        const res = linqArrayInput.where(i => i % 2 === 0).take(lengthToTake).toArray();
-        assert.equal(res.length, lengthToTake);
-    })
-    .add('take on iterable', () => {
-        const res = linqIterableInput.where(i => i % 2 === 0).take(lengthToTake).toArray();
-        assert.equal(res.length, lengthToTake);
-    })
-    .on('complete', function () {
-        for (const bench of fromArrayLike(this)) {
-            console.log(bench.toString());
-        }
-    })
-    .run({ 'async': true });
+
+export const arraySliceBenchmark = new Benchmark('[take] Array slice', () => {
+    const res = array.slice(0, lengthToTake);
+    assert.equal(res.length, lengthToTake);
+});
+
+export const takeArrayInput = new Benchmark('[take] array input', () => {
+    const res = from(array).take(lengthToTake).toArray();
+    assert.equal(res.length, lengthToTake);
+});
+
+export const takeIterableInput = new Benchmark('[take] iterable input', () => {
+    const res = from(iterable).take(lengthToTake).toArray();
+    assert.equal(res.length, lengthToTake);
+});
+
 

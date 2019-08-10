@@ -3,7 +3,7 @@ import { fromIterable } from "../creation";
 
 export class Grouping extends BaseLinqIterable {
     constructor(key, source) {
-        super(source.toArray());
+        super(source);
         this.key = key;
     }
 

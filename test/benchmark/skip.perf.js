@@ -1,32 +1,27 @@
-const { assert } = require('chai');
-const { range, fromIterable, fromArrayLike } = require('../../index');
-const Benchmark = require('benchmark');
-const suite = new Benchmark.Suite();
+import { range, from } from '../../index.esm.js';
+import chai from  'chai';
+import Benchmark from 'benchmark';
 
+const assert = chai.assert;
 const arrayLength = 100000;
-const linqIterableInput = range(0, arrayLength);
-const arrayInput = linqIterableInput.toArray();
-const linqArrayInput = fromIterable(arrayInput);
-
 const lengthToSkip = 1000;
 const expected = arrayLength - lengthToSkip;
-suite
-    .add('Array slice', () => {
-        const res = arrayInput.slice(lengthToSkip, arrayLength);
-        assert.equal(res.length, expected);
-    })
-    .add('skip on array', () => {
-        const res = linqArrayInput.skip(lengthToSkip).toArray();
-        assert.equal(res.length, expected);
-    })
-    .add('skip on iterable', () => {
-        const res = linqIterableInput.skip(lengthToSkip).toArray();
-        assert.equal(res.length, expected);
-    })
-    .on('complete', function () {
-        for (const bench of fromArrayLike(this)) {
-            console.log(bench.toString());
-        }
-    })
-    .run({ 'async': true });
+
+const iterable = new Set(range(0, arrayLength));
+const array = Array.from(iterable);
+
+export const arraySliceBenchmark = new Benchmark('[skip] Array slice', () => {
+    const res = array.slice(lengthToSkip, arrayLength);
+    assert.equal(res.length, expected);
+});
+
+export const skipArrayInput = new Benchmark('[skip] array input', () => {
+    const res = from(array).skip(lengthToSkip).toArray();
+    assert.equal(res.length, expected);
+});
+
+export const skipIterableInput = new Benchmark('[skip] iterable input', () => {
+    const res = from(iterable).skip(lengthToSkip).toArray();
+    assert.equal(res.length, expected);
+});
 

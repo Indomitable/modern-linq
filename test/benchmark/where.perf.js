@@ -1,29 +1,24 @@
-const { assert } = require('chai');
-const { range, fromIterable, fromArrayLike } = require('../../index');
-const Benchmark = require('benchmark');
-const suite = new Benchmark.Suite('Where performance');
+import { range, from } from '../../index.esm.js';
+import chai from  'chai';
+import Benchmark from 'benchmark';
 
-const linqIterableInput = range(0, 100000);
-const arrayInput = linqIterableInput.toArray();
-const linqArrayInput = fromIterable(arrayInput);
+const assert = chai.assert;
 
-suite
-    .add('Array filter', () => {
-        const res = arrayInput.filter(_ => _ % 2 === 1);
-        assert.equal(res.length, 50000);
-    })
-    .add('filter on array', () => {
-        const res = linqArrayInput.where(_ => _ % 2 === 1).toArray();
-        assert.equal(res.length, 50000);
-    })
-    .add('filter on iterable', () => {
-        const res = linqIterableInput.where(_ => _ % 2 === 1).toArray();
-        assert.equal(res.length, 50000);
-    })
-    .on('complete', function () {
-        for (const bench of fromArrayLike(this)) {
-            console.log(bench.toString());
-        }
-    })
-    .run({ 'async': true });
+const arrayLength = 100000;
+const iterable = new Set(range(0, arrayLength));
+const array = Array.from(iterable);
 
+export const arrayFilterBenchmark = new Benchmark('[where] Array filter', () => {
+    const res = array.filter(_ => _ % 2 === 1);
+    assert.equal(res.length, arrayLength / 2);
+});
+
+export const whereArrayInput = new Benchmark('[where] array input', () => {
+    const res = from(array).where(_ => _ % 2 === 1).toArray();
+    assert.equal(res.length, arrayLength / 2);
+});
+
+export const whereIterableInput = new Benchmark('[where] iterable input', () => {
+    const res = from(iterable).where(_ => _ % 2 === 1).toArray();
+    assert.equal(res.length, arrayLength / 2);
+});

@@ -1,29 +1,23 @@
-const { assert } = require('chai');
-const { range, fromIterable, fromArrayLike } = require('../../index');
-const Benchmark = require('benchmark');
-const suite = new Benchmark.Suite();
+import { range, from } from '../../index.esm.js';
+import chai from  'chai';
+import Benchmark from 'benchmark';
 
-const linqIterableInput = range(100000, 0);
-const arrayInput = linqIterableInput.toArray();
-const linqArrayInput = fromIterable(arrayInput);
+const assert = chai.assert;
+const arrayLength = 100000;
+const iterable = new Set(range(arrayLength, 0));
+const array = Array.from(iterable);
 
-suite
-    .add('Array sort', () => {
-        const res = arrayInput.sort();
-        assert.equal(res.length, 100000);
-    })
-    .add('order array', () => {
-        const res = linqArrayInput.orderBy(_ => _ ).toArray();
-        assert.equal(res.length, 100000);
-    })
-    .add('order iterable', () => {
-        const res = linqIterableInput.orderBy(_ => _).toArray();
-        assert.equal(res.length, 100000);
-    })
-    .on('complete', function () {
-        for (const bench of fromArrayLike(this)) {
-            console.log(bench.toString());
-        }
-    })
-    .run({ 'async': true });
+export const arraySliceBenchmark = new Benchmark('[orderBy] Array sort', () => {
+    const res = array.sort();
+    assert.equal(res.length, arrayLength);
+});
 
+export const orderByArrayInput = new Benchmark('[orderBy] array input', () => {
+    const res = from(array).orderBy(_ => _ ).toArray();
+    assert.equal(res.length, arrayLength);
+});
+
+export const orderByIterableInput = new Benchmark('[orderBy] iterable input', () => {
+    const res = from(iterable).orderBy(_ => _).toArray();
+    assert.equal(res.length, arrayLength);
+});

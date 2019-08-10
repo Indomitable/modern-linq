@@ -1,11 +1,12 @@
 language: node_js
 node_js:
-  - "lts/*"
+  - "12"
 install:
   - yarn --pure-lockfile
 script:
   - yarn build
   - yarn test
+  - yarn benchmark
 deploy:
   provider: npm
   email: v.mladenov@hotmail.com

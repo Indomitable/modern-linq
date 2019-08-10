@@ -266,7 +266,7 @@ declare module 'modern-linq' {
         forEach(action: (item: TValue) => void): void;
     }
 
-    export interface IGrouping<TKey, TValue> extends Iterable<TValue> {
+    export interface IGrouping<TKey, TValue> extends LinqIterable<TValue> {
         key: TKey;
     }
 

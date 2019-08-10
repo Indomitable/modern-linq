@@ -136,14 +136,14 @@ export const linqMixin = {
         return AggregateFinalizer.get(this, (r, i) => r * i);
     },
     min(comparer) {
-        const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
+        const compare = typeof comparer === 'undefined' ? ((a, b) => a < b ? -1 : (a > b ? 1 : 0))  : comparer;
         return AggregateFinalizer.get(this, (a, b) => {
             const comp = compare(a, b);
             return comp < 0 ? a : (comp > 0 ? b : a);
         });
     },
     max(comparer) {
-        const compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
+        const compare = typeof comparer === 'undefined' ? ((a, b) => a < b ? -1 : (a > b ? 1 : 0))  : comparer;
         return AggregateFinalizer.get(this, (a, b) => {
             const comp = compare(a, b);
             return comp < 0 ? b : (comp > 0 ? a : b);
