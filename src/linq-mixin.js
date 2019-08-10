@@ -11,7 +11,7 @@ import { DistinctIterable } from "./iterables/distinct";
 import { GroupIterable } from "./iterables/group";
 import { CountFinalizer } from "./finalizers/count";
 import { AggregateFinalizer } from "./finalizers/aggregate";
-import { OrderIterable } from "./iterables/order";
+import { OrderIterable, OrderIterableDescending } from "./iterables/order";
 import { ConcatIterable } from "./iterables/concat";
 import { ForEachFinalizer } from "./finalizers/for-each";
 import { ElementAtFinalizer } from "./finalizers/element-at";
@@ -54,10 +54,10 @@ export const linqMixin = {
         return new GroupIterable(this, keySelector, elementSelector, resultCreator);
     },
     orderBy(keySelector, comparer) {
-        return new OrderIterable(this, keySelector, 1, comparer);
+        return new OrderIterable(this, keySelector, comparer);
     },
     orderByDescending(keySelector, comparer) {
-        return new OrderIterable(this, keySelector, -1, comparer);
+        return new OrderIterableDescending(this, keySelector, comparer);
     },
     groupJoin(joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator) {
         return new GroupJoinIterable(this, joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator);

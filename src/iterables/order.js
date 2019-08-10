@@ -1,31 +1,47 @@
-import { BaseLinqIterable } from "../base-linq-iterable";
+import { NativeProcessingLinqIterable } from "../base-linq-iterable";
 import { quickSort } from "../utils";
 
-export class OrderIterable extends BaseLinqIterable {
-    constructor(source, keySelector, direction, comparer) {
+export class OrderIterable extends NativeProcessingLinqIterable {
+    constructor(source, keySelector, comparer) {
         super(source);
         this.keySelector = keySelector;
-        this.direction = direction;
         this.comparer = comparer;
     }
 
-    static __sort(source, comparer) {
-        const arr = Array.isArray(source) ? source : Array.from(source);
+    _nativeTake(array) {
+        const comparer = this._getComparer();
+        return [...array].sort(comparer);
+    }
+
+    _getComparer() {
+        return typeof this.comparer === 'undefined' ? (a, b) => a < b ? -1 : (a > b ? 1 : 0) : this.comparer;
+    }
+
+    __sort(source) {
+        const comparer = this._getComparer();
+        const arr = Array.from(source);
         return quickSort(source, 0, arr.length - 1, comparer);
     }
 
     get() {
-        return this;
+        const { processed, source } = this._tryNativeProcess();
+        if (processed) {
+            return processed;
+        }
+        return this.__sort(source);;
     }
 
     [Symbol.iterator]() {
-        const source = this._getSource();
-        const keyComparer = typeof this.comparer === 'undefined' ? ((a, b) => a < b ? -1 : (a > b ? 1 : 0)) : this.comparer;
-        const comparer = (left, right) => {
-            return this.direction * keyComparer(this.keySelector(left), this.keySelector(right));
-        };
-        const result = OrderIterable.__sort(source, comparer);
-        return this._getIterator(result);
+        const sortedArray = this.get();
+        return this._getIterator(sortedArray);
     }
 }
 
+export class OrderIterableDescending extends OrderIterable {
+    _getComparer() {
+        const comparer = super._getComparer();
+        return (left, right) => {
+            return 0 - comparer(this.keySelector(left), this.keySelector(right));
+        };
+    }
+}

@@ -44,6 +44,4 @@ export class NativeProcessingLinqIterable extends BaseLinqIterable {
         }
         return this;
     }
-
-    
 }

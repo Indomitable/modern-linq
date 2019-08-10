@@ -9,11 +9,30 @@ import Benchmark from 'benchmark';
 
 const suit = new Benchmark.Suite('modern-linq bechrmark tests');
 
-from(selectBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-from(whereBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-from(takeBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-from(skipBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-from(sortBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+const requested = from(process.argv).where(a => a.startsWith('--')).join(',');
+if (requested.length === 0) {
+    from(selectBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    from(whereBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    from(takeBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    from(skipBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    from(sortBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+} else {
+    if (requested.indexOf('--select') > -1) {
+        from(selectBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    }
+    if (requested.indexOf('--where') > -1) {
+        from(whereBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    }
+    if (requested.indexOf('--take') > -1) {
+        from(takeBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    }
+    if (requested.indexOf('--skip') > -1) {
+        from(skipBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    }
+    if (requested.indexOf('--sort') > -1) {
+        from(sortBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    }
+}
 
 suit.on('complete', function () {
     const regEx = new RegExp('^\\[(\\w+)\\]\\s(.+)$');
@@ -48,7 +67,7 @@ suit.on('complete', function () {
             return {
                 name: key,
                 fastest: getBenchData(fastestBench),
-                benches: items.select(getBenchData)
+                benches: items.orderByDescending(_ => _.bench.hz).select(getBenchData)
             }
         });
 

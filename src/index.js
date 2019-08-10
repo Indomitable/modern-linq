@@ -9,12 +9,13 @@ import { SkipIterable } from './iterables/skip';
 import { RangeIterable } from './generators/range';
 import { DistinctIterable } from './iterables/distinct';
 import { Grouping, GroupIterable } from './iterables/group';
-import { OrderIterable } from "./iterables/order";
+import { OrderIterable, OrderIterableDescending } from "./iterables/order";
 import { ConcatIterable } from "./iterables/concat";
 import { UnionIterable } from "./iterables/union";
 import { GroupJoinIterable } from "./iterables/group-join";
 import { JoinIterable } from "./iterables/join";
 
+// note: if using class as output we can just apply the mixin to BaseLinqIterable.
 applyMixin(linqMixin, [
     LinqIterable,
     ArrayLikeIterable,
@@ -29,6 +30,7 @@ applyMixin(linqMixin, [
     Grouping,
     GroupIterable,
     OrderIterable,
+    OrderIterableDescending,
     ConcatIterable,
     UnionIterable,
     GroupJoinIterable,
