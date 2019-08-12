@@ -175,6 +175,33 @@ class RangeIterable extends BaseLinqIterable {
 
   }}
 
+class RepeatIterable extends BaseLinqIterable {
+  constructor(value, times) {
+    super([]);
+    this.value = value;
+    this.times = times;
+  }
+
+  get() {
+    return this;
+  }
+
+  [Symbol.iterator]() {
+    var indx = 0;
+    var max = this.times;
+    var item = this.value;
+    return {
+      next() {
+        if (indx < max) {
+          indx++;
+          return { done: false, value: item };
+        } else {
+          return { done: true };
+        }
+      } };
+
+  }}
+
 class LinqIterable extends BaseLinqIterable {
   constructor(source) {
     super(source);
@@ -265,6 +292,10 @@ function fromArrayLike(source) {
 
 function range(from, to) {
   return new RangeIterable(from, to);
+}
+
+function repeat(value, times) {
+  return new RepeatIterable(value, times);
 }
 
 function from(source) {
@@ -704,7 +735,7 @@ class DistinctItemChecker {
 
 class Grouping extends BaseLinqIterable {
   constructor(key, source) {
-    super(source.toArray());
+    super(source);
     this.key = key;
   }
 
@@ -737,13 +768,12 @@ class GroupIterable extends BaseLinqIterable {
     var elementCreator = typeof elementSelector === 'undefined' ? _ => _ : elementSelector;
     for (var item of iterable) {
       var key = keySelector(item);
-      var element = elementCreator(item);
-      var value = map.get(key);
-      if (typeof value === 'undefined') {
-        value = [element];
-      } else {
-        value.push(element);
+      if (key !== null && typeof key === 'object' || typeof key === "function") {
+        throw new TypeError('groupBy method does not support keys to be objects or functions');
       }
+      var element = elementCreator(item);
+      var value = map.get(key) || [];
+      value.push(element);
       map.set(key, value);
     }
     return map;
@@ -762,14 +792,13 @@ class GroupIterable extends BaseLinqIterable {
       next() {
         var { done, value } = groupIterator.next();
         if (done) {
+          result.clear();
           return { done: true };
         }
         var [key, grouping] = value;
-        var linqGrouping = fromIterable(grouping);
-        var result = resultCreator(key, linqGrouping);
         return {
           done: false,
-          value: result };
+          value: resultCreator(key, fromIterable(grouping)) };
 
       } };
 
@@ -822,31 +851,47 @@ class AggregateFinalizer {
     return res;
   }}
 
-class OrderIterable extends BaseLinqIterable {
-  constructor(source, keySelector, direction, comparer) {
+class OrderIterable extends NativeProcessingLinqIterable {
+  constructor(source, keySelector, comparer) {
     super(source);
     this.keySelector = keySelector;
-    this.direction = direction;
     this.comparer = comparer;
   }
 
-  static __sort(source, comparer) {
-    var arr = Array.isArray(source) ? source : Array.from(source);
+  _nativeTake(array) {
+    var comparer = this._getComparer();
+    return [...array].sort(comparer);
+  }
+
+  _getComparer() {
+    return typeof this.comparer === 'undefined' ? (a, b) => a < b ? -1 : a > b ? 1 : 0 : this.comparer;
+  }
+
+  __sort(source) {
+    var comparer = this._getComparer();
+    var arr = Array.from(source);
     return quickSort(source, 0, arr.length - 1, comparer);
   }
 
   get() {
-    return this;
-  }
+    var { processed, source } = this._tryNativeProcess();
+    if (processed) {
+      return processed;
+    }
+    return this.__sort(source);  }
 
   [Symbol.iterator]() {
-    var source = this._getSource();
-    var keyComparer = typeof this.comparer === 'undefined' ? (a, b) => a < b ? -1 : a > b ? 1 : 0 : this.comparer;
-    var comparer = (left, right) => {
-      return this.direction * keyComparer(this.keySelector(left), this.keySelector(right));
+    var sortedArray = this.get();
+    return this._getIterator(sortedArray);
+  }}
+
+
+class OrderIterableDescending extends OrderIterable {
+  _getComparer() {
+    var comparer = super._getComparer();
+    return (left, right) => {
+      return 0 - comparer(this.keySelector(left), this.keySelector(right));
     };
-    var result = OrderIterable.__sort(source, comparer);
-    return this._getIterator(result);
   }}
 
 class ConcatIterable extends NativeProcessingLinqIterable {
@@ -1072,6 +1117,54 @@ class JoinIterable extends BaseLinqIterable {
 
   }}
 
+class EqualFinalizer {
+  static get(source, iterable, comparer) {
+    var isEqual = typeof comparer === 'undefined' ? (a, b) => a === b : comparer;
+    var sourceIterator = getIterator(source);
+    var otherIterator = getIterator(iterable);
+    var thisDone = false;
+    while (!thisDone) {
+      var thisNext = sourceIterator.next();
+      var otherNext = otherIterator.next();
+      if (thisNext.done !== otherNext.done ||
+      !thisNext.done && !otherNext.done && !isEqual(thisNext.value, otherNext.value)) {
+        return false;
+      }
+      thisDone = thisNext.done;
+    }
+    return true;
+  }
+
+  static getDifferentPosition(source, iterable, comparer) {
+    var isEqual = typeof comparer === 'undefined' ? (a, b) => a === b : comparer;
+    var sourceIterator = getIterator(source);
+    var otherArray = Array.isArray(iterable) ? [...iterable] : Array.from(iterable);
+    var thisDone = false;
+    while (!thisDone) {
+      var next = sourceIterator.next();
+      thisDone = next.done;
+      if (!next.done && otherArray.length === 0 || next.done && otherArray.length > 0) {
+        return false;
+      }
+      if (next.done && otherArray.length === 0) {
+        return true;
+      }
+      var startLength = otherArray.length;
+      for (var i = 0; i < otherArray.length; i++) {
+        var otherValue = otherArray[i];
+        if (isEqual(next.value, otherValue)) {
+          otherArray.splice(i, 1);
+          break;
+        }
+      }
+      if (startLength === otherArray.length) {
+        // if not removed not equal
+        return false;
+      }
+    }
+    return otherArray.length === 0; // all elements removed.
+  }}
+
 var linqMixin = {
   where(predicate) {
     return new WhereIterable(this, predicate);
@@ -1106,10 +1199,10 @@ var linqMixin = {
     return new GroupIterable(this, keySelector, elementSelector, resultCreator);
   },
   orderBy(keySelector, comparer) {
-    return new OrderIterable(this, keySelector, 1, comparer);
+    return new OrderIterable(this, keySelector, comparer);
   },
   orderByDescending(keySelector, comparer) {
-    return new OrderIterable(this, keySelector, -1, comparer);
+    return new OrderIterableDescending(this, keySelector, comparer);
   },
   groupJoin(joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator) {
     return new GroupJoinIterable(this, joinIterable, sourceKeySelector, joinIterableKeySelector, resultCreator);
@@ -1188,14 +1281,14 @@ var linqMixin = {
     return AggregateFinalizer.get(this, (r, i) => r * i);
   },
   min(comparer) {
-    var compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
+    var compare = typeof comparer === 'undefined' ? (a, b) => a < b ? -1 : a > b ? 1 : 0 : comparer;
     return AggregateFinalizer.get(this, (a, b) => {
       var comp = compare(a, b);
       return comp < 0 ? a : comp > 0 ? b : a;
     });
   },
   max(comparer) {
-    var compare = typeof comparer === 'undefined' ? (a, b) => a - b : comparer;
+    var compare = typeof comparer === 'undefined' ? (a, b) => a < b ? -1 : a > b ? 1 : 0 : comparer;
     return AggregateFinalizer.get(this, (a, b) => {
       var comp = compare(a, b);
       return comp < 0 ? b : comp > 0 ? a : b;
@@ -1206,8 +1299,15 @@ var linqMixin = {
   },
   forEach(action) {
     return ForEachFinalizer.get(this, action);
+  },
+  isEqual(iterable, comparer) {
+    return EqualFinalizer.get(this, iterable, comparer);
+  },
+  isElementsEqual(iterable, comparer) {
+    return EqualFinalizer.getDifferentPosition(this, iterable, comparer);
   } };
 
+// note: if using class as output we can just apply the mixin to BaseLinqIterable.
 applyMixin(linqMixin, [
 LinqIterable,
 ArrayLikeIterable,
@@ -1218,10 +1318,12 @@ SelectManyIterable,
 TakeIterable,
 SkipIterable,
 RangeIterable,
+RepeatIterable,
 DistinctIterable,
 Grouping,
 GroupIterable,
 OrderIterable,
+OrderIterableDescending,
 ConcatIterable,
 UnionIterable,
 GroupJoinIterable,
@@ -1232,3 +1334,4 @@ exports.fromArrayLike = fromArrayLike;
 exports.fromIterable = fromIterable;
 exports.fromObject = fromObject;
 exports.range = range;
+exports.repeat = repeat;
