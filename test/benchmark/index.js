@@ -40,7 +40,7 @@ if (requested.length === 0) {
 }
 
 suit.on('complete', function () {
-    const regEx = new RegExp('^\\[(\\w+)\\]\\s(.+)$');
+    const regEx = new RegExp('^\\[(.+)]\\s(.+)$');
 
     const benchFormat = (bench, showError) => {
         if (showError) {
