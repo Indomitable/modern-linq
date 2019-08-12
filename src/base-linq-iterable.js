@@ -1,10 +1,16 @@
+import { getIterator } from "./utils";
+
 export class BaseLinqIterable {
     constructor(source) {
         this.source = source;
     }
 
     _getIterator(source) {
-        return source[Symbol.iterator]();
+        return getIterator(source);
+    }
+
+    _getSourceIterator() {
+        return getIterator(this.source.get());
     }
 
     _getSource() {

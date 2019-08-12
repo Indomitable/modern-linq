@@ -94,13 +94,11 @@ declare module 'modern-linq' {
          * Group items
          * @param keySelector group key selector
          */
-        groupBy<TKey>(keySelector: (item: TValue) => TKey): LinqIterable<IGrouping<TKey, TValue>>;
+        groupBy<TKey>(keySelector: (item: TValue, index: number) => TKey): LinqIterable<IGrouping<TKey, TValue>>;
 
-        groupBy<TKey, TElement>(keySelector: (item: TValue) => TKey, elementSelector: (item: TValue) => TElement): LinqIterable<IGrouping<TKey, TElement>>;
+        groupBy<TKey, TElement>(keySelector: (item: TValue, index: number) => TKey, elementSelector: (item: TValue, index: number) => TElement): LinqIterable<IGrouping<TKey, TElement>>;
 
-        groupBy<TKey, TResult>(keySelector: (item: TValue) => TKey, resultCreator: (key: TKey, items: LinqIterable<TValue>) => TResult): LinqIterable<TResult>;
-
-        groupBy<TKey, TElement, TResult>(keySelector: (item: TValue) => TKey, elementSelector: (item: TValue) => TElement,
+        groupBy<TKey, TElement, TResult>(keySelector: (item: TValue, index: number) => TKey, elementSelector: (item: TValue, index: number) => TElement,
                                          resultCreator: (key: TKey, items: LinqIterable<TElement>) => TResult): LinqIterable<TResult>;
 
         /**
@@ -126,7 +124,7 @@ declare module 'modern-linq' {
          */
         groupJoin<TInner, TKey, TResult>(joinIterable: Iterable<TInner>,
                                          sourceKeySelector: (item: TValue) => TKey,
-                                         joinIterableKeySelector: (item: TInner) => TKey,
+                                         joinIterableKeySelector: (item: TInner, index: number) => TKey,
                                          resultCreator: (outer: TValue, inner: TInner[]) => TResult): LinqIterable<TResult>;
 
 
@@ -139,7 +137,7 @@ declare module 'modern-linq' {
          */
         join<TInner, TKey, TResult>(joinIterable: Iterable<TInner>,
                                     sourceKeySelector: (item: TValue) => TKey,
-                                    joinIterableKeySelector: (item: TInner) => TKey,
+                                    joinIterableKeySelector: (item: TInner, index: number) => TKey,
                                     resultCreator: (outer: TValue, inner: TInner) => TResult): LinqIterable<TResult>;
         /**
          * Concat this iterable with another
@@ -152,6 +150,12 @@ declare module 'modern-linq' {
          * @param secondIterable
          */
         union(secondIterable: Iterable<TValue>): LinqIterable<TValue>;
+
+        /**
+         * Create a paging
+         * @param pageSize
+         */
+        page(pageSize: number): LinqIterable<TValue[]>;
 
         /**
          * Creates an array from iterable

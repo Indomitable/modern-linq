@@ -42,11 +42,17 @@ if (requested.length === 0) {
 suit.on('complete', function () {
     const regEx = new RegExp('^\\[(.+)]\\s(.+)$');
 
+    const formatNumber = (num) => {
+        return from(num.toString()).page(3)
+            .groupBy((arr, i) => i, _ => _, (key, items) => items.first().join(''))
+            .join(',');
+    };
+
     const benchFormat = (bench, showError) => {
         if (showError) {
-            return `${bench.name} (${bench.ops} op/sec) error margin: \xb1${bench.error.toFixed(2)}%`;
+            return `${bench.name} (${formatNumber(bench.ops)} op/sec) error margin: \xb1${bench.error.toFixed(2)}%`;
         } else {
-            return `${bench.name} (${bench.ops} op/sec)`;
+            return `${bench.name} (${formatNumber(bench.ops)} op/sec)`;
         }
     };
 
@@ -67,7 +73,7 @@ suit.on('complete', function () {
                 bench: b
             }
         })
-        .groupBy(_ => _.category, (key, items) => {
+        .groupBy(_ => _.category, _ => _, (key, items) => {
             const fastestBench = items.max((a, b) => a.bench.hz - b.bench.hz);
             return {
                 name: key,

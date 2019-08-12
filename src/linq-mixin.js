@@ -20,6 +20,7 @@ import { UnionIterable } from "./iterables/union";
 import { GroupJoinIterable } from "./iterables/group-join";
 import { JoinIterable } from "./iterables/join";
 import { EqualFinalizer } from "./finalizers/equal";
+import { PageIterable } from "./iterables/page";
 
 export const linqMixin = {
     where(predicate) {
@@ -74,6 +75,9 @@ export const linqMixin = {
     },
     union(secondIterable) {
         return new UnionIterable(this, secondIterable);
+    },
+    page(pageSize) {
+        return new PageIterable(this, pageSize);
     },
     toArray(map) {
         return ToArrayFinalizer.get(this, map);

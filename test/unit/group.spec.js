@@ -90,17 +90,6 @@ describe('groupBy tests', () => {
         });
     });
 
-    [
-        input,
-        setInput
-    ].forEach((source, indx) => {
-        it('should group collection and convert result without element transform: ' + indx, () => {
-            const res = fromIterable(source).groupBy(_ => _.age, (key, p) => `${key}:${p.select(_ => _.name).toArray().join(',')}`).toArray();
-            expect(res.length).to.equal(3);
-            expect(res).to.deep.equal(['10:A,C,E', '20:B,F', '30:D']);
-        });
-    });
-
     it('should be able to work with strings', () => {
         const res = from('abcdeabcdebbacc').groupBy(_ => _).where(g => g.count() < 4).select(g => g.key).join('');
         expect(res).to.equal('ade');

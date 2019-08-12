@@ -18,9 +18,11 @@ export const whereIterableInput = new Benchmark('[where] iterable input', () => 
 });
 
 export const whereIterate = new Benchmark('[whereIterate] iterate through iterable', () => {
-   Array.from(from(iterable).where(_ => _ % 2 === 1));
+   for (const i of from(iterable).where(_ => _ % 2 === 1)) {
+   }
 });
 
 export const whereIterateArray = new Benchmark('[whereIterate] iterate through array', () => {
-    Array.from(from(array).where(_ => _ % 2 === 1));
+    for (const i of (from(array).where(_ => _ % 2 === 1))) {
+    }
 });

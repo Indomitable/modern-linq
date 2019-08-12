@@ -38,8 +38,8 @@ export class GroupJoinIterable extends BaseLinqIterable {
     }
 
     [Symbol.iterator]() {
-        const outerIterator = this._getIterator(this._getSource());
-        const innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector);
+        const outerIterator = this._getSourceIterator();
+        const innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector, _ => _);
         const outerKeySelector = this.sourceKeySelector;
         const resultCreator = this.resultCreator;
         return {

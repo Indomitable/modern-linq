@@ -25,8 +25,8 @@ export class JoinIterable extends BaseLinqIterable {
 
     [Symbol.iterator]() {
         const resultCreator = this.resultCreator;
-        const outerIterator = this._getIterator(this._getSource());
-        const innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector);
+        const outerIterator = this._getSourceIterator();
+        const innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector, _ => _);
         const innerItemsExtractor = (outerItem) => {
             const key = this.sourceKeySelector(outerItem);
             return innerMap.get(key) || [];
