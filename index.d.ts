@@ -270,6 +270,13 @@ declare module 'modern-linq' {
          * @param action
          */
         forEach(action: (item: TValue) => void): void;
+
+        /**
+         * Check if current sequence is equal to another sequence.
+         * @param iterable
+         */
+        isEqual(iterable: Iterable<TValue>): boolean;
+        isEqual<TAnotherValue>(iterable: Iterable<TAnotherValue>, comparer: (a: TValue, b: TAnotherValue) => boolean): boolean;
     }
 
     export interface IGrouping<TKey, TValue> extends LinqIterable<TValue> {

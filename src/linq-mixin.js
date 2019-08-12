@@ -19,6 +19,7 @@ import { ToArrayFinalizer } from "./finalizers/to-array";
 import { UnionIterable } from "./iterables/union";
 import { GroupJoinIterable } from "./iterables/group-join";
 import { JoinIterable } from "./iterables/join";
+import { EqualFinalizer } from "./finalizers/equal";
 
 export const linqMixin = {
     where(predicate) {
@@ -154,5 +155,8 @@ export const linqMixin = {
     },
     forEach(action) {
         return ForEachFinalizer.get(this, action);
+    },
+    isEqual(iterable, comparer) {
+        return EqualFinalizer.get(this, iterable, comparer);
     }
 };
