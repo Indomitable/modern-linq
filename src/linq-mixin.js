@@ -158,5 +158,8 @@ export const linqMixin = {
     },
     isEqual(iterable, comparer) {
         return EqualFinalizer.get(this, iterable, comparer);
+    },
+    isElementsEqual(iterable, comparer) {
+        return EqualFinalizer.getDifferentPosition(this, iterable, comparer);
     }
 };

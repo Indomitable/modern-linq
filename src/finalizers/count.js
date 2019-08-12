@@ -1,5 +1,3 @@
-import { getIterator } from "../utils";
-
 export class CountFinalizer {
     static get(source, predicate) {
         const iterable = source.get();

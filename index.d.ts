@@ -277,6 +277,14 @@ declare module 'modern-linq' {
          */
         isEqual(iterable: Iterable<TValue>): boolean;
         isEqual<TAnotherValue>(iterable: Iterable<TAnotherValue>, comparer: (a: TValue, b: TAnotherValue) => boolean): boolean;
+
+        /**
+         * Check if current sequence is equal to another sequence even that positions of elements are different
+         * @param iterable
+         * @example from([1, 2, 3]).isElementEqual([3, 1, 2]) === true
+         */
+        isElementsEqual(iterable: Iterable<TValue>): boolean;
+        isElementsEqual<TAnotherValue>(iterable: Iterable<TAnotherValue>, comparer: (a: TValue, b: TAnotherValue) => boolean): boolean;
     }
 
     export interface IGrouping<TKey, TValue> extends LinqIterable<TValue> {
