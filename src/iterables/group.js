@@ -36,13 +36,12 @@ export class GroupIterable extends BaseLinqIterable {
         const elementCreator = typeof elementSelector === 'undefined' ? _ => _ : elementSelector;
         for (const item of iterable) {
             const key = keySelector(item);
-            const element = elementCreator(item);
-            let value = map.get(key);
-            if (typeof value === 'undefined') {
-                value = [ element ];
-            } else {
-                value.push(element);
+            if ((key !== null && typeof key === 'object') || typeof key === "function") {
+                throw new TypeError('groupBy method does not support keys to be objects or functions');
             }
+            const element = elementCreator(item);
+            const value = map.get(key) || [];
+            value.push(element);
             map.set(key, value);
         }
         return map;
@@ -61,14 +60,13 @@ export class GroupIterable extends BaseLinqIterable {
             next() {
                 const { done, value } = groupIterator.next();
                 if (done) {
+                    result.clear();
                     return { done: true };
                 }
                 const [ key, grouping ] = value;
-                const linqGrouping = fromIterable(grouping);
-                const result = resultCreator(key, linqGrouping);
                 return {
                     done: false,
-                    value: result
+                    value: resultCreator(key, fromIterable(grouping))
                 };
             }
         }

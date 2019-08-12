@@ -30,15 +30,15 @@ describe('groupBy tests', () => {
             for (const gr of res) {
                 switch (gr.key) {
                     case 10: {
-                        expect(gr.count()).to.equal(3);
+                        expect(gr.toArray()).to.deep.equal([ input[0], input[2], input[4] ]);
                         break;
                     }
                     case 20: {
-                        expect(gr.count()).to.equal(2);
+                        expect(gr.toArray()).to.deep.equal([ input[1], input[5] ]);
                         break;
                     }
                     case 30: {
-                        expect(gr.count()).to.equal(1);
+                        expect(gr.toArray()).to.deep.equal([ input[3] ]);
                         break;
                     }
                     default:
@@ -104,5 +104,28 @@ describe('groupBy tests', () => {
     it('should be able to work with strings', () => {
         const res = from('abcdeabcdebbacc').groupBy(_ => _).where(g => g.count() < 4).select(g => g.key).join('');
         expect(res).to.equal('ade');
+    });
+
+    it('should throw if group by object', () => {
+        const func = function () { return from(input).groupBy(_ => ({ age: _.age })).toArray() };
+        expect(func).to.throw(TypeError);
+    });
+
+    it('should throw if group by function', () => {
+        const func = function () { return from(input).groupBy(_ => (function() {})).toArray() };
+        expect(func).to.throw(TypeError);
+    });
+
+    it('should not throw if group by null or undefined', () => {
+        const res = from('abcdeabcdebbacc')
+            .groupBy(_ => _ === 'a' ? null : (_ === 'b' ? undefined : _), _ => _, (key, group) => ({ key: key, group: group.toArray() }))
+            .toArray();
+        expect(res).to.deep.equal([
+            { key: null, group: ['a', 'a', 'a'] },
+            { key: undefined, group: ['b', 'b', 'b', 'b'] },
+            { key: 'c', group: ['c', 'c', 'c', 'c'] },
+            { key: 'd', group: ['d', 'd'] },
+            { key: 'e', group: ['e', 'e'] }
+        ]);
     });
 });

@@ -7,6 +7,12 @@ declare module 'modern-linq' {
         where(predicate: (item: TValue) => boolean): LinqIterable<TValue>;
 
         /**
+         * Filters the iterable using predicate function typed overload
+         * @param predicate
+         */
+        where<TSubValue extends TValue>(predicate: (item: TValue) => item is TSubValue): LinqIterable<TSubValue>;
+
+        /**
          * Maps the iterable items
          * @param map map function
          */
