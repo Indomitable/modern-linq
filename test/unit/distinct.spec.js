@@ -1,5 +1,7 @@
 import { expect } from 'chai';
 import { fromIterable } from "../../src";
+import { Person } from "./models";
+import { from } from "../../index";
 
 describe('distinct tests', () => {
     [
@@ -39,6 +41,20 @@ describe('distinct tests', () => {
             const input = fromIterable(source);
             expect(input.distinct().where(_ => typeof _ === 'string').toArray()).to.deep.equal(['a']);
         });
+    });
+
+    it('should do a distinct of object by key', () => {
+        const persons = [
+            new Person(10, 'A'),
+            new Person(20, 'B'),
+            new Person(10, 'C'),
+            new Person(20, 'D'),
+        ];
+        const res = from(persons).distinct((a, b) => a.age === b.age).toArray();
+        expect(res).to.deep.equals([
+            new Person(10, 'A'),
+            new Person(20, 'B'),
+        ]);
     });
 });
 

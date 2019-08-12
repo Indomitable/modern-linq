@@ -308,4 +308,12 @@ declare module 'modern-linq' {
      * @param value
      */
     export function from<TValue extends {}, TKey extends keyof TValue>(value: TValue): LinqIterable<{ key: string, value: TValue[TKey] }>;
+
+    /**
+     * Creates a select js iterable containing a [from, to) range of numbers
+     * if from is less than to return ascending range
+     * if from is greater that to return descending range
+     * if from === to returns empty iterable
+     */
+    export function repeat<TValue>(value: TValue, times: number): LinqIterable<TValue>;
 }

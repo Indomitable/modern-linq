@@ -1,5 +1,6 @@
 import { RangeIterable } from "./generators/range";
 import { BaseLinqIterable } from "./base-linq-iterable";
+import { RepeatIterable } from "./generators/repeat";
 
 export class LinqIterable extends BaseLinqIterable {
     constructor(source) {
@@ -91,6 +92,10 @@ export function fromArrayLike(source) {
 
 export function range(from, to) {
     return new RangeIterable(from, to);
+}
+
+export function repeat(value, times) {
+    return new RepeatIterable(value, times);
 }
 
 export function from(source) {

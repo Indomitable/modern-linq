@@ -4,6 +4,7 @@ import * as whereBenches from './where.perf'
 import * as takeBenches from './take.perf'
 import * as skipBenches from './skip.perf'
 import * as sortBenches from './sort.perf'
+import * as distinctBenches from './distinct.perf';
 
 import Benchmark from 'benchmark';
 
@@ -16,6 +17,7 @@ if (requested.length === 0) {
     from(takeBenches).forEach(e => suit.add(e.value.name, e.value.fn));
     from(skipBenches).forEach(e => suit.add(e.value.name, e.value.fn));
     from(sortBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    from(distinctBenches).forEach(e => suit.add(e.value.name, e.value.fn));
 } else {
     if (requested.indexOf('--select') > -1) {
         from(selectBenches).forEach(e => suit.add(e.value.name, e.value.fn));
@@ -31,6 +33,9 @@ if (requested.length === 0) {
     }
     if (requested.indexOf('--sort') > -1) {
         from(sortBenches).forEach(e => suit.add(e.value.name, e.value.fn));
+    }
+    if (requested.indexOf('--distinct') > -1) {
+        from(distinctBenches).forEach(e => suit.add(e.value.name, e.value.fn));
     }
 }
 

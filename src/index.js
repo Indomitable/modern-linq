@@ -14,6 +14,7 @@ import { ConcatIterable } from "./iterables/concat";
 import { UnionIterable } from "./iterables/union";
 import { GroupJoinIterable } from "./iterables/group-join";
 import { JoinIterable } from "./iterables/join";
+import { RepeatIterable } from "./generators/repeat";
 
 // note: if using class as output we can just apply the mixin to BaseLinqIterable.
 applyMixin(linqMixin, [
@@ -26,6 +27,7 @@ applyMixin(linqMixin, [
     TakeIterable,
     SkipIterable,
     RangeIterable,
+    RepeatIterable,
     DistinctIterable,
     Grouping,
     GroupIterable,
@@ -37,4 +39,4 @@ applyMixin(linqMixin, [
     JoinIterable,
 ]);
 
-export { fromIterable, fromObject, fromArrayLike, range, from } from './creation';
+export { fromIterable, fromObject, fromArrayLike, range, from, repeat } from './creation';
