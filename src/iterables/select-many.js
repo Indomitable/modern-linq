@@ -15,10 +15,6 @@ export class SelectManyIterable extends BaseLinqIterable {
         this.extract = extract;
     }
 
-    get() {
-        return this;
-    }
-
     [Symbol.iterator]() {
         const source = this._getSource();
         const iterator = this._getIterator(source);

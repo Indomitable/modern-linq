@@ -6,10 +6,6 @@ export class RepeatIterable extends BaseLinqIterable {
         this.times = times;
     }
 
-    get() {
-        return this;
-    }
-
     [Symbol.iterator]() {
         let indx = 0;
         const max = this.times;

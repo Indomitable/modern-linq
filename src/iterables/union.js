@@ -7,10 +7,6 @@ export class UnionIterable extends BaseLinqIterable {
         this.second = second;
     }
 
-    get() {
-        return this;
-    }
-
     static __getNext(firstIterator, firstDone, secondIterator, secondDone, set) {
         while (!firstDone || !secondDone) {
             if (!firstDone) {

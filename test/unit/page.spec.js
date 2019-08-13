@@ -26,4 +26,11 @@ describe('page iteration tests', () => {
             .join(',');
         expect(res).to.equal('abc,def,d');
     });
+
+    it('should page when mod pageSize === 0', () => {
+        const res0 = from(range(0, 20)).page(5).toArray();
+        expect(res0.length).to.equal(4);
+        const res1 = from('abcdef').page(3).toArray();
+        expect(res1.length).to.equal(2);
+    });
 });

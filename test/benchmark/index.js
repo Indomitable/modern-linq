@@ -41,16 +41,16 @@ if (requested.length === 0) {
 
 suit.on('complete', function () {
     const regEx = new RegExp('^\\[(.+)]\\s(.+)$');
-
     const formatNumber = (num) => {
-        return from(num.toString()).page(3)
-            .groupBy((arr, i) => i, _ => _, (key, items) => items.first().join(''))
+        return from(num.toString()).reverse().page(3)
+            .groupBy((arr, i) => i, _ => _.reverse().join(''), (key, items) => items.first())
+            .reverse()
             .join(',');
     };
 
     const benchFormat = (bench, showError) => {
         if (showError) {
-            return `${bench.name} (${formatNumber(bench.ops)} op/sec) error margin: \xb1${bench.error.toFixed(2)}%`;
+            return `${bench.name} (${formatNumber(bench.ops)}, ${bench.ops} op/sec) error margin: \xb1${bench.error.toFixed(2)}%`;
         } else {
             return `${bench.name} (${formatNumber(bench.ops)} op/sec)`;
         }

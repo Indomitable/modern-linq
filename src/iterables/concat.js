@@ -17,10 +17,6 @@ export class ConcatIterable extends NativeProcessingLinqIterable {
         }
     }
 
-    get() {
-        return this;
-    }
-
     [Symbol.iterator]() {
         const { processed, source } = this._tryNativeProcess();
         if (processed) {

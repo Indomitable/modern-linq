@@ -1,13 +1,10 @@
 import { BaseLinqIterable } from "../base-linq-iterable";
+import { doneValue, iteratorResultCreator } from "../utils";
 
 export class PageIterable extends BaseLinqIterable {
     constructor(source, pageSize) {
         super(source);
         this.pageSize = pageSize;
-    }
-
-    get() {
-        return this;
     }
 
     [Symbol.iterator]() {
@@ -17,15 +14,19 @@ export class PageIterable extends BaseLinqIterable {
         return {
             next() {
                 if (lastOne) {
-                    return { done: true };
+                    return doneValue();
                 }
                 let count = 0;
                 let page = [];
                 while (count < pageSize) {
                     const next = iterator.next();
                     if (next.done) {
-                        lastOne = true;
-                        return { done: false, value: page };
+                        if (page.length === 0) {
+                            return doneValue();
+                        } else {
+                            lastOne = true;
+                            return iteratorResultCreator(page);
+                        }
                     }
                     page.push(next.value);
                     count++;

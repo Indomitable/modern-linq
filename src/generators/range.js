@@ -43,10 +43,6 @@ export class RangeIterable extends BaseLinqIterable {
         };
     }
 
-    get() {
-        return this;
-    }
-
     [Symbol.iterator]() {
         if (this.from < this.to) {
             return this.__ascendingRange();

@@ -45,10 +45,6 @@ export class GroupIterable extends BaseLinqIterable {
         return map;
     }
 
-    get() {
-        return this;
-    }
-
     [Symbol.iterator]() {
         const source = this._getSource();
         const result = GroupIterable.__group(source, this.keySelector, this.elementSelector);

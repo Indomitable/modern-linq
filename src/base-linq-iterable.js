@@ -18,7 +18,7 @@ export class BaseLinqIterable {
     }
 
     get() {
-        throw new Error('Not implemented');
+        return this;
     }
 }
 

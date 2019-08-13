@@ -99,6 +99,10 @@ function doneValue() {
   return { done: true };
 }
 
+function iteratorResultCreator(value) {
+  return { done: false, value };
+}
+
 class BaseLinqIterable {
   constructor(source) {
     this.source = source;
@@ -117,7 +121,7 @@ class BaseLinqIterable {
   }
 
   get() {
-    throw new Error('Not implemented');
+    return this;
   }}
 
 
@@ -194,10 +198,6 @@ class RangeIterable extends BaseLinqIterable {
 
   }
 
-  get() {
-    return this;
-  }
-
   [Symbol.iterator]() {
     if (this.from < this.to) {
       return this.__ascendingRange();
@@ -217,10 +217,6 @@ class RepeatIterable extends BaseLinqIterable {
     super([]);
     this.value = value;
     this.times = times;
-  }
-
-  get() {
-    return this;
   }
 
   [Symbol.iterator]() {
@@ -286,10 +282,6 @@ class ArrayLikeIterable extends BaseLinqIterable {
 class ObjectIterable extends BaseLinqIterable {
   constructor(source) {
     super(source);
-  }
-
-  get() {
-    return this;
   }
 
   [Symbol.iterator]() {
@@ -443,10 +435,6 @@ class SelectManyIterable extends BaseLinqIterable {
   constructor(source, extract) {
     super(source);
     this.extract = extract;
-  }
-
-  get() {
-    return this;
   }
 
   [Symbol.iterator]() {
@@ -818,10 +806,6 @@ class GroupIterable extends BaseLinqIterable {
     return map;
   }
 
-  get() {
-    return this;
-  }
-
   [Symbol.iterator]() {
     var source = this._getSource();
     var result = GroupIterable.__group(source, this.keySelector, this.elementSelector);
@@ -950,10 +934,6 @@ class ConcatIterable extends NativeProcessingLinqIterable {
     }
   }
 
-  get() {
-    return this;
-  }
-
   [Symbol.iterator]() {
     var { processed, source } = this._tryNativeProcess();
     if (processed) {
@@ -1019,10 +999,6 @@ class UnionIterable extends BaseLinqIterable {
     this.second = second;
   }
 
-  get() {
-    return this;
-  }
-
   static __getNext(firstIterator, firstDone, secondIterator, secondDone, set) {
     while (!firstDone || !secondDone) {
       if (!firstDone) {
@@ -1080,10 +1056,6 @@ class GroupJoinIterable extends BaseLinqIterable {
     this.resultCreator = resultCreator;
   }
 
-  get() {
-    return this;
-  }
-
   static __getNext(outerIterator, outerKeySelector, innerMap, resultSelector) {
     var { done, value } = outerIterator.next();
     if (done) {
@@ -1126,10 +1098,6 @@ class JoinIterable extends BaseLinqIterable {
     this.sourceKeySelector = sourceKeySelector;
     this.joinIterableKeySelector = joinIterableKeySelector;
     this.resultCreator = resultCreator;
-  }
-
-  get() {
-    return this;
   }
 
   [Symbol.iterator]() {
@@ -1210,10 +1178,6 @@ class PageIterable extends BaseLinqIterable {
     this.pageSize = pageSize;
   }
 
-  get() {
-    return this;
-  }
-
   [Symbol.iterator]() {
     var pageSize = this.pageSize;
     var iterator = this._getSourceIterator();
@@ -1266,6 +1230,26 @@ class FlatIterable extends SelectManyIterable {
             inner: item.value.value } };
 
 
+      } };
+
+  }}
+
+class ReverseIterable extends BaseLinqIterable {
+  constructor(source) {
+    super(source);
+  }
+
+  [Symbol.iterator]() {
+    var array = this.source.toArray();
+    var index = array.length - 1;
+    return {
+      next() {
+        if (index < 0) {
+          return doneValue();
+        }
+        var value = array[index];
+        index--;
+        return iteratorResultCreator(value);
       } };
 
   }}
@@ -1329,6 +1313,9 @@ var linqMixin = {
   },
   page(pageSize) {
     return new PageIterable(this, pageSize);
+  },
+  reverse() {
+    return new ReverseIterable(this);
   },
   toArray(map) {
     return ToArrayFinalizer.get(this, map);
@@ -1440,7 +1427,8 @@ ConcatIterable,
 UnionIterable,
 GroupJoinIterable,
 JoinIterable,
-PageIterable]);
+PageIterable,
+ReverseIterable]);
 
 exports.from = from;
 exports.fromArrayLike = fromArrayLike;

@@ -20,10 +20,6 @@ export class JoinIterable extends BaseLinqIterable {
         this.resultCreator = resultCreator;
     }
 
-    get() {
-        return this;
-    }
-
     [Symbol.iterator]() {
         const resultCreator = this.resultCreator;
         const outerIterator = this._getSourceIterator();

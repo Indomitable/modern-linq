@@ -183,3 +183,7 @@ export function defaultElementSelector(item) {
 export function doneValue() {
     return {done: true};
 }
+
+export function iteratorResultCreator(value) {
+    return { done: false, value };
+}

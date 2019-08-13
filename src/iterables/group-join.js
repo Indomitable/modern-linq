@@ -19,10 +19,6 @@ export class GroupJoinIterable extends BaseLinqIterable {
         this.resultCreator = resultCreator;
     }
 
-    get() {
-        return this;
-    }
-
     static __getNext(outerIterator, outerKeySelector, innerMap, resultSelector) {
         const { done, value } = outerIterator.next();
         if (done) {

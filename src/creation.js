@@ -51,10 +51,6 @@ export class ObjectIterable extends BaseLinqIterable {
         super(source);
     }
 
-    get() {
-        return this;
-    }
-
     [Symbol.iterator]() {
         const obj = this.source;
         const keys = Object.keys(obj);

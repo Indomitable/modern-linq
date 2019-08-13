@@ -23,6 +23,7 @@ import { EqualFinalizer } from "./finalizers/equal";
 import { PageIterable } from "./iterables/page";
 import { defaultSortComparer } from "./utils";
 import { FlatIterable } from "./iterables/flat";
+import { ReverseIterable } from "./iterables/reverse";
 
 export const linqMixin = {
     where(predicate) {
@@ -83,6 +84,9 @@ export const linqMixin = {
     },
     page(pageSize) {
         return new PageIterable(this, pageSize);
+    },
+    reverse() {
+        return new ReverseIterable(this);
     },
     toArray(map) {
         return ToArrayFinalizer.get(this, map);

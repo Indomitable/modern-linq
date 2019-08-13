@@ -17,6 +17,7 @@ import { JoinIterable } from "./iterables/join";
 import { RepeatIterable } from "./generators/repeat";
 import { PageIterable } from "./iterables/page";
 import { FlatIterable } from "./iterables/flat";
+import { ReverseIterable } from "./iterables/reverse";
 
 // note: if using class as output we can just apply the mixin to BaseLinqIterable.
 applyMixin(linqMixin, [
@@ -40,7 +41,8 @@ applyMixin(linqMixin, [
     UnionIterable,
     GroupJoinIterable,
     JoinIterable,
-    PageIterable
+    PageIterable,
+    ReverseIterable
 ]);
 
 export { fromIterable, fromObject, fromArrayLike, range, from, repeat } from './creation';

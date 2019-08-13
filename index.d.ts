@@ -164,6 +164,11 @@ declare module 'modern-linq' {
         page(pageSize: number): LinqIterable<TValue[]>;
 
         /**
+         * Reverse the sequence
+         */
+        reverse(): LinqIterable<TValue[]>;
+
+        /**
          * Creates an array from iterable
          */
         toArray(): TValue[];
