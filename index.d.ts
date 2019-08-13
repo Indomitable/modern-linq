@@ -179,6 +179,24 @@ declare module 'modern-linq' {
         toArray<TResult>(map: (item: TValue) => TResult): TResult[];
 
         /**
+         * Create a map object from sequence
+         * @param keySelector - key selector - keys should be unique, otherwise last keys will override first.
+         */
+        toMap<TKey>(keySelector: (item: TValue) => TKey): Map<TKey, TValue>;
+
+        /**
+         * Create a map object from sequence
+         * @param keySelector key selector - keys should be unique, otherwise last keys will override first.
+         * @param elementSelector element selector
+         */
+        toMap<TKey, TElement>(keySelector: (item: TValue) => TKey, elementSelector: (item: TValue) => TElement): Map<TKey, TElement>;
+
+        /**
+         * Creates a set from current sequence.
+         */
+        toSet(): Set<TValue>;
+
+        /**
          * Get first item of iterable
          * @param predicate optional predicate for the item
          */
