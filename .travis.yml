@@ -10,8 +10,7 @@ jobs:
         - yarn test
         - yarn test-ts
     - stage: deploy
-      on:
-        tags: true
+      if: tag IS present
       install:
         - yarn --pure-lockfile
       script:
