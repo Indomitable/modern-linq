@@ -25,6 +25,12 @@ declare module 'modern-linq' {
         selectMany<TOutput>(map: (item: TValue) => TOutput[]): LinqIterable<TOutput>;
 
         /**
+         * Flat Iterable of collections, where the output is pair of outer and inner element
+         * @param map Function which returns a collection
+         */
+        flat<TOutput>(map: (item: TValue) => TOutput[]): LinqIterable<{ outer: TValue, inner: TOutput }>;
+
+        /**
          * Take first N items from iterable
          * @param count
          */

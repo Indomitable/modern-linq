@@ -179,3 +179,7 @@ export function defaultEqualityComparer(a, b) {
 export function defaultElementSelector(item) {
     return item;
 }
+
+export function doneValue() {
+    return {done: true};
+}

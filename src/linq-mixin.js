@@ -22,6 +22,7 @@ import { JoinIterable } from "./iterables/join";
 import { EqualFinalizer } from "./finalizers/equal";
 import { PageIterable } from "./iterables/page";
 import { defaultSortComparer } from "./utils";
+import { FlatIterable } from "./iterables/flat";
 
 export const linqMixin = {
     where(predicate) {
@@ -32,6 +33,9 @@ export const linqMixin = {
     },
     selectMany(map) {
         return new SelectManyIterable(this, map);
+    },
+    flat(selector) {
+        return new FlatIterable(this, selector);
     },
     take(count) {
         return new TakeIterable(this, count);

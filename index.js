@@ -13,6 +13,11 @@ function applyMixin(mixin, destinations) {
   }
 }
 
+/**
+   * Helper function to be use to access Symbol.iterator of iterable
+   * @param {Iterable} iterable
+   * @return {Iterator} iterator.
+   */
 function getIterator(iterable) {
   return iterable[Symbol.iterator]();
 }
@@ -45,12 +50,23 @@ function __quickSort(items, left, right, comparer) {
   } while (left < right);
 }
 
+/**
+   * Sorts an array using quick sort algorithm
+   * @param items array to sort
+   * @param left start
+   * @param right end
+   * @param comparer elements comparer
+   * @return {Array} sorted array.
+   */
 function quickSort(items, left, right, comparer) {
   var copy = [...items]; // copy items.
   __quickSort(copy, left, right, comparer);
   return copy;
 }
 
+/**
+   * A helper class which using Set to check for distinct elements.
+   */
 class SetCheck {
   constructor() {
     this.set = new Set();
@@ -66,13 +82,34 @@ class SetCheck {
     this.set.clear();
   }}
 
+
+function defaultSortComparer(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+function defaultEqualityComparer(a, b) {
+  return a === b;
+}
+
+function defaultElementSelector(item) {
+  return item;
+}
+
+function doneValue() {
+  return { done: true };
+}
+
 class BaseLinqIterable {
   constructor(source) {
     this.source = source;
   }
 
   _getIterator(source) {
-    return source[Symbol.iterator]();
+    return getIterator(source);
+  }
+
+  _getSourceIterator() {
+    return getIterator(this.source.get());
   }
 
   _getSource() {
@@ -659,12 +696,17 @@ class AllFinalizer {
 
 class AnyFinalizer {
   static get(source, predicate) {
-    for (var item of source) {
-      if (predicate(item)) {
-        return true;
+    if (!predicate) {
+      var iterator = getIterator(source);
+      return !iterator.next().done;
+    } else {
+      for (var item of source) {
+        if (predicate(item)) {
+          return true;
+        }
       }
+      return false;
     }
-    return false;
   }}
 
 /**
@@ -755,26 +797,23 @@ class GroupIterable extends BaseLinqIterable {
       throw new Error('keyselector is required');
     }
     this.keySelector = keySelector;
-    if (typeof elementSelector === 'function' && elementSelector.length === 2) {
-      this.resultCreator = elementSelector;
-    } else {
-      this.elementSelector = elementSelector;
-      this.resultCreator = resultCreator;
-    }
+    this.elementSelector = typeof elementSelector === 'undefined' ? defaultElementSelector : elementSelector;
+    this.resultCreator = typeof resultCreator === 'undefined' ? (key, grouping) => new Grouping(key, grouping) : resultCreator;
   }
 
   static __group(iterable, keySelector, elementSelector) {
     var map = new Map();
-    var elementCreator = typeof elementSelector === 'undefined' ? _ => _ : elementSelector;
+    var i = 0;
     for (var item of iterable) {
-      var key = keySelector(item);
+      var key = keySelector(item, i);
       if (key !== null && typeof key === 'object' || typeof key === "function") {
         throw new TypeError('groupBy method does not support keys to be objects or functions');
       }
-      var element = elementCreator(item);
+      var element = elementSelector(item, i);
       var value = map.get(key) || [];
       value.push(element);
       map.set(key, value);
+      i++;
     }
     return map;
   }
@@ -787,7 +826,7 @@ class GroupIterable extends BaseLinqIterable {
     var source = this._getSource();
     var result = GroupIterable.__group(source, this.keySelector, this.elementSelector);
     var groupIterator = this._getIterator(result);
-    var resultCreator = typeof this.resultCreator === 'undefined' ? (key, grouping) => new Grouping(key, grouping) : this.resultCreator;
+    var resultCreator = this.resultCreator;
     return {
       next() {
         var { done, value } = groupIterator.next();
@@ -864,7 +903,7 @@ class OrderIterable extends NativeProcessingLinqIterable {
   }
 
   _getComparer() {
-    return typeof this.comparer === 'undefined' ? (a, b) => a < b ? -1 : a > b ? 1 : 0 : this.comparer;
+    return typeof this.comparer === 'undefined' ? defaultSortComparer : this.comparer;
   }
 
   __sort(source) {
@@ -1061,8 +1100,8 @@ class GroupJoinIterable extends BaseLinqIterable {
   }
 
   [Symbol.iterator]() {
-    var outerIterator = this._getIterator(this._getSource());
-    var innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector);
+    var outerIterator = this._getSourceIterator();
+    var innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector, defaultElementSelector);
     var outerKeySelector = this.sourceKeySelector;
     var resultCreator = this.resultCreator;
     return {
@@ -1095,8 +1134,8 @@ class JoinIterable extends BaseLinqIterable {
 
   [Symbol.iterator]() {
     var resultCreator = this.resultCreator;
-    var outerIterator = this._getIterator(this._getSource());
-    var innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector);
+    var outerIterator = this._getSourceIterator();
+    var innerMap = GroupIterable.__group(this.joinIterable, this.joinIterableKeySelector, defaultElementSelector);
     var innerItemsExtractor = outerItem => {
       var key = this.sourceKeySelector(outerItem);
       return innerMap.get(key) || [];
@@ -1119,7 +1158,7 @@ class JoinIterable extends BaseLinqIterable {
 
 class EqualFinalizer {
   static get(source, iterable, comparer) {
-    var isEqual = typeof comparer === 'undefined' ? (a, b) => a === b : comparer;
+    var isEqual = typeof comparer === 'undefined' ? defaultEqualityComparer : comparer;
     var sourceIterator = getIterator(source);
     var otherIterator = getIterator(iterable);
     var thisDone = false;
@@ -1136,7 +1175,7 @@ class EqualFinalizer {
   }
 
   static getDifferentPosition(source, iterable, comparer) {
-    var isEqual = typeof comparer === 'undefined' ? (a, b) => a === b : comparer;
+    var isEqual = typeof comparer === 'undefined' ? defaultEqualityComparer : comparer;
     var sourceIterator = getIterator(source);
     var otherArray = Array.isArray(iterable) ? [...iterable] : Array.from(iterable);
     var thisDone = false;
@@ -1165,6 +1204,72 @@ class EqualFinalizer {
     return otherArray.length === 0; // all elements removed.
   }}
 
+class PageIterable extends BaseLinqIterable {
+  constructor(source, pageSize) {
+    super(source);
+    this.pageSize = pageSize;
+  }
+
+  get() {
+    return this;
+  }
+
+  [Symbol.iterator]() {
+    var pageSize = this.pageSize;
+    var iterator = this._getSourceIterator();
+    var lastOne = false;
+    return {
+      next() {
+        if (lastOne) {
+          return { done: true };
+        }
+        var count = 0;
+        var page = [];
+        while (count < pageSize) {
+          var next = iterator.next();
+          if (next.done) {
+            lastOne = true;
+            return { done: false, value: page };
+          }
+          page.push(next.value);
+          count++;
+        }
+        return { done: false, value: page };
+      } };
+
+  }}
+
+/**
+                                       * Subclass of Select many, but instead of returning just the sub items, it returns pair of outer and inner item.
+                                       */
+class FlatIterable extends SelectManyIterable {
+  constructor(source, collectionSelector) {
+    super(source, collectionSelector);
+  }
+
+  [Symbol.iterator]() {
+    var source = this._getSource();
+    var iterator = this._getIterator(source);
+    var extract = this.extract;
+    var currentState = null;
+    return {
+      next() {
+        var item = SelectManyIterable.__getNextItem(iterator, extract, currentState);
+        currentState = item.currentState;
+        if (item.value.done) {
+          return doneValue();
+        }
+        return {
+          done: item.value.done,
+          value: {
+            outer: currentState.outerValue,
+            inner: item.value.value } };
+
+
+      } };
+
+  }}
+
 var linqMixin = {
   where(predicate) {
     return new WhereIterable(this, predicate);
@@ -1174,6 +1279,9 @@ var linqMixin = {
   },
   selectMany(map) {
     return new SelectManyIterable(this, map);
+  },
+  flat(selector) {
+    return new FlatIterable(this, selector);
   },
   take(count) {
     return new TakeIterable(this, count);
@@ -1218,6 +1326,9 @@ var linqMixin = {
   },
   union(secondIterable) {
     return new UnionIterable(this, secondIterable);
+  },
+  page(pageSize) {
+    return new PageIterable(this, pageSize);
   },
   toArray(map) {
     return ToArrayFinalizer.get(this, map);
@@ -1281,14 +1392,14 @@ var linqMixin = {
     return AggregateFinalizer.get(this, (r, i) => r * i);
   },
   min(comparer) {
-    var compare = typeof comparer === 'undefined' ? (a, b) => a < b ? -1 : a > b ? 1 : 0 : comparer;
+    var compare = typeof comparer === 'undefined' ? defaultSortComparer : comparer;
     return AggregateFinalizer.get(this, (a, b) => {
       var comp = compare(a, b);
       return comp < 0 ? a : comp > 0 ? b : a;
     });
   },
   max(comparer) {
-    var compare = typeof comparer === 'undefined' ? (a, b) => a < b ? -1 : a > b ? 1 : 0 : comparer;
+    var compare = typeof comparer === 'undefined' ? defaultSortComparer : comparer;
     return AggregateFinalizer.get(this, (a, b) => {
       var comp = compare(a, b);
       return comp < 0 ? b : comp > 0 ? a : b;
@@ -1315,6 +1426,7 @@ ObjectIterable,
 WhereIterable,
 SelectIterable,
 SelectManyIterable,
+FlatIterable,
 TakeIterable,
 SkipIterable,
 RangeIterable,
@@ -1327,7 +1439,8 @@ OrderIterableDescending,
 ConcatIterable,
 UnionIterable,
 GroupJoinIterable,
-JoinIterable]);
+JoinIterable,
+PageIterable]);
 
 exports.from = from;
 exports.fromArrayLike = fromArrayLike;

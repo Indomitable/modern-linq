@@ -16,6 +16,7 @@ import { GroupJoinIterable } from "./iterables/group-join";
 import { JoinIterable } from "./iterables/join";
 import { RepeatIterable } from "./generators/repeat";
 import { PageIterable } from "./iterables/page";
+import { FlatIterable } from "./iterables/flat";
 
 // note: if using class as output we can just apply the mixin to BaseLinqIterable.
 applyMixin(linqMixin, [
@@ -25,6 +26,7 @@ applyMixin(linqMixin, [
     WhereIterable,
     SelectIterable,
     SelectManyIterable,
+    FlatIterable,
     TakeIterable,
     SkipIterable,
     RangeIterable,
