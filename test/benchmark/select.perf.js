@@ -1,7 +1,7 @@
 import { range, from } from '../../index.esm.js';
 import Benchmark from 'benchmark';
 
-const arrayLength = 100000;
+const arrayLength = 1000;
 const iterable = new Set(range(0, arrayLength));
 const array = Array.from(iterable);
 

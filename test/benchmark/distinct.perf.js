@@ -2,7 +2,7 @@ import Benchmark from "benchmark";
 import { Person } from "../unit/models";
 import { from, range, repeat } from "../../index.esm";
 
-const iterable = new Set(repeat(0, 10000).concat(repeat(1, 100000)));
+const iterable = new Set(repeat(0, 1000).concat(repeat(1, 1000)));
 const array = Array.from(iterable);
 
 export const distinctCompareIterableBenchmark = new Benchmark('[distinct] Distinct iterable with compare', () => {
