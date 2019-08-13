@@ -246,6 +246,12 @@ declare module 'modern-linq' {
         any(predicate?: (item: TValue) => boolean): boolean;
 
         /**
+         * Return count of items.
+         * @param predicate if predicate is supplied then return the count of items that return true.
+         */
+        count(predicate?: (item: TValue) => boolean): boolean;
+
+        /**
          * Produce single value form sequence values. The initial value is first element.
          * @param accumulator function which produces the result.
          * @throws TypeError when no elements

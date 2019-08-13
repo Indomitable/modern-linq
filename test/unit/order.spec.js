@@ -1,5 +1,6 @@
-import { fromIterable, range } from "../../src";
+import { fromIterable, range, from } from "../../src";
 import { expect } from "chai";
+import { Person } from "./models";
 
 describe('order tests', () => {
     [
@@ -33,6 +34,39 @@ describe('order tests', () => {
             const expected = ['A', 'AB', 'B', 'C', 'D', 'DA']
             expect(result).to.deep.equal(expected);
         });
+    });
+
+    it('should able to order items by key', () => {
+        const input = [
+            new Person(50, 'a'),
+            new Person(10, 'b'),
+            new Person(40, 'c'),
+            new Person(4, 'd'),
+            new Person(70, 'e'),
+        ];
+        const res = from(input)
+            .orderBy(_ => _.age)
+            .toArray();
+        expect(res).to.deep.equals([input[3], input[1], input[2], input[0], input[4]]);
+
+        const res1 = from(input)
+            .orderBy(_ => _.age, (a, b) => a === 40 ? -1 : b === 40 ? 1 : (a < b ? -1 : a > b ? 1 : 0))
+            .toArray();
+        expect(res1).to.deep.equals([input[2], input[3], input[1], input[0], input[4]]);
+    });
+
+    it('should able to order items by key desending', () => {
+        const input = [
+            new Person(50, 'a'),
+            new Person(10, 'b'),
+            new Person(40, 'c'),
+            new Person(4, 'd'),
+            new Person(70, 'e'),
+        ];
+        const res = from(input)
+            .orderByDescending(_ => _.age)
+            .toArray();
+        expect(res).to.deep.equals([input[4], input[0], input[2], input[1], input[3]]);
     });
 });
 

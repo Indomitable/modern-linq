@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import { fromIterable } from "../../src";
+import { from, fromIterable } from "../../src";
 import { Person } from "./models";
-import { from } from "../../index";
 
 describe('distinct tests', () => {
     [

@@ -1,7 +1,8 @@
 export class Person {
-    constructor(age, name) {
+    constructor(age, name, pets) {
         this.age = age;
         this.name = name;
+        this.pets = pets;
     }
 }
 

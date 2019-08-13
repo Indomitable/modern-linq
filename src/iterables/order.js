@@ -5,7 +5,7 @@ export class OrderIterable extends NativeProcessingLinqIterable {
     constructor(source, keySelector, comparer) {
         super(source);
         this.keySelector = keySelector;
-        this.comparer = comparer;
+        this.comparer = typeof comparer === 'undefined' ? defaultSortComparer : comparer;
     }
 
     _nativeTake(array) {
@@ -14,7 +14,9 @@ export class OrderIterable extends NativeProcessingLinqIterable {
     }
 
     _getComparer() {
-        return typeof this.comparer === 'undefined' ? defaultSortComparer : this.comparer;
+        return (left, right) => {
+            return this.comparer(this.keySelector(left), this.keySelector(right));
+        };
     }
 
     __sort(source) {
@@ -39,9 +41,8 @@ export class OrderIterable extends NativeProcessingLinqIterable {
 
 export class OrderIterableDescending extends OrderIterable {
     _getComparer() {
-        const comparer = super._getComparer();
         return (left, right) => {
-            return 0 - comparer(this.keySelector(left), this.keySelector(right));
+            return 0 - this.comparer(this.keySelector(left), this.keySelector(right));
         };
     }
 }

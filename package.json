@@ -8,9 +8,11 @@
   "license": "MIT",
   "private": false,
   "type": "module",
+  "types": "index.d.ts",
   "scripts": {
     "build": "rollup -c ./rollup.config.js",
-    "test": "mocha --require @babel/register test/unit/**/*.spec.js",
+    "test": "mocha --require @babel/register test/unit/*.spec.js",
+    "test-ts": "tsc -p ./test/ts/tsconfig.json && mocha --require @babel/register test/ts/*.spec.js && rm test/ts/*.spec.js",
     "benchmark": "node --experimental-modules --es-module-specifier-resolution=node test/benchmark"
   },
   "repository": {
@@ -44,12 +46,16 @@
     "@babel/node": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/register": "^7.5.5",
+    "@types/chai": "^4.2.0",
+    "@types/mocha": "^5.2.7",
+    "babel-plugin-module-resolver": "^3.2.0",
     "benchmark": "^2.1.4",
     "chai": "^4.2.0",
     "microtime": "^3.0.0",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
     "rollup": "^1.17.0",
-    "rollup-plugin-babel": "^4.3.3"
+    "rollup-plugin-babel": "^4.3.3",
+    "typescript": "^3.5.3"
   }
 }

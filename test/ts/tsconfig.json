@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "es2015",
+    "target": "es2017",
+    "sourceMap": false,
+    "types": [
+      "mocha",
+      "chai"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "modern-linq": [
+        "../../index.d.ts"
+      ]
+    }
+  },
+  "include": [
+      "*.spec.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,4 +1,16 @@
 {
-    "retainLines": true,
-    "presets": ["@babel/preset-env"]
+  "retainLines": true,
+  "presets": [
+    "@babel/preset-env"
+  ],
+  "plugins": [
+    [
+      "module-resolver",
+      {
+          "alias": {
+              "modern-linq": "./index.esm.js"
+          }
+      }
+    ]
+  ]
 }
