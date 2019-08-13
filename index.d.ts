@@ -214,7 +214,7 @@ declare module 'modern-linq' {
          * Returns if any items satisfy the predicate.
          * @param predicate
          */
-        any(predicate: (item: TValue) => boolean): boolean;
+        any(predicate?: (item: TValue) => boolean): boolean;
 
         /**
          * Produce single value form sequence values. The initial value is first element.

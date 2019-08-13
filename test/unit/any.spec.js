@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable } from "../../src";
+import { from, fromIterable } from "../../src";
 
 describe('any tests', () => {
     [
@@ -30,5 +30,12 @@ describe('any tests', () => {
             const res = fromIterable(source).any(_ => typeof _ === 'string');
             expect(res).to.be.false;
         });
+    });
+
+    it('should any check if elements', () => {
+        expect(from([1]).any()).to.be.true;
+        expect(from([]).any()).to.be.false;
+        expect(from(new Set([1])).any()).to.be.true;
+        expect(from(new Set()).any()).to.be.false;
     });
 });
