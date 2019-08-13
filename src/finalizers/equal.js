@@ -1,8 +1,8 @@
-import { getIterator } from "../utils";
+import { defaultEqualityComparer, getIterator } from "../utils";
 
 export class EqualFinalizer {
     static get(source, iterable, comparer) {
-        const isEqual = typeof comparer === 'undefined' ? ((a, b) => a === b) : comparer;
+        const isEqual = typeof comparer === 'undefined' ? defaultEqualityComparer : comparer;
         const sourceIterator = getIterator(source);
         const otherIterator = getIterator(iterable);
         let thisDone = false;
@@ -19,7 +19,7 @@ export class EqualFinalizer {
     }
 
     static getDifferentPosition(source, iterable, comparer) {
-        const isEqual = typeof comparer === 'undefined' ? ((a, b) => a === b) : comparer;
+        const isEqual = typeof comparer === 'undefined' ? defaultEqualityComparer : comparer;
         const sourceIterator = getIterator(source);
         const otherArray = Array.isArray(iterable) ? [...iterable] : Array.from(iterable);
         let thisDone = false;

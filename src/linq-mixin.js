@@ -21,6 +21,7 @@ import { GroupJoinIterable } from "./iterables/group-join";
 import { JoinIterable } from "./iterables/join";
 import { EqualFinalizer } from "./finalizers/equal";
 import { PageIterable } from "./iterables/page";
+import { defaultSortComparer } from "./utils";
 
 export const linqMixin = {
     where(predicate) {
@@ -141,14 +142,14 @@ export const linqMixin = {
         return AggregateFinalizer.get(this, (r, i) => r * i);
     },
     min(comparer) {
-        const compare = typeof comparer === 'undefined' ? ((a, b) => a < b ? -1 : (a > b ? 1 : 0))  : comparer;
+        const compare = typeof comparer === 'undefined' ? defaultSortComparer : comparer;
         return AggregateFinalizer.get(this, (a, b) => {
             const comp = compare(a, b);
             return comp < 0 ? a : (comp > 0 ? b : a);
         });
     },
     max(comparer) {
-        const compare = typeof comparer === 'undefined' ? ((a, b) => a < b ? -1 : (a > b ? 1 : 0))  : comparer;
+        const compare = typeof comparer === 'undefined' ? defaultSortComparer  : comparer;
         return AggregateFinalizer.get(this, (a, b) => {
             const comp = compare(a, b);
             return comp < 0 ? b : (comp > 0 ? a : b);

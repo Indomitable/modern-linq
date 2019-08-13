@@ -9,6 +9,11 @@ export function applyMixin(mixin, destinations) {
     }
 }
 
+/**
+ * Helper function to be use to access Symbol.iterator of iterable
+ * @param {Iterable} iterable
+ * @return {Iterator} iterator.
+ */
 export function getIterator(iterable) {
     return iterable[Symbol.iterator]();
 }
@@ -41,6 +46,14 @@ function __quickSort(items, left, right, comparer) {
     } while (left < right);
 }
 
+/**
+ * Sorts an array using quick sort algorithm
+ * @param items array to sort
+ * @param left start
+ * @param right end
+ * @param comparer elements comparer
+ * @return {Array} sorted array.
+ */
 export function quickSort(items, left, right, comparer) {
     const copy = [ ...items ]; // copy items.
     __quickSort(copy, left, right, comparer);
@@ -117,6 +130,13 @@ export function __findInsertIndex(items, value, start, end, comparer) {
     }
 }
 
+/**
+ * Inserts an element into an ordered collection while keeping the order.
+ * @param items collection
+ * @param value value to insert
+ * @param {Function} comparer comparer which to check the collections
+ * @return {Array} the array with inserted value.
+ */
 export function insertOrdered(items, value, comparer) {
     const start = 0;
     const end = items.length;
@@ -129,6 +149,9 @@ export function insertOrdered(items, value, comparer) {
     return items;
 }
 
+/**
+ * A helper class which using Set to check for distinct elements.
+ */
 export class SetCheck {
     constructor() {
         this.set = new Set();
@@ -143,4 +166,16 @@ export class SetCheck {
     clear() {
         this.set.clear();
     }
+}
+
+export function defaultSortComparer(a, b) {
+    return a < b ? -1 : (a > b ? 1 : 0);
+}
+
+export function defaultEqualityComparer(a, b) {
+    return a === b;
+}
+
+export function defaultElementSelector(item) {
+    return item;
 }

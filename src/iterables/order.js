@@ -1,5 +1,5 @@
 import { NativeProcessingLinqIterable } from "../base-linq-iterable";
-import { quickSort } from "../utils";
+import { defaultSortComparer, quickSort } from "../utils";
 
 export class OrderIterable extends NativeProcessingLinqIterable {
     constructor(source, keySelector, comparer) {
@@ -14,7 +14,7 @@ export class OrderIterable extends NativeProcessingLinqIterable {
     }
 
     _getComparer() {
-        return typeof this.comparer === 'undefined' ? (a, b) => a < b ? -1 : (a > b ? 1 : 0) : this.comparer;
+        return typeof this.comparer === 'undefined' ? defaultSortComparer : this.comparer;
     }
 
     __sort(source) {

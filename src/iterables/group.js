@@ -1,5 +1,6 @@
 import { BaseLinqIterable } from "../base-linq-iterable";
 import { fromIterable } from "../creation";
+import { defaultElementSelector } from "../utils";
 
 export class Grouping extends BaseLinqIterable {
     constructor(key, source) {
@@ -23,7 +24,7 @@ export class GroupIterable extends BaseLinqIterable {
             throw new Error('keyselector is required');
         }
         this.keySelector = keySelector;
-        this.elementSelector = typeof elementSelector === 'undefined' ? _ => _ : elementSelector;
+        this.elementSelector = typeof elementSelector === 'undefined' ? defaultElementSelector : elementSelector;
         this.resultCreator = typeof resultCreator === 'undefined' ? (key, grouping) => (new Grouping(key, grouping)) : resultCreator;
     }
 
