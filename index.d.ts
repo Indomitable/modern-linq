@@ -1,16 +1,16 @@
 declare module 'modern-linq' {
     export interface LinqIterable<TValue> extends Iterable<TValue> {
         /**
-         * Filters the iterable using predicate function
-         * @param predicate
-         */
-        where(predicate: (item: TValue) => boolean): LinqIterable<TValue>;
-
-        /**
          * Filters the iterable using predicate function typed overload
          * @param predicate
          */
         where<TSubValue extends TValue>(predicate: (item: TValue) => item is TSubValue): LinqIterable<TSubValue>;
+
+        /**
+         * Filters the iterable using predicate function
+         * @param predicate
+         */
+        where(predicate: (item: TValue) => boolean): LinqIterable<TValue>;
 
         /**
          * Maps the iterable items
