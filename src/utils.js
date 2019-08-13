@@ -28,10 +28,7 @@ function __quickSort(items, left, right, comparer) {
             while (j >= 0 && comparer(x, items[j]) < 0) j--;
             if (i > j) break;
             if (i < j) {
-
-                let temp = items[i];
-                items[i] = items[j];
-                items[j] = temp;
+                [ items[i], items[j] ] = [ items[j], items[i] ];
             }
             i++;
             j--;
