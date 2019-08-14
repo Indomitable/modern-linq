@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable } from "../../src";
+import { fromIterable, from } from "../../index.esm";
 
 describe('oftype tests', () => {
     it('should check for primary types', () => {
@@ -21,9 +21,21 @@ describe('oftype tests', () => {
         }
 
         const source = [new A(), new B()];
-        const result = fromIterable(source).ofType(A);
+        const result = fromIterable(source).ofClass(A);
         const arr = Array.from(result);
         expect(arr.length).to.equal(1);
         expect(arr.every(_ => _ instanceof A)).to.be.true;
+    });
+
+    it('should check for type using function', () => {
+        class A {
+        }
+
+        class B {
+        }
+
+        const source = [new A(), new B()];
+        const result = from(source).ofType(_ => _ instanceof A).toArray();
+        expect(result[0]).to.equal(source[0]);
     });
 });

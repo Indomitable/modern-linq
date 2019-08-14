@@ -1,6 +1,7 @@
 import { RangeIterable } from "./generators/range";
 import { BaseLinqIterable } from "./base-linq-iterable";
 import { RepeatIterable } from "./generators/repeat";
+import { doneValue, iteratorResultCreator } from "./utils";
 
 export class LinqIterable extends BaseLinqIterable {
     constructor(source) {
@@ -37,9 +38,9 @@ export class ArrayLikeIterable extends BaseLinqIterable {
                 if (current < length) {
                     const value = source[current];
                     current++;
-                    return { done: false, value };
+                    return iteratorResultCreator(value);
                 } else {
-                    return { done: true };
+                    return doneValue();
                 }
             }
         };
@@ -47,12 +48,18 @@ export class ArrayLikeIterable extends BaseLinqIterable {
 }
 
 export class ObjectIterable extends BaseLinqIterable {
-    constructor(source) {
+    constructor(source, resultCreator) {
         super(source);
+        this.resultCreator = typeof resultCreator === 'undefined' ? ObjectIterable.__defaultResultCreator : resultCreator;
+    }
+
+    static __defaultResultCreator(key, value) {
+        return { key, value };
     }
 
     [Symbol.iterator]() {
         const obj = this.source;
+        const resultCreator = this.resultCreator;
         const keys = Object.keys(obj);
         let index = 0;
         return {
@@ -61,9 +68,9 @@ export class ObjectIterable extends BaseLinqIterable {
                     const key = keys[index];
                     const value = obj[key];
                     index++;
-                    return { done: false, value: { key, value } };
+                    return iteratorResultCreator(resultCreator(key, value));
                 } else {
-                    return { done: true };
+                    return doneValue();
                 }
             }
         };
@@ -74,8 +81,8 @@ export function fromIterable(source) {
     return new LinqIterable(source);
 }
 
-export function fromObject(obj) {
-    return new ObjectIterable(obj);
+export function fromObject(obj, resultCreator) {
+    return new ObjectIterable(obj, resultCreator);
 }
 
 /**

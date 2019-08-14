@@ -1,7 +1,7 @@
 import { BaseLinqIterable } from "../base-linq-iterable";
 import { GroupIterable } from "./group";
 import { SelectManyIterable } from "./select-many";
-import { defaultElementSelector } from "../utils";
+import { defaultElementSelector, doneValue, iteratorResultCreator } from "../utils";
 
 export class JoinIterable extends BaseLinqIterable {
     /**
@@ -32,14 +32,12 @@ export class JoinIterable extends BaseLinqIterable {
         return {
             next() {
                 const item = SelectManyIterable.__getNextItem(outerIterator, innerItemsExtractor, currentState);
-                if (item.value.done) {
-                    return item.value;
+                if (item.done) {
+                    return doneValue();
+                } else {
+                    currentState = item.currentState;
+                    return iteratorResultCreator(resultCreator(currentState.outerValue, item.innerValue));
                 }
-                currentState = item.currentState;
-                return {
-                    done: false,
-                    value: resultCreator(currentState.outerValue, item.value.value)
-                };
             }
         };
     }

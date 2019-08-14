@@ -1,5 +1,5 @@
 import { BaseLinqIterable } from "../base-linq-iterable";
-import { getIterator } from "../utils";
+import { getIterator, doneValue, iteratorResultCreator } from "../utils";
 
 /**
  * Return flatten mapped array [[1, 2], [3, 4]].selectMany(x => x) === [1, 2, 3, 4, 5]
@@ -10,21 +10,31 @@ export class SelectManyIterable extends BaseLinqIterable {
      * @param {Iterable} source
      * @param {Function} extract
      */
-    constructor(source, extract) {
+    constructor(source, innerSelector, resultCreator) {
         super(source);
-        this.extract = extract;
+        this.innerSelector = innerSelector;
+        this.resultCreator = typeof resultCreator === 'undefined' ? SelectManyIterable.__defaultResultCreator : resultCreator;
+    }
+
+    static __defaultResultCreator(outer, inner) {
+        return inner;
     }
 
     [Symbol.iterator]() {
         const source = this._getSource();
         const iterator = this._getIterator(source);
-        const extract = this.extract;
-        let currentState = null;
+        const innerSelector = this.innerSelector;
+        const resultCreator = this.resultCreator;
+        let currentState = null;        
         return {
             next() {
-                const item = SelectManyIterable.__getNextItem(iterator, extract, currentState);
-                currentState = item.currentState;
-                return item.value;
+                const item = SelectManyIterable.__getNextItem(iterator, innerSelector, currentState);
+                if (item.done) {
+                    return doneValue();
+                } else {
+                    currentState = item.currentState;
+                    return iteratorResultCreator(resultCreator(currentState.outerValue, item.innerValue));
+                }
             }
         };
     }
@@ -55,10 +65,10 @@ export class SelectManyIterable extends BaseLinqIterable {
         if (!currentState) {
             const { current, firstInnerItem, final } = SelectManyIterable.__getInnerIterator(mainIterator, extract);
             if (final) {
-                return { value: { done: true } };
+                return { done: true };
             }
             return {
-                value: { done: false, value: firstInnerItem },
+                innerValue: firstInnerItem,
                 currentState: {
                     innerIterator: current.innerIterator,
                     outerValue: current.outerValue
@@ -70,7 +80,7 @@ export class SelectManyIterable extends BaseLinqIterable {
                 return SelectManyIterable.__getNextItem(mainIterator, extract, null);
             }
             return {
-                value: { done: false, value: innerNext.value },
+                innerValue: innerNext.value,
                 currentState: {
                     innerIterator: currentState.innerIterator,
                     outerValue: currentState.outerValue

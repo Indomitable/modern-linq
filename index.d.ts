@@ -20,16 +20,16 @@ declare module 'modern-linq' {
 
         /**
          * Flat Iterable of collections
-         * @param map Function which returns a collection
+         * @param innerSelector Function which returns an inner collection
          */
-        selectMany<TOutput>(map: (item: TValue) => TOutput[]): LinqIterable<TOutput>;
+        selectMany<TInner>(innerSelector: (item: TValue) => TInner[]): LinqIterable<TInner>;
 
         /**
-         * Flat Iterable of collections, where the output is pair of outer and inner element
-         * @param map Function which returns a collection
+         * Flat iterable of collection
+         * @param innerSelector Function which returns an inner collection
+         * @param resultCreator Function thish converts pair of outer and inner element to result.
          */
-        flat<TOutput>(map: (item: TValue) => TOutput[]): LinqIterable<{ outer: TValue, inner: TOutput }>;
-
+        selectMany<TInner, TResult>(innerSelector: (item: TValue) => TInner[], resultCreator: (outer: TValue, inner: TInner) => TResult): LinqIterable<TResult>;
         /**
          * Take first N items from iterable
          * @param count
@@ -94,7 +94,13 @@ declare module 'modern-linq' {
          * Selects all items of base type
          * @param type
          */
-        ofType<TOutput extends TValue>(type: { prototype: TOutput }): LinqIterable<TOutput>;
+        ofType<TOutput extends TValue>(typeCheck: (item: TValue) => item is TOutput): LinqIterable<TOutput>;
+
+        /**
+         * Selects all items of base type
+         * @param type
+         */
+        ofClass<TOutput extends TValue>(type: { prototype: TOutput }): LinqIterable<TOutput>;
 
         /**
          * Group items
@@ -342,6 +348,13 @@ declare module 'modern-linq' {
      * @return sequence of key/value object.
      */
     export function fromObject<TValue extends {}, TKey extends keyof TValue>(value: TValue): LinqIterable<{ key: string, value: TValue[TKey] }>;
+
+    /**
+     * Creates a select js iterable from an object resolving keys using Object.keys(). Returns enumerable keys.
+     * @param value
+     * @return sequence of key/value object.
+     */
+    export function fromObject<TValue extends {}, TKey extends keyof TValue, TResult>(value: TValue, resultCreator: (key: TKey, value: TValue[TKey]) => TResult): LinqIterable<TResult>;
 
     /**
      * Creates linq iterable from array like object

@@ -22,7 +22,6 @@ import { JoinIterable } from "./iterables/join";
 import { EqualFinalizer } from "./finalizers/equal";
 import { PageIterable } from "./iterables/page";
 import { defaultSortComparer } from "./utils";
-import { FlatIterable } from "./iterables/flat";
 import { ReverseIterable } from "./iterables/reverse";
 
 export const linqMixin = {
@@ -32,11 +31,8 @@ export const linqMixin = {
     select(map) {
         return new SelectIterable(this, map);
     },
-    selectMany(map) {
-        return new SelectManyIterable(this, map);
-    },
-    flat(selector) {
-        return new FlatIterable(this, selector);
+    selectMany(innerSelector, resultCreator) {
+        return new SelectManyIterable(this, innerSelector, resultCreator);
     },
     take(count) {
         return new TakeIterable(this, count);
@@ -53,10 +49,13 @@ export const linqMixin = {
                 return typeof item === type;
             });
         } else {
-            return new WhereIterable(this, function (item) {
-                return item instanceof type;
-            });
+            return new WhereIterable(this, type);
         }
+    },
+    ofClass(classType) {
+        return new WhereIterable(this, function (item) {
+            return item instanceof classType;
+        });
     },
     groupBy(keySelector, elementSelector, resultCreator) {
         return new GroupIterable(this, keySelector, elementSelector, resultCreator);
