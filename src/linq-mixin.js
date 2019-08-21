@@ -25,6 +25,8 @@ import { defaultSortComparer } from "./utils";
 import { ReverseIterable } from "./iterables/reverse";
 import { TakeWhileIterable } from "./iterables/take-while";
 import { SkipWhileIterable } from "./iterables/skip-while";
+import { TakeLastIterable } from "./iterables/take-last";
+import { SkipLastIterable } from "./iterables/skip-last";
 
 export const linqMixin = {
     where(predicate) {
@@ -42,11 +44,17 @@ export const linqMixin = {
     takeWhile(condition) {
         return new TakeWhileIterable(this, condition);
     },
+    takeLast(count) {
+        return new TakeLastIterable(this, count);
+    },
     skip(count) {
         return new SkipIterable(this, count);
     },
     skipWhile(condition) {
         return new SkipWhileIterable(this, condition);
+    },
+    skipLast(count) {
+        return new SkipLastIterable(this, count);
     },
     distinct(comparer) {
         return new DistinctIterable(this, comparer);

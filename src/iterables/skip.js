@@ -1,4 +1,4 @@
-import {NativeProcessingLinqIterable} from "../base-linq-iterable";
+import { NativeProcessingLinqIterable } from "../base-linq-iterable";
 
 /**
  * Skip first N numbers of source and return the rest
@@ -11,7 +11,7 @@ export class SkipIterable extends NativeProcessingLinqIterable {
      */
     constructor(source, count) {
         super(source);
-        this.count = count;
+        this.count = count <= 0 ? 0 : count;
     }
 
     _nativeTake(array) {

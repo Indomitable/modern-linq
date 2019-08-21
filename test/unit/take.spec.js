@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable, range } from "../../src";
+import { from, fromIterable, range } from "../../src";
 
 describe('take tests', () => {
     [
@@ -58,6 +58,17 @@ describe('take tests', () => {
                 .take(1)
                 .toArray();
             expect(res).to.deep.equal([]);
+        });
+    });
+
+
+    [
+        [1, 2, 3, 4, 5],
+        range(1, 6)
+    ].forEach((source, indx) => {
+        it('should return empty when none to be taken' + indx, () => {
+            expect(from(source).take(0).toArray()).to.deep.equal([]);
+            expect(from(source).take(-1).toArray()).to.deep.equal([]);
         });
     });
 });

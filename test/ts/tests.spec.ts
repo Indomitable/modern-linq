@@ -127,6 +127,11 @@ describe("typescript tests", () => {
         expect(res).to.deep.equal([0, 1, 2, 3, 4]);
     });
 
+    it("take last", () => {
+        const res = Array.from(from(range(0, 10)).takeLast(2));
+        expect(res).to.deep.equal([8, 9]);
+    });
+
     it("skip", () => {
         const res = Array.from(from(range(0, 10)).skip(6));
         expect(res).to.deep.equal([6, 7, 8, 9]);
@@ -135,6 +140,11 @@ describe("typescript tests", () => {
     it("skip while", () => {
         const res = Array.from(from(range(0, 10)).skipWhile((x, i) => x < 8));
         expect(res).to.deep.equal([8, 9]);
+    });
+
+    it("skip last", () => {
+        const res = Array.from(from(range(0, 10)).skipLast(6));
+        expect(res).to.deep.equal([0, 1, 2, 3]);
     });
 
     it("distinct", () => {

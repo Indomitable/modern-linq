@@ -184,3 +184,11 @@ export function doneValue() {
 export function iteratorResultCreator(value) {
     return { done: false, value };
 }
+
+export function emptyIterator() {
+    return {
+        next() {
+            return doneValue();
+        }
+    }
+}

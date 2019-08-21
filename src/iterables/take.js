@@ -1,4 +1,5 @@
-import {NativeProcessingLinqIterable} from "../base-linq-iterable";
+import { NativeProcessingLinqIterable } from "../base-linq-iterable";
+import { doneValue, iteratorResultCreator } from "../utils";
 
 /**
  * Return first N numbers of source
@@ -11,7 +12,7 @@ export class TakeIterable extends NativeProcessingLinqIterable {
      */
     constructor(source, count) {
         super(source);
-        this.count = count;
+        this.count = count <= 0 ? 0 : count;
     }
 
     _nativeTake(array) {
@@ -32,11 +33,11 @@ export class TakeIterable extends NativeProcessingLinqIterable {
                     const { done, value } = iterator.next();
                     fetched++;
                     if (done) {
-                        return { done: true };
+                        return doneValue();
                     }
-                    return { done: false, value };
+                    return iteratorResultCreator(value);
                 }
-                return { done: true };
+                return doneValue();
             }
         };
     }

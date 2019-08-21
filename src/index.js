@@ -19,6 +19,8 @@ import { PageIterable } from "./iterables/page";
 import { ReverseIterable } from "./iterables/reverse";
 import { TakeWhileIterable } from "./iterables/take-while";
 import { SkipWhileIterable } from "./iterables/skip-while";
+import { TakeLastIterable } from "./iterables/take-last";
+import { SkipLastIterable } from "./iterables/skip-last";
 
 // note: if using class as output we can just apply the mixin to BaseLinqIterable.
 applyMixin(linqMixin, [
@@ -45,6 +47,8 @@ applyMixin(linqMixin, [
     ReverseIterable,
     TakeWhileIterable,
     SkipWhileIterable,
+    TakeLastIterable,
+    SkipLastIterable,
 ]);
 
 export { fromIterable, fromObject, fromArrayLike, range, from, repeat } from './creation';
