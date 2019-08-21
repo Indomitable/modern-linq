@@ -23,6 +23,8 @@ import { EqualFinalizer } from "./finalizers/equal";
 import { PageIterable } from "./iterables/page";
 import { defaultSortComparer } from "./utils";
 import { ReverseIterable } from "./iterables/reverse";
+import { TakeWhileIterable } from "./iterables/take-while";
+import { SkipWhileIterable } from "./iterables/skip-while";
 
 export const linqMixin = {
     where(predicate) {
@@ -37,8 +39,14 @@ export const linqMixin = {
     take(count) {
         return new TakeIterable(this, count);
     },
+    takeWhile(condition) {
+        return new TakeWhileIterable(this, condition);
+    },
     skip(count) {
         return new SkipIterable(this, count);
+    },
+    skipWhile(condition) {
+        return new SkipWhileIterable(this, condition);
     },
     distinct(comparer) {
         return new DistinctIterable(this, comparer);

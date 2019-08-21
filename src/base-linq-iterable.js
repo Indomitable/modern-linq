@@ -10,7 +10,7 @@ export class BaseLinqIterable {
     }
 
     _getSourceIterator() {
-        return getIterator(this.source.get());
+        return getIterator(this._getSource());
     }
 
     _getSource() {

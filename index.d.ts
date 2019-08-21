@@ -35,13 +35,21 @@ declare module 'modern-linq' {
          * @param count
          */
         take(count: number): LinqIterable<TValue>;
-
+        /**
+         * Return items while condition return true
+         * @param condition
+         */
+        takeWhile(condition: (item: TValue, index: number) => boolean): LinqIterable<TValue>;
         /**
          * Skip first N items from iterable
          * @param count
          */
         skip(count: number): LinqIterable<TValue>;
-
+        /**
+         * Skip items while condition return true, get the rest
+         * @param condition
+         */
+        skipWhile(condition: (item: TValue, index: number) => boolean): LinqIterable<TValue>;
         /**
          * Return distinct items. Can specify optional item comparer
          * @param comparer function to compare elements for equality
