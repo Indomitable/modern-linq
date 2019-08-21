@@ -2,7 +2,7 @@
  * Take last N elements
  */
 import { BaseLinqIterable } from "../base-linq-iterable";
-import { doneValue, emptyIterator, iteratorResultCreator, LimitedQueue } from "../utils";
+import { doneValue, emptyIterator, iteratorResultCreator } from "../utils";
 
 export class TakeLastIterable extends BaseLinqIterable {
     /**
