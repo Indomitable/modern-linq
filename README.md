@@ -66,6 +66,7 @@ Methods implemented:
 - `firstOrDefault`
 - `groupJoin`
 - `join`
+- `intersect`
 - `last`
 - `lastOrDefault`
 - `max`
@@ -96,7 +97,6 @@ Methods implemented:
 Waiting for implementation:
 - `contains`
 - `except`
-- `intersect`
 - `zip`
 
 Extra methods

@@ -28,6 +28,7 @@ import { SkipWhileIterable } from "./iterables/skip-while";
 import { TakeLastIterable } from "./iterables/take-last";
 import { SkipLastIterable } from "./iterables/skip-last";
 import { LastFinalizer } from "./finalizers/last";
+import { IntersectIterable } from "./iterables/intersect";
 
 export const linqMixin = {
     where(predicate) {
@@ -97,6 +98,9 @@ export const linqMixin = {
     },
     union(secondIterable) {
         return new UnionIterable(this, secondIterable);
+    },
+    intersect(secondIterable, comparer) {
+        return new IntersectIterable(this, secondIterable, comparer);
     },
     page(pageSize) {
         return new PageIterable(this, pageSize);

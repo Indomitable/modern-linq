@@ -2,20 +2,20 @@
  * This should be just basic tests which should verify if the typings are correct.
  * For functionality testing, test should be placed in corresponding ../unit/*.spec.js file.
  */
-import { expect } from "chai";
-import { from, range, fromIterable, fromObject, fromArrayLike, repeat } from "modern-linq";
-import { Person, Pet } from "../unit/models";
+import {expect} from "chai";
+import {from, fromArrayLike, fromIterable, fromObject, range, repeat} from "modern-linq";
+import {Person, Pet} from "../unit/models";
 
 describe("typescript tests", () => {
     it("typescript test 0", () => {
         const res = range(0, 10)
             .where(_ => _ % 2 === 1)
             .select(_ => _ * 2)
-            .groupBy(_ => _ > 6, _ => _, (key, items) => ({ key, items: items.toArray() }))
+            .groupBy(_ => _ > 6, _ => _, (key, items) => ({key, items: items.toArray()}))
             .toArray();
         expect(res).to.deep.equals([
-            { key: false, items: [2, 6] },
-            { key: true, items: [10, 14, 18] }
+            {key: false, items: [2, 6]},
+            {key: true, items: [10, 14, 18]}
         ]);
     });
 
@@ -31,7 +31,7 @@ describe("typescript tests", () => {
             new Person(30, "J", [new Pet("j0", "J")]),
         ];
         const res = from(input)
-            .selectMany(_ => _.pets, (o, p) => ({ owner: o, pet: p}))
+            .selectMany(_ => _.pets, (o, p) => ({owner: o, pet: p}))
             .groupBy(_ => _.owner.age)
             .select(gr => ({
                 age: gr.key,
@@ -48,15 +48,15 @@ describe("typescript tests", () => {
     });
 
     it("fromObject", () => {
-        const res0 = Array.from(fromObject({ "a": 1, 2: "b" }));
-        expect(res0).to.deep.equals([{ key: "2", value: "b" }, { key: "a", value: 1}]);
+        const res0 = Array.from(fromObject({"a": 1, 2: "b"}));
+        expect(res0).to.deep.equals([{key: "2", value: "b"}, {key: "a", value: 1}]);
 
-        const res1 = Array.from(fromObject({ "a": 1, 2: "b" }, (k, v) => ([k, v])));
-        expect(res1).to.deep.equals([ ["2", "b"], ["a", 1] ]);
+        const res1 = Array.from(fromObject({"a": 1, 2: "b"}, (k, v) => ([k, v])));
+        expect(res1).to.deep.equals([["2", "b"], ["a", 1]]);
     });
 
     it("fromArrayLike", () => {
-        const res = Array.from(fromArrayLike({ 0: "a", 1: "b", 2: "c", length: 3 }));
+        const res = Array.from(fromArrayLike({0: "a", 1: "b", 2: "c", length: 3}));
         expect(res).to.deep.equals(["a", "b", "c"]);
     });
 
@@ -64,10 +64,10 @@ describe("typescript tests", () => {
         const resIterable = Array.from(from(new Set([1, 2, 3])));
         expect(resIterable).to.deep.equal([1, 2, 3]);
 
-        const resObject = Array.from(from({ 1: "a", 2: "b" }));
-        expect(resObject).to.deep.equal([{ key: "1", value: "a"}, { key: "2", value: "b"}]);
+        const resObject = Array.from(from({1: "a", 2: "b"}));
+        expect(resObject).to.deep.equal([{key: "1", value: "a"}, {key: "2", value: "b"}]);
 
-        const resArrayLike = Array.from(from({ 0: "a", 1: "b", 2: "c", length: 3 }));
+        const resArrayLike = Array.from(from({0: "a", 1: "b", 2: "c", length: 3}));
         expect(resArrayLike).to.deep.equals(["a", "b", "c"]);
     });
 
@@ -93,9 +93,10 @@ describe("typescript tests", () => {
     });
 
     it("where type check", () => {
-        function isNum (val: string | number): val is number {
+        function isNum(val: string | number): val is number {
             return typeof val === "number";
         }
+
         const res = Array.from(from([1, "a", 2, "b"]).where(isNum));
         expect(res).to.deep.equals([1, 2]);
     });
@@ -108,13 +109,16 @@ describe("typescript tests", () => {
     it("select many", () => {
         const source = {
             0: ["a", "b"],
-            1: [ "c" ]
+            1: ["c"]
         };
         const res0 = Array.from(from(source).selectMany(_ => _.value));
         expect(res0).to.deep.equal(["a", "b", "c"]);
 
-        const res1 = Array.from(from(source).selectMany(_ => _.value, (parent, child) => ({index: parent.key, child: child})));
-        expect(res1).to.deep.equal([ { index: "0", child: "a" }, { index: "0", child: "b" }, { index: "1", child: "c" }]);
+        const res1 = Array.from(from(source).selectMany(_ => _.value, (parent, child) => ({
+            index: parent.key,
+            child: child
+        })));
+        expect(res1).to.deep.equal([{index: "0", child: "a"}, {index: "0", child: "b"}, {index: "1", child: "c"}]);
     });
 
     it("take", () => {
@@ -157,7 +161,9 @@ describe("typescript tests", () => {
 
     it("ofType", () => {
         const source = [
-            1, "a", true, Symbol.for("b"), undefined, null, () => { return 1 }, {}, false
+            1, "a", true, Symbol.for("b"), undefined, null, () => {
+                return 1
+            }, {}, false
         ];
         const resNum = Array.from(from(source).ofType("number"));
         expect(resNum).to.deep.equal([1]);
@@ -166,15 +172,15 @@ describe("typescript tests", () => {
         const resBool = Array.from(from(source).ofType("boolean"));
         expect(resBool).to.deep.equal([true, false]);
         const resSymbol = Array.from(from(source).ofType("symbol"));
-        expect(resSymbol).to.deep.equal([ Symbol.for("b") ]);
+        expect(resSymbol).to.deep.equal([Symbol.for("b")]);
         const resUndefined = Array.from(from(source).ofType("undefined"));
-        expect(resUndefined).to.deep.equal([ undefined ]);
+        expect(resUndefined).to.deep.equal([undefined]);
         const resFunc = Array.from(from(source).ofType("function"));
-        expect(resFunc).to.deep.equal([ source[6] ]);
+        expect(resFunc).to.deep.equal([source[6]]);
         const resObject = Array.from(from(source).ofType("object"));
-        expect(resObject).to.deep.equal([ null, {} ]);
+        expect(resObject).to.deep.equal([null, {}]);
 
-        function isNum (val: string | number): val is number {
+        function isNum(val: string | number): val is number {
             return typeof val === "number";
         }
 
@@ -183,7 +189,9 @@ describe("typescript tests", () => {
     });
 
     it('ofClass', () => {
-        abstract class X {}
+        abstract class X {
+        }
+
         class A extends X {
         }
 
@@ -219,18 +227,24 @@ describe("typescript tests", () => {
         expect(from([1, 2, 3]).firstOrDefault(5)).to.be.equal(1);
         expect(from([]).firstOrDefault(5)).to.be.equal(5);
 
-        expect(from([1, 2, 3]).firstOrDefault(5,x => x === 2)).to.be.equal(2);
-        expect(from([]).firstOrDefault(5,x => x === 10)).to.be.equal(5);
-        expect(from([1, 2, 3]).firstOrDefault(10,x => x === 10)).to.be.equal(10);
+        expect(from([1, 2, 3]).firstOrDefault(5, x => x === 2)).to.be.equal(2);
+        expect(from([]).firstOrDefault(5, x => x === 10)).to.be.equal(5);
+        expect(from([1, 2, 3]).firstOrDefault(10, x => x === 10)).to.be.equal(10);
     });
 
     it('firstOrThrow', () => {
         expect(from([1, 2, 3]).firstOrThrow()).to.be.equal(1);
-        expect(function () { from([]).firstOrThrow() }).to.throw(TypeError);
+        expect(function () {
+            from([]).firstOrThrow()
+        }).to.throw(TypeError);
 
         expect(from([1, 2, 3]).firstOrThrow(x => x === 2)).to.be.equal(2);
-        expect(function () { from([]).firstOrThrow(x => x === 2) }).to.throw(TypeError);
-        expect(function () { from([1, 2, 3]).firstOrThrow(x => x === 10) }).to.throw(TypeError);
+        expect(function () {
+            from([]).firstOrThrow(x => x === 2)
+        }).to.throw(TypeError);
+        expect(function () {
+            from([1, 2, 3]).firstOrThrow(x => x === 10)
+        }).to.throw(TypeError);
     });
 
     it('last', () => {
@@ -246,23 +260,35 @@ describe("typescript tests", () => {
         expect(from([1, 2, 3]).lastOrDefault(5)).to.be.equal(3);
         expect(from([]).lastOrDefault(5)).to.be.equal(5);
 
-        expect(from([1, 2, 3]).lastOrDefault(5,x => x === 2)).to.be.equal(2);
-        expect(from([]).lastOrDefault(5,x => x === 10)).to.be.equal(5);
-        expect(from([1, 2, 3]).lastOrDefault(10,x => x === 10)).to.be.equal(10);
+        expect(from([1, 2, 3]).lastOrDefault(5, x => x === 2)).to.be.equal(2);
+        expect(from([]).lastOrDefault(5, x => x === 10)).to.be.equal(5);
+        expect(from([1, 2, 3]).lastOrDefault(10, x => x === 10)).to.be.equal(10);
     });
 
     it('lastOrThrow', () => {
         expect(from([1, 2, 3]).lastOrThrow()).to.be.equal(3);
-        expect(function () { from([]).lastOrThrow() }).to.throw(TypeError);
+        expect(function () {
+            from([]).lastOrThrow()
+        }).to.throw(TypeError);
 
         expect(from([1, 2, 3]).lastOrThrow(x => x === 2)).to.be.equal(2);
-        expect(function () { from([]).lastOrThrow(x => x === 2) }).to.throw(TypeError);
-        expect(function () { from([1, 2, 3]).lastOrThrow(x => x === 10) }).to.throw(TypeError);
+        expect(function () {
+            from([]).lastOrThrow(x => x === 2)
+        }).to.throw(TypeError);
+        expect(function () {
+            from([1, 2, 3]).lastOrThrow(x => x === 10)
+        }).to.throw(TypeError);
     });
 
     it('lastIndex', () => {
         expect(from([1, 2, 3, 2, 3]).lastIndex(x => x === 3)).to.be.equal(4);
         expect(from([]).lastIndex(x => x === 3)).to.be.equal(-1);
         expect(from([1, 2, 3]).lastIndex(x => x === 10)).to.be.equal(-1);
+    });
+
+    it('intersect', () => {
+        expect(from(new Set([1, 2, 3])).intersect([3, 2]).toArray()).to.deep.equal([2, 3]);
+        expect(from([1, 2, 3, 2]).intersect([3, 2, 3]).toArray()).to.deep.equal([2, 3]);
+        expect(from([1, 2, 3, 2]).intersect([3, 2, 3], (a, b) => a === b).toArray()).to.deep.equal([2, 3]);
     });
 });

@@ -1,4 +1,5 @@
 import { NativeProcessingLinqIterable } from "../base-linq-iterable";
+import { doneValue, iteratorResultCreator } from "../utils";
 
 /**
  * Return filtred array [1, 2, 3, 4].where(x => x % 2 === 0) === [2, 4]
@@ -23,11 +24,11 @@ export class WhereIterable extends NativeProcessingLinqIterable {
         while (!done) {
             const next = iterator.next();
             if (!next.done && predicate(next.value)) {
-                return { done: false, value: next.value };
+                return iteratorResultCreator(next.value);
             }
             done = next.done;
         }
-        return { done: true };
+        return doneValue();
     }
 
     [Symbol.iterator]() {

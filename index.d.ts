@@ -110,7 +110,7 @@ declare module 'modern-linq' {
 
         /**
          * Selects all items of base type
-         * @param type
+         * @param typeCheck
          */
         ofType<TOutput extends TValue>(typeCheck: (item: TValue) => item is TOutput): LinqIterable<TOutput>;
 
@@ -180,6 +180,14 @@ declare module 'modern-linq' {
          * @param secondIterable
          */
         union(secondIterable: Iterable<TValue>): LinqIterable<TValue>;
+
+
+        /**
+         * Return an intersection of two iterables where the result is distinct values.
+         * @param secondIterable
+         * @param comparer optional predicate, if none is provided a default one (===) is used.
+         */
+        intersect(secondIterable: Iterable<TValue>, comparer?: (first: TValue, second: TValue) => boolean): LinqIterable<TValue>;
 
         /**
          * Create a paging
