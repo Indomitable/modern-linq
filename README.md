@@ -63,8 +63,11 @@ Methods implemented:
 - `distinct`
 - `elementAt`
 - `first`
+- `firstOrDefault`
 - `groupJoin`
 - `join`
+- `last`
+- `lastOrDefault`
 - `max`
 - `min`
 - `ofType`
@@ -94,7 +97,6 @@ Waiting for implementation:
 - `contains`
 - `except`
 - `intersect`
-- `last`
 - `zip`
 
 Extra methods
@@ -103,7 +105,9 @@ Extra methods
 - `join` (with string argument): join all elements of sequence and concat with separator
 - `allAndEvery`: check a condition against all elements of sequence and sequence should not be empty.
 - `firstOrThrow`: returns first element if none throw error.
-
+- `lastOrThrow`: returns last element if none throw error.
+- `fistIndex`: return index of first element which is true for a predicate
+- `lastIndex`: return index of last element which is true for a predicate
 
 Build status:  
 [![Build Status](https://travis-ci.com/Indomitable/modern-linq.svg?branch=master)](https://travis-ci.com/Indomitable/modern-linq)

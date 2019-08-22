@@ -234,9 +234,42 @@ declare module 'modern-linq' {
         firstOrDefault(def: TValue, predicate?: (item: TValue) => boolean): TValue;
 
         /**
-         * Get first item of iterable, if no items throw RangeError
+         * Get first item of iterable, if no items throw TypeError
          */
-        firstOrThrow(): TValue | never;
+        firstOrThrow(predicate?: (item: TValue) => boolean): TValue | never;
+
+        /**
+         * Get index of first found item in sequence
+         * @param predicate predicate for the item
+         * @return index of item, when not found -1
+         */
+        firstIndex(predicate: (item: TValue) => boolean): number;
+
+        /**
+         * Get last item of iterable
+         * @param predicate optional predicate for the item
+         */
+        last(predicate?: (item: TValue) => boolean): TValue | undefined;
+
+        /**
+         * Get last item of iterable, if does not contain any return default
+         * @param def
+         * @param predicate optional check function
+         */
+        lastOrDefault(def: TValue, predicate?: (item: TValue) => boolean): TValue;
+
+        /**
+         * Get last item of iterable, if no items throw TypeError
+         * @param predicate optional check function
+         */
+        lastOrThrow(predicate?: (item: TValue) => boolean): TValue | never;
+
+        /**
+         * Get index of last found item in sequence
+         * @param predicate predicate for the item
+         * @return index of item, when not found -1
+         */
+        lastIndex(predicate: (item: TValue) => boolean): number;
 
         /**
          * Checks if iterable has only one item and returns it.

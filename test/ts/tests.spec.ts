@@ -199,4 +199,70 @@ describe("typescript tests", () => {
         expect(result[0] instanceof A).to.be.true;
         expect(result[1] instanceof C).to.be.true;
     });
+
+    it('first', () => {
+        expect(from([1, 2, 3]).first()).to.be.equal(1);
+        expect(from([]).first()).to.be.equal(void 0);
+
+        expect(from([1, 2, 3]).first(x => x === 2)).to.be.equal(2);
+        expect(from([]).first(x => x === 10)).to.be.equal(void 0);
+        expect(from([1, 2, 3]).first(x => x === 10)).to.be.equal(void 0);
+    });
+
+    it('firstIndex', () => {
+        expect(from([1, 2, 3]).firstIndex(x => x === 3)).to.be.equal(2);
+        expect(from([]).firstIndex(x => x === 3)).to.be.equal(-1);
+        expect(from([1, 2, 3]).firstIndex(x => x === 10)).to.be.equal(-1);
+    });
+
+    it('firstOrDefault', () => {
+        expect(from([1, 2, 3]).firstOrDefault(5)).to.be.equal(1);
+        expect(from([]).firstOrDefault(5)).to.be.equal(5);
+
+        expect(from([1, 2, 3]).firstOrDefault(5,x => x === 2)).to.be.equal(2);
+        expect(from([]).firstOrDefault(5,x => x === 10)).to.be.equal(5);
+        expect(from([1, 2, 3]).firstOrDefault(10,x => x === 10)).to.be.equal(10);
+    });
+
+    it('firstOrThrow', () => {
+        expect(from([1, 2, 3]).firstOrThrow()).to.be.equal(1);
+        expect(function () { from([]).firstOrThrow() }).to.throw(TypeError);
+
+        expect(from([1, 2, 3]).firstOrThrow(x => x === 2)).to.be.equal(2);
+        expect(function () { from([]).firstOrThrow(x => x === 2) }).to.throw(TypeError);
+        expect(function () { from([1, 2, 3]).firstOrThrow(x => x === 10) }).to.throw(TypeError);
+    });
+
+    it('last', () => {
+        expect(from([1, 2, 3]).last()).to.be.equal(3);
+        expect(from([]).last()).to.be.equal(void 0);
+
+        expect(from([1, 2, 2, 3]).last(x => x === 2)).to.be.equal(2);
+        expect(from([]).last(x => x === 10)).to.be.equal(void 0);
+        expect(from([1, 2, 3]).last(x => x === 10)).to.be.equal(void 0);
+    });
+
+    it('lastOrDefault', () => {
+        expect(from([1, 2, 3]).lastOrDefault(5)).to.be.equal(3);
+        expect(from([]).lastOrDefault(5)).to.be.equal(5);
+
+        expect(from([1, 2, 3]).lastOrDefault(5,x => x === 2)).to.be.equal(2);
+        expect(from([]).lastOrDefault(5,x => x === 10)).to.be.equal(5);
+        expect(from([1, 2, 3]).lastOrDefault(10,x => x === 10)).to.be.equal(10);
+    });
+
+    it('lastOrThrow', () => {
+        expect(from([1, 2, 3]).lastOrThrow()).to.be.equal(3);
+        expect(function () { from([]).lastOrThrow() }).to.throw(TypeError);
+
+        expect(from([1, 2, 3]).lastOrThrow(x => x === 2)).to.be.equal(2);
+        expect(function () { from([]).lastOrThrow(x => x === 2) }).to.throw(TypeError);
+        expect(function () { from([1, 2, 3]).lastOrThrow(x => x === 10) }).to.throw(TypeError);
+    });
+
+    it('lastIndex', () => {
+        expect(from([1, 2, 3, 2, 3]).lastIndex(x => x === 3)).to.be.equal(4);
+        expect(from([]).lastIndex(x => x === 3)).to.be.equal(-1);
+        expect(from([1, 2, 3]).lastIndex(x => x === 10)).to.be.equal(-1);
+    });
 });

@@ -27,6 +27,7 @@ import { TakeWhileIterable } from "./iterables/take-while";
 import { SkipWhileIterable } from "./iterables/skip-while";
 import { TakeLastIterable } from "./iterables/take-last";
 import { SkipLastIterable } from "./iterables/skip-last";
+import { LastFinalizer } from "./finalizers/last";
 
 export const linqMixin = {
     where(predicate) {
@@ -123,8 +124,23 @@ export const linqMixin = {
     firstOrDefault(def, predicate) {
         return FirstFinalizer.getOrDefault(this, def, predicate);
     },
-    firstOrThrow() {
-        return FirstFinalizer.getOrThrow(this);
+    firstOrThrow(predicate) {
+        return FirstFinalizer.getOrThrow(this, predicate);
+    },
+    firstIndex(predicate) {
+        return FirstFinalizer.firstIndex(this, predicate);
+    },
+    last(predicate) {
+        return LastFinalizer.get(this, predicate);
+    },
+    lastOrDefault(def, predicate) {
+        return LastFinalizer.getOrDefault(this, def, predicate);
+    },
+    lastOrThrow(predicate) {
+        return LastFinalizer.getOrThrow(this, predicate);
+    },
+    lastIndex(predicate) {
+        return LastFinalizer.lastIndex(this, predicate);
     },
     single(predicate) {
         return SingleFinalizer.get(this, predicate);
