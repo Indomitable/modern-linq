@@ -181,13 +181,18 @@ declare module 'modern-linq' {
          */
         union(secondIterable: Iterable<TValue>): LinqIterable<TValue>;
 
+        /**
+         * Return an intersection of two iterables where the result is distinct values.
+         * @param secondIterable
+         */
+        intersect(secondIterable: Iterable<TValue>): LinqIterable<TValue>;
 
         /**
          * Return an intersection of two iterables where the result is distinct values.
          * @param secondIterable
          * @param comparer optional predicate, if none is provided a default one (===) is used.
          */
-        intersect(secondIterable: Iterable<TValue>, comparer?: (first: TValue, second: TValue) => boolean): LinqIterable<TValue>;
+        intersect<TSecond = TValue>(secondIterable: Iterable<TSecond>, comparer?: (first: TValue, second: TSecond) => boolean): LinqIterable<TValue>;
 
         /**
          * Create a paging

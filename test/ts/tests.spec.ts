@@ -290,5 +290,7 @@ describe("typescript tests", () => {
         expect(from(new Set([1, 2, 3])).intersect([3, 2]).toArray()).to.deep.equal([2, 3]);
         expect(from([1, 2, 3, 2]).intersect([3, 2, 3]).toArray()).to.deep.equal([2, 3]);
         expect(from([1, 2, 3, 2]).intersect([3, 2, 3], (a, b) => a === b).toArray()).to.deep.equal([2, 3]);
+
+        expect(from([1, 2, 3, 2]).intersect(['1', '2'], (a, b) => a.toString() === b).toArray()).to.deep.equal([1, 2]);
     });
 });
