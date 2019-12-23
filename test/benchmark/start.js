@@ -1,46 +1,27 @@
 import { from } from '../../index.esm';
-import * as selectBenches from './select.perf'
-import * as whereBenches from './where.perf'
-import * as takeBenches from './take.perf'
-import * as skipBenches from './skip.perf'
-import * as sortBenches from './sort.perf'
-import * as distinctBenches from './distinct.perf';
+import * as benchmarks from './export';
 
 import Benchmark from 'benchmark';
 
 const suit = new Benchmark.Suite('modern-linq bechrmark tests');
 
-const requested = from(process.argv).where(a => a.startsWith('--')).join(',');
-if (requested.length === 0) {
-    from(selectBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    from(whereBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    from(takeBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    from(skipBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    from(sortBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    from(distinctBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-} else {
-    if (requested.indexOf('--select') > -1) {
-        from(selectBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    }
-    if (requested.indexOf('--where') > -1) {
-        from(whereBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    }
-    if (requested.indexOf('--take') > -1) {
-        from(takeBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    }
-    if (requested.indexOf('--skip') > -1) {
-        from(skipBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    }
-    if (requested.indexOf('--sort') > -1) {
-        from(sortBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    }
-    if (requested.indexOf('--distinct') > -1) {
-        from(distinctBenches).forEach(e => suit.add(e.value.name, e.value.fn));
-    }
+const suitParamIndex = process.argv.indexOf('--suit');
+let suitName = '';
+if (suitParamIndex > -1) {
+    suitName = process.argv[suitParamIndex + 1];
 }
 
+const regEx = new RegExp('^\\[(.+)]\\s(.+)$');
+const keys = Object.keys(benchmarks);
+keys.forEach(k => {
+    const bench = benchmarks[k];
+    const benchSuit = regEx.exec(bench.name)[1];
+    if (!suitName || benchSuit === suitName) {
+        suit.add(bench.name, bench.fn);
+    }
+});
+
 suit.on('complete', function () {
-    const regEx = new RegExp('^\\[(.+)]\\s(.+)$');
     const formatNumber = (num) => {
         if (num.indexOf('.') > -1 || num.length < 4) {
             return num;

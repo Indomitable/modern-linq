@@ -14,7 +14,7 @@
     "test-js": "mocha --require @babel/register test/unit/*.spec.js",
     "test-ts": " tsc -p ./test/ts/tsconfig.json && mocha --require @babel/register test/ts/*.spec.js && rm test/ts/*.spec.js",
     "test": "yarn test-js && yarn test-ts",
-    "benchmark": "node --experimental-modules --es-module-specifier-resolution=node test/benchmark"
+    "benchmark": "node --experimental-modules --es-module-specifier-resolution=node test/benchmark/start.js"
   },
   "repository": {
     "type": "git",

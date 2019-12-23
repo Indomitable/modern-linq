@@ -17,10 +17,10 @@ export const selectIterableInput = new Benchmark('[select] iterable input', () =
     from(iterable).select(_ => _ * 3).toArray();
 });
 
-export const selectIterate = new Benchmark('[selectIterate] iterate through iterable', () => {
+export const selectIterate = new Benchmark('[select] iterate through iterable', () => {
     Array.from(from(iterable).select(_ => _ * 3));
 });
 
-export const selectIterateArray = new Benchmark('[selectIterate] iterate through array', () => {
+export const selectIterateArray = new Benchmark('[select] iterate through array', () => {
     Array.from(from(array).select(_ => _ * 3));
 });

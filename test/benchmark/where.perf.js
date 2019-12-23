@@ -17,12 +17,12 @@ export const whereIterableInput = new Benchmark('[where] iterable input', () => 
     from(iterable).where(_ => _ % 2 === 1).toArray();
 });
 
-export const whereIterate = new Benchmark('[whereIterate] iterate through iterable', () => {
+export const whereIterate = new Benchmark('[where] iterate through iterable', () => {
    for (const i of from(iterable).where(_ => _ % 2 === 1)) {
    }
 });
 
-export const whereIterateArray = new Benchmark('[whereIterate] iterate through array', () => {
+export const whereIterateArray = new Benchmark('[where] iterate through array', () => {
     for (const i of (from(array).where(_ => _ % 2 === 1))) {
     }
 });
