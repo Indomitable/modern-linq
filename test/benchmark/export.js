@@ -4,3 +4,4 @@ export * from './take.perf'
 export * from './skip.perf'
 export * from './sort.perf'
 export * from './distinct.perf';
+export * from './select-many.perf';

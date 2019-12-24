@@ -1,4 +1,4 @@
-import { WhereIterable } from "./iterables/where";
+import { WhereIterable, WhereIterableFactory } from "./iterables/where";
 import { SelectIterable } from "./iterables/select";
 import { SelectManyIterable } from "./iterables/select-many";
 import { FirstFinalizer } from "./finalizers/first";
@@ -32,7 +32,7 @@ import { IntersectIterable } from "./iterables/intersect";
 
 export const linqMixin = {
     where(predicate) {
-        return new WhereIterable(this, predicate);
+        return WhereIterableFactory.create(this, predicate);
     },
     select(map) {
         return new SelectIterable(this, map);

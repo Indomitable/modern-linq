@@ -1,7 +1,7 @@
 import { RangeIterable } from "./generators/range";
 import { BaseLinqIterable } from "./base-linq-iterable";
 import { RepeatIterable } from "./generators/repeat";
-import { doneValue, iteratorResultCreator } from "./utils";
+import { getIterator, doneValue, iteratorResultCreator } from "./utils";
 
 export class LinqIterable extends BaseLinqIterable {
     constructor(source) {
@@ -13,7 +13,7 @@ export class LinqIterable extends BaseLinqIterable {
     }
 
     [Symbol.iterator]() {
-        return this._getIterator(this.source);
+        return getIterator(this.source);
     }
 }
 
@@ -28,7 +28,7 @@ export class ArrayLikeIterable extends BaseLinqIterable {
 
     [Symbol.iterator]() {
         if (Array.isArray(this.source)) {
-            return this._getIterator(this.source);
+            return getIterator(this.source);
         }
         const length = this.source.length;
         const source = this.source;

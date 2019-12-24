@@ -22,7 +22,6 @@ export class BaseLinqIterable {
     }
 }
 
-
 export class NativeProcessingLinqIterable extends BaseLinqIterable {
     constructor(source) {
         super(source);
