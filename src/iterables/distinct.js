@@ -1,33 +1,26 @@
-import { BaseLinqIterable } from "../base-linq-iterable";
+import {getIterator} from "../utils";
 
 /**
  * Returns distinct values
  */
-export class DistinctIterable extends BaseLinqIterable {
+export class DistinctIterable {
     /**
      *
      * @param {Iterable} source
      * @param {Function} comparer comparer function. if not provider use native Set.
      */
     constructor(source, comparer) {
-        super(source);
+        this.source = source;
         this.comparer = comparer;
     }
 
-    get() {
-        if (!this.comparer) {
-            return new Set(this._getSource());
-        }
-        return this;
-    }
-
     [Symbol.iterator]() {
-        const source = this._getSource();
+        const source = this.source.get();
         if (!this.comparer) {
             const set = new Set(source);
-            return this._getIterator(set);
+            return getIterator(set);
         }
-        const iterator = this._getIterator(source);
+        const iterator = getIterator(source);
         const itemChecker = new DistinctItemChecker(this.comparer);
         return {
             next() {
@@ -45,6 +38,10 @@ export class DistinctIterable extends BaseLinqIterable {
                 }
             }
         };
+    }
+
+    get() {
+        return this;
     }
 }
 

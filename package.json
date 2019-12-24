@@ -42,21 +42,21 @@
     "LICENSE"
   ],
   "devDependencies": {
-    "@babel/cli": "^7.5.5",
-    "@babel/core": "^7.5.5",
-    "@babel/node": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
-    "@babel/register": "^7.5.5",
-    "@types/chai": "^4.2.0",
+    "@babel/cli": "^7.7.7",
+    "@babel/core": "^7.7.7",
+    "@babel/plugin-proposal-private-methods": "^7.7.4",
+    "@babel/preset-env": "^7.7.7",
+    "@babel/register": "^7.7.7",
+    "@types/chai": "^4.2.7",
     "@types/mocha": "^5.2.7",
-    "babel-plugin-module-resolver": "^3.2.0",
+    "babel-plugin-module-resolver": "^4.0.0",
     "benchmark": "^2.1.4",
     "chai": "^4.2.0",
     "microtime": "^3.0.0",
-    "mocha": "^6.2.0",
-    "nyc": "^14.1.1",
-    "rollup": "^1.17.0",
+    "mocha": "^6.2.2",
+    "nyc": "^15.0.0",
+    "rollup": "^1.27.14",
     "rollup-plugin-babel": "^4.3.3",
-    "typescript": "^3.5.3"
+    "typescript": "^3.7.4"
   }
 }

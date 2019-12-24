@@ -4,8 +4,13 @@
  * @param {Function[]} destinations
  */
 export function applyMixin(mixin, destinations) {
+    const keys = Object.keys(mixin);
     for (const dest of destinations) {
-        Object.assign(dest.prototype, mixin);
+        for (const mixinKey of keys) {
+            if (!dest.prototype[mixinKey]) {
+                dest.prototype[mixinKey] = mixin[mixinKey];
+            }
+        }
     }
 }
 

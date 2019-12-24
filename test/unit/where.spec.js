@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { from, fromIterable } from '../../src';
+import {expect} from 'chai';
+import {from, fromIterable} from '../../src';
 
 describe('where tests', () => {
     [
@@ -36,6 +36,11 @@ describe('where tests', () => {
     it('should be able to work with strings', () => {
         const res = from('aabbccdd').where(_ => _ !== 'a' && _ !== 'd').join('');
         expect(res).to.equal('bbcc');
+    });
+
+    it('should use array filter when array and the return it in toArray()', () => {
+        const res = from([1, 2, 3, 4]).where(_ => _ % 2 === 0).toArray();
+        expect(res.length).to.equal(2);
     });
 });
 

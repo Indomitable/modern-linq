@@ -1,16 +1,13 @@
 /**
  * Generates range of numbers [from, to)
  */
-import { BaseLinqIterable } from "../base-linq-iterable";
-
-export class RangeIterable extends BaseLinqIterable {
+export default class RangeIterable {
     /**
      * The range is [from, to)
      * @param {number} from
      * @param {number} to
      */
     constructor(from, to) {
-        super([]);
         this.from = from;
         this.to = to;
     }
@@ -55,5 +52,9 @@ export class RangeIterable extends BaseLinqIterable {
                 return { done: true }
             }
         };
+    }
+
+    get() {
+        return this;
     }
 }

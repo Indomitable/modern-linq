@@ -1,17 +1,17 @@
-import { BaseLinqIterable } from "../base-linq-iterable";
 import { getIterator, doneValue, iteratorResultCreator } from "../utils";
+import {ToArrayArrayFinalizer} from "../finalizers/to-array";
 
 /**
  * Return filtred array [1, 2, 3, 4].where(x => x % 2 === 0) === [2, 4]
  */
-export class WhereIterable extends BaseLinqIterable {
+export class WhereIterable {
     /**
      *
      * @param {Iterable} source
      * @param {Function} predicate
      */
     constructor(source, predicate) {
-        super(source);
+        this.source = source;
         this.predicate = predicate;
     }
 
@@ -28,13 +28,17 @@ export class WhereIterable extends BaseLinqIterable {
     }
 
     [Symbol.iterator]() {
-        const iterator = this._getSourceIterator();
+        const iterator = getIterator(this.source.get());
         const predicate = this.predicate;
         return {
             next() {
                 return WhereIterable.__findNext(iterator, predicate);
             }
         };
+    }
+
+    get() {
+        return this;
     }
 }
 
@@ -52,11 +56,15 @@ export class ArrayFilterIterable {
     get() {
         return this.array.filter(_ => this.predicate(_));
     }
+
+    toArray(mapper) {
+        return ToArrayArrayFinalizer.get(this, mapper);
+    }
 }
 
 export class WhereIterableFactory {
     static create(source, predicate) {
         const input = source.get();
-        return Array.isArray(input) ? new ArrayFilterIterable(input, predicate) : new WhereIterable(source, predicate);
+        return Array.isArray(input) ? new ArrayFilterIterable(input, predicate) : new WhereIterable(input, predicate);
     }
 }

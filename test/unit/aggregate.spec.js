@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fromIterable, range } from "../../src";
+import { fromIterable, range } from "../../src/index";
 
 describe('aggregate tests', () => {
     [

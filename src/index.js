@@ -1,12 +1,17 @@
 import { applyMixin } from './utils';
-import { ArrayLikeIterable, LinqIterable, ObjectIterable } from './creation';
+
+import LinqIterable from './iterables/initial/linq';
+import ArrayIterable from './iterables/initial/array';
+import ArrayLikeIterable from './iterables/initial/array-like';
+import ObjectIterable from './iterables/initial/object';
+
 import { linqMixin } from './linq-mixin';
 import { ArrayFilterIterable, WhereIterable } from './iterables/where';
 import { SelectIterable } from './iterables/select';
 import { SelectManyIterable } from './iterables/select-many';
 import { TakeIterable } from './iterables/take';
 import { SkipIterable } from './iterables/skip';
-import { RangeIterable } from './generators/range';
+import RangeIterable from './generators/range';
 import { DistinctIterable } from './iterables/distinct';
 import { Grouping, GroupIterable } from './iterables/group';
 import { OrderIterable, OrderIterableDescending } from "./iterables/order";
@@ -14,7 +19,7 @@ import { ConcatIterable } from "./iterables/concat";
 import { UnionIterable } from "./iterables/union";
 import { GroupJoinIterable } from "./iterables/group-join";
 import { JoinIterable } from "./iterables/join";
-import { RepeatIterable } from "./generators/repeat";
+import RepeatIterable from './generators/repeat';
 import { PageIterable } from "./iterables/page";
 import { ReverseIterable } from "./iterables/reverse";
 import { TakeWhileIterable } from "./iterables/take-while";
@@ -26,6 +31,7 @@ import { IntersectIterable } from "./iterables/intersect";
 // note: if using class as output we can just apply the mixin to BaseLinqIterable.
 applyMixin(linqMixin, [
     LinqIterable,
+    ArrayIterable,
     ArrayLikeIterable,
     ObjectIterable,
     WhereIterable,

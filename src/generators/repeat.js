@@ -1,7 +1,5 @@
-import { BaseLinqIterable } from "../base-linq-iterable";
-export class RepeatIterable extends BaseLinqIterable {
+export default class RepeatIterable {
     constructor(value, times) {
-        super([]);
         this.value = value;
         this.times = times;
     }
@@ -20,5 +18,9 @@ export class RepeatIterable extends BaseLinqIterable {
                 }
             }
         };
+    }
+
+    get() {
+        return this;
     }
 }
