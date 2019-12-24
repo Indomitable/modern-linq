@@ -18,6 +18,6 @@ export class ToArrayArrayFinalizer {
         if (!mapper) {
             return source.get();
         }
-        return source.map(mapper).toArray();
+        return source.get().map(mapper);
     }
 }
